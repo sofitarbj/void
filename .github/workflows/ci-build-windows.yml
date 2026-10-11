@@ -74,6 +74,11 @@ jobs:
         env:
           NODE_OPTIONS: '--max-old-space-size=8192'
 
+      - name: Setup Inno Updater tools
+        run: npx gulp vscode-win32-x64-inno-updater
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
+
       - name: Build User Installer
         run: npx gulp vscode-win32-x64-user-setup
         env:
