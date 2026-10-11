@@ -1,7 +1,13 @@
-name: CI Build — Windows
+name: CI Build & Release — Windows
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 env:
   NODE_VERSION: '20.x'
@@ -80,3 +86,13 @@ jobs:
           name: Codeen-Windows-x64-${{ env.VERSION }}
           path: .build/win32-x64/user-setup/*
           retention-days: 7
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: .build/win32-x64/user-setup/*
+          name: Codeen IDE v${{ env.VERSION }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false

@@ -95,56 +95,51 @@ export class VoidMainUpdateService extends Disposable implements IVoidUpdateServ
 
 	private async _manualCheckGHTagIfDisabled(explicit: boolean): Promise<VoidCheckUpdateRespose> {
 		try {
-			const response = await fetch('https://api.github.com/repos/voideditor/binaries/releases/latest');
+			const response = await fetch('https://api.github.com/repos/sofitarbj/void/releases/latest');
 
 			const data = await response.json();
 			const version = data.tag_name;
 
-			const myVersion = this._productService.version
-			const latestVersion = version
+			const myVersion = this._productService.version;
+			const latestVersion = version;
 
-			const isUpToDate = myVersion === latestVersion // only makes sense if response.ok
+			const isUpToDate = myVersion === latestVersion;
 
-			let message: string | null
-			let action: 'reinstall' | undefined
+			let message: string | null;
+			let action: 'reinstall' | undefined;
 
 			// explicit
 			if (explicit) {
 				if (response.ok) {
 					if (!isUpToDate) {
-						message = 'A new version of Void is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!'
-						action = 'reinstall'
+						message = `Une nouvelle version de Codeen (${latestVersion}) est disponible ! Téléchargez la mise à jour depuis GitHub.`;
+						action = 'reinstall';
+					} else {
+						message = 'Codeen IDE est à jour !';
 					}
-					else {
-						message = 'Void is up-to-date!'
-					}
-				}
-				else {
-					message = `An error occurred when fetching the latest GitHub release tag. Please try again in ~5 minutes, or reinstall.`
-					action = 'reinstall'
+				} else {
+					message = `Impossible de récupérer la dernière release Codeen sur GitHub. Réessayez dans quelques instants.`;
+					action = 'reinstall';
 				}
 			}
 			// not explicit
 			else {
 				if (response.ok && !isUpToDate) {
-					message = 'A new version of Void is available! Please reinstall (auto-updates are disabled on this OS) - it only takes a second!'
-					action = 'reinstall'
-				}
-				else {
-					message = null
+					message = `Une nouvelle version de Codeen (${latestVersion}) est disponible !`;
+					action = 'reinstall';
+				} else {
+					message = null;
 				}
 			}
-			return { message, action } as const
-		}
-		catch (e) {
+			return { message, action } as const;
+		} catch (e) {
 			if (explicit) {
 				return {
-					message: `An error occurred when fetching the latest GitHub release tag: ${e}. Please try again in ~5 minutes.`,
+					message: `Erreur lors de la vérification des mises à jour : ${e}.`,
 					action: 'reinstall',
-				}
-			}
-			else {
-				return { message: null } as const
+				};
+			} else {
+				return { message: null } as const;
 			}
 		}
 	}

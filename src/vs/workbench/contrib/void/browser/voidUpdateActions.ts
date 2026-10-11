@@ -6,7 +6,7 @@
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import Severity from '../../../../base/common/severity.js';
 import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js';
-import { localize2 } from '../../../../nls.js';
+import { localize, localize2 } from '../../../../nls.js';
 import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
 import { INotificationActions, INotificationHandle, INotificationService } from '../../../../platform/notification/common/notification.js';
 import { IMetricsService } from '../common/metricsService.js';
@@ -16,12 +16,13 @@ import * as dom from '../../../../base/browser/dom.js';
 import { IUpdateService } from '../../../../platform/update/common/update.js';
 import { VoidCheckUpdateRespose } from '../common/voidUpdateServiceTypes.js';
 import { IAction } from '../../../../base/common/actions.js';
+import { IStatusbarService, StatusbarAlignment, IStatusbarEntryAccessor } from '../../../services/statusbar/browser/statusbar.js';
 
 
 
 
 const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifService: INotificationService, updateService: IUpdateService): INotificationHandle => {
-	const message = res?.message || 'This is a very old version of Codeen, please download the latest version! [Codeen Editor](https://voideditor.com/download-beta)!'
+	const message = res?.message || 'Une nouvelle version de Codeen est disponible ! Téléchargez la dernière version sur GitHub : [Codeen IDE Releases](https://github.com/sofitarbj/void/releases) !'
 
 	let actions: INotificationActions | undefined
 
@@ -30,21 +31,21 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 
 		if (res.action === 'reinstall') {
 			primary.push({
-				label: `Reinstall`,
+				label: `Télécharger`,
 				id: 'void.updater.reinstall',
 				enabled: true,
 				tooltip: '',
 				class: undefined,
 				run: () => {
 					const { window } = dom.getActiveWindow()
-					window.open('https://voideditor.com/download-beta')
+					window.open('https://github.com/sofitarbj/void/releases/latest')
 				}
 			})
 		}
 
 		if (res.action === 'download') {
 			primary.push({
-				label: `Download`,
+				label: `Télécharger`,
 				id: 'void.updater.download',
 				enabled: true,
 				tooltip: '',
@@ -58,7 +59,7 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 
 		if (res.action === 'apply') {
 			primary.push({
-				label: `Apply`,
+				label: `Appliquer`,
 				id: 'void.updater.apply',
 				enabled: true,
 				tooltip: '',
@@ -71,7 +72,7 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 
 		if (res.action === 'restart') {
 			primary.push({
-				label: `Restart`,
+				label: `Redémarrer`,
 				id: 'void.updater.restart',
 				enabled: true,
 				tooltip: '',
@@ -85,12 +86,12 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 		primary.push({
 			id: 'void.updater.site',
 			enabled: true,
-			label: `Void Site`,
+			label: `Releases GitHub`,
 			tooltip: '',
 			class: undefined,
 			run: () => {
 				const { window } = dom.getActiveWindow()
-				window.open('https://voideditor.com/')
+				window.open('https://github.com/sofitarbj/void/releases')
 			}
 		})
 
@@ -205,24 +206,99 @@ class VoidUpdateWorkbenchContribution extends Disposable implements IWorkbenchCo
 		@IMetricsService metricsService: IMetricsService,
 		@INotificationService notifService: INotificationService,
 		@IUpdateService updateService: IUpdateService,
+		@IStatusbarService statusbarService: IStatusbarService,
 	) {
 		super()
 
-		const autoCheck = () => {
-			performVoidCheck(false, notifService, voidUpdateService, metricsService, updateService)
-		}
+		let statusbarAccessor: IStatusbarEntryAccessor | undefined;
+
+		const updateStatusBar = (action?: string) => {
+			if (!action) {
+				statusbarAccessor?.dispose();
+				statusbarAccessor = undefined;
+				return;
+			}
+
+			let text = '$(cloud-download) Codeen Update';
+			let tooltip = 'Une nouvelle version de Codeen est disponible. Cliquez pour voir.';
+
+			if (action === 'restart') {
+				text = '$(sync) Redémarrer Codeen';
+				tooltip = 'Mise à jour prête. Cliquez pour redémarrer et installer.';
+			} else if (action === 'apply') {
+				text = '$(cloud-download) Appliquer mise à jour';
+				tooltip = 'Mise à jour téléchargée. Cliquez pour appliquer.';
+			} else if (action === 'download') {
+				text = '$(cloud-download) Télécharger mise à jour';
+				tooltip = 'Nouvelle version disponible au téléchargement.';
+			} else if (action === 'reinstall') {
+				text = '$(cloud-download) Mise à jour disponible';
+				tooltip = 'Une nouvelle version de Codeen IDE est disponible sur GitHub.';
+			}
+
+			if (!statusbarAccessor) {
+				statusbarAccessor = statusbarService.addEntry(
+					{
+						name: localize('codeenUpdateEntry', 'Mise à jour Codeen'),
+						text,
+						ariaLabel: tooltip,
+						tooltip,
+						command: 'void.voidCheckUpdate',
+					},
+					'codeen.updateStatus',
+					StatusbarAlignment.RIGHT,
+					200
+				);
+			} else {
+				statusbarAccessor.update({
+					name: localize('codeenUpdateEntry', 'Mise à jour Codeen'),
+					text,
+					ariaLabel: tooltip,
+					tooltip,
+					command: 'void.voidCheckUpdate',
+				});
+			}
+		};
+
+		const autoCheck = async () => {
+			const res = await voidUpdateService.check(false);
+			if (res?.action) {
+				updateStatusBar(res.action);
+				performVoidCheck(false, notifService, voidUpdateService, metricsService, updateService);
+			} else {
+				updateStatusBar(undefined);
+			}
+		};
+
+		// Écoute les changements d'état du service natif d'update
+		this._register(updateService.onDidUpdateState(() => {
+			const state = updateService.state;
+			if (state.type === 'ready') {
+				updateStatusBar('restart');
+			} else if (state.type === 'downloaded') {
+				updateStatusBar('apply');
+			} else if (state.type === 'available for download') {
+				updateStatusBar('download');
+			} else if (state.type === 'idle' || state.type === 'uninitialized') {
+				updateStatusBar(undefined);
+			}
+		}));
 
 		// check once 5 seconds after mount
 		// check every 3 hours
-		const { window } = dom.getActiveWindow()
+		const { window } = dom.getActiveWindow();
 
-		const initId = window.setTimeout(() => autoCheck(), 5 * 1000)
-		this._register({ dispose: () => window.clearTimeout(initId) })
+		const initId = window.setTimeout(() => autoCheck(), 5 * 1000);
+		this._register({ dispose: () => window.clearTimeout(initId) });
 
+		const intervalId = window.setInterval(() => autoCheck(), 3 * 60 * 60 * 1000); // every 3 hrs
+		this._register({ dispose: () => window.clearInterval(intervalId) });
 
-		const intervalId = window.setInterval(() => autoCheck(), 3 * 60 * 60 * 1000) // every 3 hrs
-		this._register({ dispose: () => window.clearInterval(intervalId) })
-
+		this._register({
+			dispose: () => {
+				statusbarAccessor?.dispose();
+			}
+		});
 	}
 }
 registerWorkbenchContribution2(VoidUpdateWorkbenchContribution.ID, VoidUpdateWorkbenchContribution, WorkbenchPhase.BlockRestore);
