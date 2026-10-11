@@ -66,9 +66,37 @@
 
 		<!-- Workbench CSS -->
 		<link rel="stylesheet" href="../../../workbench/workbench.desktop.main.css">
+		<style>
+			#monaco-parts-splash {
+				position: fixed;
+				inset: 0;
+				width: 100vw;
+				height: 100vh;
+				background-color: #0b0d0e;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				z-index: 10000;
+				overflow: hidden;
+			}
+			.codeen-splash-watermark {
+				width: 160px;
+				height: 160px;
+				background-image: url('codeen-splash.svg');
+				background-repeat: no-repeat;
+				background-position: center;
+				background-size: contain;
+				opacity: 0.18;
+				filter: drop-shadow(0 0 24px rgba(0, 220, 130, 0.25));
+				pointer-events: none;
+			}
+		</style>
 	</head>
 
 	<body aria-label="">
+		<div id="monaco-parts-splash" class="vs-dark">
+			<div class="codeen-splash-watermark"></div>
+		</div>
 	</body>
 
 	<!-- Startup (do not modify order of script tags!) -->

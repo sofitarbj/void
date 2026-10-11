@@ -1,5 +1,6 @@
 import { CancellationToken } from '../../../../base/common/cancellation.js'
 import { URI } from '../../../../base/common/uri.js'
+import { VSBuffer } from '../../../../base/common/buffer.js'
 import { IFileService } from '../../../../platform/files/common/files.js'
 import { registerSingleton, InstantiationType } from '../../../../platform/instantiation/common/extensions.js'
 import { createDecorator, IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js'
@@ -19,6 +20,9 @@ import { RawToolParamsObj } from '../common/sendLLMMessageTypes.js'
 import { MAX_CHILDREN_URIs_PAGE, MAX_FILE_CHARS_PAGE, MAX_TERMINAL_BG_COMMAND_TIME, MAX_TERMINAL_INACTIVE_TIME } from '../common/prompt/prompts.js'
 import { IVoidSettingsService } from '../common/voidSettingsService.js'
 import { generateUuid } from '../../../../base/common/uuid.js'
+import { ISkillService } from './skillService.js'
+import { PolicyEngine, isPathInWorkspace, Policy } from '../common/agent/policyEngine.js';
+import { classifyCommand } from '../common/securityUtils.js';
 
 
 // tool use for AI
@@ -153,6 +157,7 @@ export class ToolsService implements IToolsService {
 		@IDirectoryStrService private readonly directoryStrService: IDirectoryStrService,
 		@IMarkerService private readonly markerService: IMarkerService,
 		@IVoidSettingsService private readonly voidSettingsService: IVoidSettingsService,
+		@ISkillService private readonly skillService: ISkillService,
 	) {
 		const queryBuilder = instantiationService.createInstance(QueryBuilder);
 
@@ -240,6 +245,13 @@ export class ToolsService implements IToolsService {
 				return { uri, isFolder }
 			},
 
+			write_to_file: (params: RawToolParamsObj) => {
+				const { uri: uriStr, content: contentUnknown } = params
+				const uri = validateURI(uriStr)
+				const content = validateStr('content', contentUnknown)
+				return { uri, content }
+			},
+
 			delete_file_or_folder: (params: RawToolParamsObj) => {
 				const { uri: uriUnknown, is_recursive: isRecursiveUnknown } = params
 				const uri = validateURI(uriUnknown)
@@ -288,6 +300,52 @@ export class ToolsService implements IToolsService {
 				const { persistent_terminal_id: terminalIdUnknown } = params;
 				const persistentTerminalId = validateProposedTerminalId(terminalIdUnknown);
 				return { persistentTerminalId };
+			},
+			send_command_input: (params: RawToolParamsObj) => {
+				const { persistent_terminal_id: terminalIdUnknown, input } = params;
+				const persistentTerminalId = validateProposedTerminalId(terminalIdUnknown);
+				if (!input) throw new Error('send_command_input: input is required');
+				return { persistentTerminalId, input: input };
+			},
+			todo_list: (params: RawToolParamsObj) => {
+				const { todos } = params;
+				if (!todos) throw new Error('todo_list: todos parameter is required');
+				return { todos: todos };
+			},
+			todo_write: (params: RawToolParamsObj) => {
+				const { todos } = params;
+				if (!todos) throw new Error('todo_write: todos parameter is required');
+				return { todos: todos as any };
+			},
+			ask_user_question: (params: RawToolParamsObj) => {
+				const { question, options, allow_free_text } = params;
+				if (!question) throw new Error('ask_user_question: question is required');
+				return { question: question, options: options || '[]', allowFreeText: allow_free_text !== 'false' };
+			},
+			invoke_skill: (params: RawToolParamsObj) => {
+				const { skill_name } = params;
+				if (!skill_name) throw new Error('invoke_skill: skill_name is required');
+				return { skillName: skill_name };
+			},
+			search_web: (params: RawToolParamsObj) => {
+				const { query } = params;
+				if (!query) throw new Error('search_web: query is required');
+				return { query: query };
+			},
+			read_url_content: (params: RawToolParamsObj) => {
+				const { url } = params;
+				if (!url) throw new Error('read_url_content: url is required');
+				if (typeof url !== 'string' || (!url.startsWith('http://') && !url.startsWith('https://'))) {
+					throw new Error('read_url_content: url must be an HTTP or HTTPS URL');
+				}
+				return { url: url };
+			},
+			create_system_doc: (params: RawToolParamsObj) => {
+				const { type, title, content } = params;
+				if (!type) throw new Error('create_system_doc: type is required');
+				if (!title) throw new Error('create_system_doc: title is required');
+				if (!content) throw new Error('create_system_doc: content is required');
+				return { type: type, title: title, content: content };
 			},
 
 		}
@@ -400,9 +458,30 @@ export class ToolsService implements IToolsService {
 				if (isFolder)
 					await fileService.createFolder(uri)
 				else {
-					await fileService.createFile(uri)
+					await fileService.createFile(uri, VSBuffer.fromString(''))
 				}
 				return { result: {} }
+			},
+
+			write_to_file: async ({ uri, content }) => {
+				// Create parent directories if they don't exist
+				const parentDir = URI.joinPath(uri, '..')
+				try {
+					await fileService.createFolder(parentDir)
+				} catch {
+					// Directory already exists
+				}
+
+				// Write content to file (creates file if doesn't exist)
+				await fileService.writeFile(uri, VSBuffer.fromString(content))
+
+				// Return lint errors like rewrite_file does (as a Promise)
+				const lintErrorsPromise = Promise.resolve().then(async () => {
+					await timeout(2000)
+					const { lintErrors } = this._getLintErrors(uri)
+					return { lintErrors }
+				})
+				return { result: lintErrorsPromise }
 			},
 
 			delete_file_or_folder: async ({ uri, isRecursive }) => {
@@ -461,6 +540,88 @@ export class ToolsService implements IToolsService {
 				await this.terminalToolService.killPersistentTerminal(persistentTerminalId)
 				return { result: {} }
 			},
+			send_command_input: async ({ persistentTerminalId, input }) => {
+				await this.terminalToolService.sendInputToPersistentTerminal(persistentTerminalId, input + '\n')
+				return { result: { result: `Input "${input}" sent to terminal ${persistentTerminalId}.` } }
+			},
+			todo_list: async ({ todos }) => {
+				// Parse the JSON and store in thread state (will be picked up by UI)
+				// The actual storage is handled by chatThreadService via an event
+				return { result: { success: true } }
+			},
+			todo_write: async ({ todos }) => {
+				return { result: { success: true } }
+			},
+			ask_user_question: async ({ question, options, allowFreeText }) => {
+				// This tool suspends execution — the result will be provided by the user
+				// The interruptTool mechanism in chatThreadService handles this
+				return { result: { userResponse: '' }, interruptTool: true } as any
+			},
+			invoke_skill: async ({ skillName }) => {
+				if (skillName === 'list') {
+					const skills = this.skillService.getAvailableSkills()
+					return { result: { skillContent: 'Available skills:\n' + skills.map((s: { name: string; description: string }) => `- ${s.name}: ${s.description}`).join('\n') } }
+				}
+				const skill = this.skillService.getSkillByName(skillName)
+				if (!skill) {
+					return { result: { skillContent: `Skill "${skillName}" not found. Use skill_name="list" to see available skills.` } }
+				}
+				return { result: { skillContent: skill.content } }
+			},
+			search_web: async ({ query }) => {
+				try {
+					const encoded = encodeURIComponent(query)
+					const resp = await fetch(`https://api.duckduckgo.com/?q=${encoded}&format=json&no_html=1&skip_disambig=1`)
+					const data = await resp.json()
+					const results: string[] = []
+					if (data.AbstractText) results.push(`Summary: ${data.AbstractText}`)
+					if (data.RelatedTopics) {
+						for (const topic of data.RelatedTopics.slice(0, 8)) {
+							if (topic.Text) results.push(`- ${topic.Text}`)
+						}
+					}
+					return { result: { results: results.length > 0 ? results.join('\n') : `No results found for "${query}". Try rephrasing.` } }
+				} catch (e) {
+					return { result: { results: `Search failed: ${e}` } }
+				}
+			},
+			read_url_content: async ({ url }) => {
+				try {
+					const resp = await fetch(url, { headers: { 'User-Agent': 'VoidIDE/1.0' } })
+					if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`)
+					const html = await resp.text()
+					// Simple HTML to text extraction
+					const text = html
+						.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+						.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+						.replace(/<[^>]+>/g, ' ')
+						.replace(/\s+/g, ' ')
+						.trim()
+						.substring(0, 20_000) // limit to ~5K tokens to control context costs
+					return { result: { content: text } }
+				} catch (e) {
+					return { result: { content: `Failed to read URL: ${e}` } }
+				}
+			},
+			create_system_doc: async ({ type, title, content }) => {
+				try {
+					const systemDocsService = instantiationService.invokeFunction(accessor => accessor.get('ISystemDocsService' as any)) as any
+					const chatThreadsService = instantiationService.invokeFunction(accessor => accessor.get('IChatThreadService' as any)) as any
+					const threadId = chatThreadsService.state.currentThreadId
+					const doc = await systemDocsService.createDoc({
+						type: type as any,
+						title,
+						content,
+						threadId,
+					})
+					const workspace = workspaceContextService.getWorkspace()
+					const rootPath = workspace.folders[0]?.uri.fsPath || ''
+					const relativePath = `.void/docs/${type}_${doc.id.slice(0, 8)}.md`
+					return { result: { docId: doc.id, filePath: `${rootPath}/${relativePath}` } }
+				} catch (e) {
+					return { result: { docId: '', filePath: `Failed to create system doc: ${e}` } }
+				}
+			},
 		}
 
 
@@ -508,6 +669,14 @@ export class ToolsService implements IToolsService {
 			// ---
 			create_file_or_folder: (params, result) => {
 				return `URI ${params.uri.fsPath} successfully created.`
+			},
+			write_to_file: (params, result) => {
+				const lintErrsString = (
+					this.voidSettingsService.state.globalSettings.includeToolLintErrors ?
+						(result.lintErrors ? ` Lint errors found after writing:\n${stringifyLintErrors(result.lintErrors)}.\nIf this is related to a change made while calling this tool, you might want to fix the error.`
+							: ` No lint errors found.`)
+						: '')
+				return `File ${params.uri.fsPath} successfully created and written.${lintErrsString}`
 			},
 			delete_file_or_folder: (params, result) => {
 				return `URI ${params.uri.fsPath} successfully deleted.`
@@ -564,9 +733,147 @@ export class ToolsService implements IToolsService {
 			kill_persistent_terminal: (params, _result) => {
 				return `Successfully closed terminal "${params.persistentTerminalId}".`;
 			},
+			send_command_input: (params, result) => {
+				return result.result;
+			},
+			todo_list: (_params, _result) => {
+				return 'Task list updated successfully.';
+			},
+			todo_write: (_params, _result) => {
+				return 'Task list updated successfully.';
+			},
+			ask_user_question: (_params, result) => {
+				return `User responded: ${result.userResponse}`;
+			},
+			invoke_skill: (_params, result) => {
+				return result.skillContent;
+			},
+			search_web: (_params, result) => {
+				return result.results;
+			},
+			read_url_content: (_params, result) => {
+				return result.content;
+			},
+			create_system_doc: (_params, result) => {
+				if (result.docId) {
+					return `System document created successfully at: ${result.filePath}\nDocument ID: ${result.docId}`;
+				}
+				return result.filePath; // error message
+			},
 		}
 
+		// --- Confinement de sécurité Codeen (AOP/Proxy) ---
+		const getWorkspaces = () => workspaceContextService.getWorkspace().folders.map(f => f.uri.fsPath);
 
+		const policies: Policy[] = [
+			// 1. Bloquer impérativement toute écriture/modification hors du workspace (Fail-Closed)
+			{
+				name: 'block_outside_write_create',
+				tool: 'create_file_or_folder',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+			{
+				name: 'block_outside_write_file',
+				tool: 'write_to_file',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+			{
+				name: 'block_outside_delete',
+				tool: 'delete_file_or_folder',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+			{
+				name: 'block_outside_rewrite',
+				tool: 'rewrite_file',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+			{
+				name: 'block_outside_edit',
+				tool: 'edit_file',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+
+			// 2. Refuser la lecture hors workspace également pour un cloisonnement complet
+			{
+				name: 'block_outside_read_file',
+				tool: 'read_file',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+			{
+				name: 'block_outside_ls',
+				tool: 'ls_dir',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+			{
+				name: 'block_outside_tree',
+				tool: 'get_dir_tree',
+				decision: 'DENY',
+				when: (args) => args.uri && !getWorkspaces().some(ws => isPathInWorkspace(args.uri.fsPath, ws))
+			},
+
+			// 3. Bloquer automatiquement toute commande destructive (rm -rf, format, drop db, etc.)
+			{
+				name: 'block_destructive_command',
+				tool: 'run_command',
+				decision: 'DENY',
+				when: (args) => classifyCommand(args.command).level === 'destructive'
+			},
+			{
+				name: 'block_destructive_persistent_command',
+				tool: 'run_persistent_command',
+				decision: 'DENY',
+				when: (args) => classifyCommand(args.command).level === 'destructive'
+			},
+
+			// 4. Demander confirmation utilisateur pour l'exécution de commandes non-destructives
+			{
+				name: 'confirm_run_command',
+				tool: 'run_command',
+				decision: 'ASK_USER'
+			},
+			{
+				name: 'confirm_run_persistent_command',
+				tool: 'run_persistent_command',
+				decision: 'ASK_USER'
+			},
+
+			// 4. Demander confirmation pour suppression
+			{
+				name: 'confirm_deletion',
+				tool: 'delete_file_or_folder',
+				decision: 'ASK_USER'
+			},
+
+			// 5. Par défaut, approuver les autres cas s'ils sont dans le workspace
+			{
+				name: 'allow_all_inside_workspace',
+				tool: '*',
+				decision: 'APPROVE'
+			}
+		];
+
+		const policyEngine = new PolicyEngine(policies);
+
+		// Proxy d'interception sur tous les appels d'outils
+		for (const key of Object.keys(this.callTool) as BuiltinToolName[]) {
+			const originalCall = this.callTool[key];
+			(this.callTool as any)[key] = async (params: any) => {
+				const decision = policyEngine.evaluate(key, params);
+
+				if (decision === 'DENY') {
+					throw new Error(`[Codeen Security] Action "${key}" bloquée : violation des politiques de confinement du workspace.`);
+				}
+
+				return originalCall(params);
+			};
+		}
 
 	}
 

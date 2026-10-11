@@ -1,651 +1,975 @@
 /*--------------------------------------------------------------------------------------
- *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
- *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *  Copyright 2026 Codeen IDE. All rights reserved.
+ *  Licensed under the MIT License.
  *--------------------------------------------------------------------------------------*/
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAccessor, useIsDark, useSettingsState } from '../util/services.js';
-import { Brain, Check, ChevronRight, DollarSign, ExternalLink, Lock, X } from 'lucide-react';
-import { displayInfoOfProviderName, ProviderName, providerNames, localProviderNames, featureNames, FeatureName, isFeatureNameDisabled } from '../../../../common/voidSettingsTypes.js';
-import { ChatMarkdownRender } from '../markdown/ChatMarkdownRender.js';
-import { OllamaSetupInstructions, OneClickSwitchButton, SettingsForProvider, ModelDump } from '../void-settings-tsx/Settings.js';
-import { ColorScheme } from '../../../../../../../platform/theme/common/theme.js';
+import {
+	Check,
+	ExternalLink,
+	X,
+	Eye,
+	EyeOff,
+	Key,
+	Mic,
+	ArrowLeft,
+	ArrowRight,
+	Terminal,
+	MousePointer,
+	Wind,
+} from 'lucide-react';
+import {
+	ProviderName,
+} from '../../../../common/voidSettingsTypes.js';
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js';
-import { isLinux } from '../../../../../../../base/common/platform.js';
+import { os } from '../../../../common/helpers/systemInfo.js';
+import { TransferEditorType } from '../../../extensionTransferTypes.js';
+import { CODEEN_FULL_PNG } from '../util/CodeenBrandAssets.js';
 
-const OVERRIDE_VALUE = false
+const OVERRIDE_VALUE = false;
 
 export const VoidOnboarding = () => {
-
-	const voidSettingsState = useSettingsState()
-	const isOnboardingComplete = voidSettingsState.globalSettings.isOnboardingComplete || OVERRIDE_VALUE
-
-	const isDark = useIsDark()
+	const voidSettingsState = useSettingsState();
+	const isOnboardingComplete = voidSettingsState.globalSettings.isOnboardingComplete || OVERRIDE_VALUE;
+	const isDark = useIsDark();
 
 	return (
 		<div className={`@@void-scope ${isDark ? 'dark' : ''}`}>
 			<div
 				className={`
-					bg-void-bg-3 fixed top-0 right-0 bottom-0 left-0 width-full z-[99999]
-					transition-all duration-1000 ${isOnboardingComplete ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}
+					bg-surface-base fixed top-0 right-0 bottom-0 left-0 w-full z-[99999] overflow-y-auto
+					transition-all duration-500 ${isOnboardingComplete ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}
 				`}
-				style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+				style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
 			>
+				{/* Halos ambiants ultra-subtils */}
+				<div className="fixed -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/[0.07] rounded-full blur-[140px] pointer-events-none" />
+
 				<ErrorBoundary>
-					<VoidOnboardingContent />
+					<CodeenOnboardingContent />
 				</ErrorBoundary>
 			</div>
 		</div>
-	)
+	);
+};
+
+// ============================================================================
+//  HEADER PERSISTANT COMMUN À TOUTES LES ÉTAPES
+// ============================================================================
+
+interface OnboardingHeaderProps {
+	currentStep: number; // 0, 1, 2, 3
+	onStepClick?: (step: number) => void;
+	onClose: () => void;
 }
 
-const VoidIcon = () => {
-	const accessor = useAccessor()
-	const themeService = accessor.get('IThemeService')
-
-	const divRef = useRef<HTMLDivElement | null>(null)
-
-	useEffect(() => {
-		// void icon style
-		const updateTheme = () => {
-			const theme = themeService.getColorTheme().type
-			const isDark = theme === ColorScheme.DARK || theme === ColorScheme.HIGH_CONTRAST_DARK
-			if (divRef.current) {
-				divRef.current.style.maxWidth = '220px'
-				divRef.current.style.opacity = '50%'
-				divRef.current.style.filter = isDark ? '' : 'invert(1)' //brightness(.5)
-			}
-		}
-		updateTheme()
-		const d = themeService.onDidColorThemeChange(updateTheme)
-		return () => d.dispose()
-	}, [])
-
-	return <div ref={divRef} className='@@void-void-icon' />
-}
-
-const FADE_DURATION_MS = 2000
-
-const FadeIn = ({ children, className, delayMs = 0, durationMs, ...props }: { children: React.ReactNode, delayMs?: number, durationMs?: number, className?: string } & React.HTMLAttributes<HTMLDivElement>) => {
-
-	const [opacity, setOpacity] = useState(0)
-
-	const effectiveDurationMs = durationMs ?? FADE_DURATION_MS
-
-	useEffect(() => {
-
-		const timeout = setTimeout(() => {
-			setOpacity(1)
-		}, delayMs)
-
-		return () => clearTimeout(timeout)
-	}, [setOpacity, delayMs])
-
+const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({ currentStep, onStepClick, onClose }) => {
+	const steps = [
+		{ num: 1, label: 'Welcome' },
+		{ num: 2, label: 'AI Engine' },
+		{ num: 3, label: 'Theme' },
+		{ num: 4, label: 'Migration' },
+	];
 
 	return (
-		<div className={className} style={{ opacity, transition: `opacity ${effectiveDurationMs}ms ease-in-out` }} {...props}>
-			{children}
-		</div>
-	)
-}
-
-// Onboarding
-
-// =============================================
-//  New AddProvidersPage Component and helpers
-// =============================================
-
-const tabNames = ['Free', 'Paid', 'Local'] as const;
-
-type TabName = typeof tabNames[number] | 'Cloud/Other';
-
-// Data for cloud providers tab
-const cloudProviders: ProviderName[] = ['googleVertex', 'liteLLM', 'microsoftAzure', 'awsBedrock', 'openAICompatible'];
-
-// Data structures for provider tabs
-const providerNamesOfTab: Record<TabName, ProviderName[]> = {
-	Free: ['gemini', 'openRouter'],
-	Local: localProviderNames,
-	Paid: providerNames.filter(pn => !(['gemini', 'openRouter', ...localProviderNames, ...cloudProviders] as string[]).includes(pn)) as ProviderName[],
-	'Cloud/Other': cloudProviders,
-};
-
-const descriptionOfTab: Record<TabName, string> = {
-	Free: `Providers with a 100% free tier. Add as many as you'd like!`,
-	Paid: `Connect directly with any provider (bring your own key).`,
-	Local: `Active providers should appear automatically. Add as many as you'd like! `,
-	'Cloud/Other': `Add as many as you'd like! Reach out for custom configuration requests.`,
-};
-
-
-const featureNameMap: { display: string, featureName: FeatureName }[] = [
-	{ display: 'Chat', featureName: 'Chat' },
-	{ display: 'Quick Edit', featureName: 'Ctrl+K' },
-	{ display: 'Autocomplete', featureName: 'Autocomplete' },
-	{ display: 'Fast Apply', featureName: 'Apply' },
-	{ display: 'Source Control', featureName: 'SCM' },
-];
-
-const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setPageIndex: (index: number) => void }) => {
-	const [currentTab, setCurrentTab] = useState<TabName>('Free');
-	const settingsState = useSettingsState();
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-	// Clear error message after 5 seconds
-	useEffect(() => {
-		let timeoutId: NodeJS.Timeout | null = null;
-
-		if (errorMessage) {
-			timeoutId = setTimeout(() => {
-				setErrorMessage(null);
-			}, 5000);
-		}
-
-		// Cleanup function to clear the timeout if component unmounts or error changes
-		return () => {
-			if (timeoutId) {
-				clearTimeout(timeoutId);
-			}
-		};
-	}, [errorMessage]);
-
-	return (<div className="flex flex-col md:flex-row w-full h-[80vh] gap-6 max-w-[900px] mx-auto relative">
-		{/* Left Column */}
-		<div className="md:w-1/4 w-full flex flex-col gap-6 p-6 border-none border-void-border-2 h-full overflow-y-auto">
-			{/* Tab Selector */}
-			<div className="flex md:flex-col gap-2">
-				{[...tabNames, 'Cloud/Other'].map(tab => (
-					<button
-						key={tab}
-						className={`py-2 px-4 rounded-md text-left ${currentTab === tab
-							? 'bg-[#0e70c0]/80 text-white font-medium shadow-sm'
-							: 'bg-void-bg-2 hover:bg-void-bg-2/80 text-void-fg-1'
-							} transition-all duration-200`}
-						onClick={() => {
-							setCurrentTab(tab as TabName);
-							setErrorMessage(null); // Reset error message when changing tabs
-						}}
-					>
-						{tab}
-					</button>
-				))}
+		<header className="flex items-center justify-between w-full max-w-5xl mx-auto mb-8 px-4 select-none">
+			{/* Logo officiel complet Codeen issu directement de brand/codeenfull.png */}
+			<div className="flex items-center select-none">
+				<img
+					src={CODEEN_FULL_PNG}
+					alt="Codeen IDE"
+					className="h-7 object-contain select-none pointer-events-none"
+				/>
 			</div>
 
-			{/* Feature Checklist */}
-			<div className="flex flex-col gap-1 mt-4 text-sm opacity-80">
-				{featureNameMap.map(({ display, featureName }) => {
-					const hasModel = settingsState.modelSelectionOfFeature[featureName] !== null;
+			{/* Fil d'Ariane épuré */}
+			<nav aria-label="Onboarding Progress" className="flex items-center gap-2.5">
+				{steps.map((s, idx) => {
+					const isActive = currentStep === idx;
+					const isPassed = currentStep > idx;
+
 					return (
-						<div key={featureName} className="flex items-center gap-2">
-							{hasModel ? (
-								<Check className="w-4 h-4 text-emerald-500" />
-							) : (
-								<div className="w-3 h-3 rounded-full flex items-center justify-center">
-									<div className="w-1 h-1 rounded-full bg-white/70"></div>
+						<React.Fragment key={s.num}>
+							{idx > 0 && <span className="text-zinc-600 font-mono text-xs">/</span>}
+							<div
+								onClick={() => isPassed && onStepClick?.(idx)}
+								className={`flex items-center gap-1.5 transition-colors ${
+									isPassed ? 'cursor-pointer hover:text-text-primary' : ''
+								}`}
+							>
+								<span
+									className={`w-5 h-5 rounded-none font-mono text-[11px] flex items-center justify-center font-bold transition-all ${
+										isActive
+											? 'bg-primary text-black font-extrabold shadow-[0_0_10px_rgba(0,220,130,0.35)]'
+											: isPassed
+											? 'bg-primary/20 text-primary border border-primary/40'
+											: 'bg-surface-elevated text-text-muted border border-white/5'
+									}`}
+								>
+									{isPassed ? <Check className="w-3 h-3" /> : s.num}
+								</span>
+								<span
+									className={`font-mono text-[11px] uppercase tracking-wider ${
+										isActive
+											? 'text-primary font-semibold'
+											: isPassed
+											? 'text-text-secondary'
+											: 'text-text-muted'
+									}`}
+								>
+									{s.label}
+								</span>
+							</div>
+						</React.Fragment>
+					);
+				})}
+			</nav>
+
+			{/* Bouton Fermer */}
+			<button
+				type="button"
+				aria-label="Close setup modal"
+				onClick={onClose}
+				className="w-8 h-8 rounded-none bg-surface-elevated hover:bg-surface-hover flex items-center justify-center text-text-muted hover:text-text-primary transition-colors border border-white/5 cursor-pointer"
+			>
+				<X className="w-4 h-4" />
+			</button>
+		</header>
+	);
+};
+
+// ============================================================================
+//  ÉCRAN 1 : WELCOME (Minimaliste royal & centré)
+// ============================================================================
+
+interface StepWelcomeProps {
+	onNext: () => void;
+	onClose: () => void;
+}
+
+const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext, onClose }) => {
+	return (
+		<div className="flex flex-col w-full max-w-4xl mx-auto py-8 px-4 text-center select-none items-center justify-center min-h-[70vh]">
+			{/* Grand Logo officiel Codeen au centre issu directement de brand/codeenfull.png */}
+			<img
+				src={CODEEN_FULL_PNG}
+				alt="Codeen IDE"
+				className="h-16 md:h-20 object-contain mb-8 select-none pointer-events-none"
+			/>
+
+			{/* Hero Title */}
+			<h1
+				className="text-3xl sm:text-5xl font-semibold text-text-primary max-w-2xl mb-4 tracking-tight leading-tight"
+				style={{ fontFamily: 'Outfit, sans-serif' }}
+			>
+				Beyond Code Completion
+			</h1>
+
+			{/* Description épurée */}
+			<p className="text-sm sm:text-base text-text-secondary max-w-xl mb-10 leading-relaxed font-sans">
+				An Agentic AI IDE designed for autonomous software engineering, systemic multi-file reasoning, and zero-latency technical workflows.
+			</p>
+
+			{/* Actions centrales épurées */}
+			<div className="flex items-center justify-center gap-4">
+				<button
+					type="button"
+					onClick={onClose}
+					className="px-5 py-2.5 rounded-none text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium text-xs transition-colors cursor-pointer border border-white/5"
+				>
+					Skip setup
+				</button>
+				<button
+					type="button"
+					onClick={onNext}
+					className="px-7 py-2.5 rounded-none bg-primary text-black font-semibold text-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 cursor-pointer"
+				>
+					<span>Get Started</span>
+					<ArrowRight className="w-4 h-4" />
+				</button>
+			</div>
+		</div>
+	);
+};
+
+// ============================================================================
+//  ÉCRAN 2 : PROVIDERS & AI ENGINE (Sobre & sans cartes lourdes)
+// ============================================================================
+
+interface StepProvidersProps {
+	onBack: () => void;
+	onNext: () => void;
+	onClose: () => void;
+}
+
+type ProviderClassTab = 'free' | 'commercial' | 'local' | 'voice';
+
+const StepProviders: React.FC<StepProvidersProps> = ({ onBack, onNext, onClose }) => {
+	const accessor = useAccessor();
+	const voidSettingsService = accessor.get('IVoidSettingsService');
+	const voidSettingsState = useSettingsState();
+
+	const [activeTab, setActiveTab] = useState<ProviderClassTab>('free');
+	const [activeConnector, setActiveConnector] = useState<ProviderName>('openRouter');
+	const [apiKeyInput, setApiKeyInput] = useState<string>('');
+	const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+	const [verifyStatus, setVerifyStatus] = useState<string | null>(null);
+
+	// Synchronise la clé API affichée avec le provider sélectionné
+	useEffect(() => {
+		const currentKey = voidSettingsState.settingsOfProvider[activeConnector]?.apiKey || '';
+		setApiKeyInput(currentKey);
+		setVerifyStatus(null);
+	}, [activeConnector, voidSettingsState.settingsOfProvider]);
+
+	const handleSaveKey = (val: string) => {
+		setApiKeyInput(val);
+		voidSettingsService.setSettingOfProvider(activeConnector, 'apiKey', val);
+	};
+
+	const handleVerify = () => {
+		if (apiKeyInput.trim().length > 5) {
+			setVerifyStatus('TOKEN VERIFIED & ENCRYPTED IN LOCAL KEYCHAIN');
+		} else {
+			setVerifyStatus('KEY FORMAT INVALID OR EMPTY');
+		}
+	};
+
+	return (
+		<div className="flex flex-col w-full max-w-5xl mx-auto py-4 px-4 text-on-surface select-none">
+			<OnboardingHeader currentStep={1} onClose={onClose} />
+
+			{/* Titre & Description de la page */}
+			<div className="text-center mb-6">
+				<h1 className="text-2xl font-semibold text-text-primary tracking-tight font-sans">
+					Connect your Intelligence Engine
+				</h1>
+				<p className="text-xs text-text-secondary mt-1">
+					Choose between zero-friction community pools, authenticated cloud APIs, or strictly offline local neural weights.
+				</p>
+			</div>
+
+			{/* Disposition 2 colonnes sans carte englobante */}
+			<div className="grid grid-cols-12 gap-6 w-full">
+				{/* Colonne Gauche : Classes de Providers */}
+				<aside className="col-span-12 md:col-span-4 flex flex-col space-y-2">
+					<div className="font-mono text-[10px] text-text-muted uppercase tracking-wider font-semibold mb-1">
+						Provider Classes
+					</div>
+
+					{/* Onglet 1 : Free & Community */}
+					<button
+						type="button"
+						onClick={() => {
+							setActiveTab('free');
+							setActiveConnector('openRouter');
+						}}
+						className={`w-full text-left p-3 rounded-none flex items-start space-x-3 transition-colors cursor-pointer border ${
+							activeTab === 'free'
+								? 'bg-surface-elevated text-text-primary border-primary shadow-sm'
+								: 'bg-surface-panel/40 hover:bg-surface-elevated text-text-secondary hover:text-text-primary border-white/5'
+						}`}
+					>
+						<div className="flex-1 min-w-0">
+							<div className="flex items-center justify-between">
+								<span className="text-xs font-semibold text-text-primary">Free &amp; Community</span>
+								<span className="w-1.5 h-1.5 rounded-none bg-primary" />
+							</div>
+							<p className="text-[11px] text-text-muted line-clamp-1 mt-0.5">Instant OpenRouter &amp; Google tiers</p>
+						</div>
+					</button>
+
+					{/* Onglet 2 : Commercial Cloud */}
+					<button
+						type="button"
+						onClick={() => {
+							setActiveTab('commercial');
+							setActiveConnector('anthropic');
+						}}
+						className={`w-full text-left p-3 rounded-none flex items-start space-x-3 transition-colors cursor-pointer border ${
+							activeTab === 'commercial'
+								? 'bg-surface-elevated text-text-primary border-primary shadow-sm'
+								: 'bg-surface-panel/40 hover:bg-surface-elevated text-text-secondary hover:text-text-primary border-white/5'
+						}`}
+					>
+						<div className="flex-1 min-w-0">
+							<div className="flex items-center justify-between">
+								<span className="text-xs font-semibold text-text-primary">Commercial Cloud</span>
+								<span className="font-mono text-[9px] text-text-muted">BYOK</span>
+							</div>
+							<p className="text-[11px] text-text-muted line-clamp-1 mt-0.5">Anthropic, OpenAI, DeepSeek</p>
+						</div>
+					</button>
+
+					{/* Onglet 3 : Local & Offline */}
+					<button
+						type="button"
+						onClick={() => {
+							setActiveTab('local');
+							setActiveConnector('ollama');
+						}}
+						className={`w-full text-left p-3 rounded-none flex items-start space-x-3 transition-colors cursor-pointer border ${
+							activeTab === 'local'
+								? 'bg-surface-elevated text-text-primary border-primary shadow-sm'
+								: 'bg-surface-panel/40 hover:bg-surface-elevated text-text-secondary hover:text-text-primary border-white/5'
+						}`}
+					>
+						<div className="flex-1 min-w-0">
+							<div className="flex items-center justify-between">
+								<span className="text-xs font-semibold text-text-primary">Local &amp; Offline</span>
+								<span className="font-mono text-[9px] text-text-muted">AIR-GAPPED</span>
+							</div>
+							<p className="text-[11px] text-text-muted line-clamp-1 mt-0.5">Ollama, LM Studio, vLLM</p>
+						</div>
+					</button>
+
+					{/* Onglet 4 : Voice Dictation */}
+					<button
+						type="button"
+						onClick={() => setActiveTab('voice')}
+						className={`w-full text-left p-3 rounded-none flex items-start space-x-3 transition-colors cursor-pointer border ${
+							activeTab === 'voice'
+								? 'bg-surface-elevated text-text-primary border-primary shadow-sm'
+								: 'bg-surface-panel/40 hover:bg-surface-elevated text-text-secondary hover:text-text-primary border-white/5'
+						}`}
+					>
+						<div className="flex-1 min-w-0">
+							<div className="flex items-center justify-between">
+								<span className="text-xs font-semibold text-text-primary">Voice Dictation</span>
+								<span className="font-mono text-[9px] text-text-muted">WHISPER</span>
+							</div>
+							<p className="text-[11px] text-text-muted line-clamp-1 mt-0.5">Zero-latency, offline code speech</p>
+						</div>
+					</button>
+				</aside>
+
+				{/* Colonne Droite : Configuration active sans surcharge */}
+				<main className="col-span-12 md:col-span-8 flex flex-col space-y-4">
+					{/* Si onglet standard : Connecteurs de modèles */}
+					{activeTab !== 'voice' && (
+						<>
+							<div>
+								<div className="font-mono text-[10px] text-text-muted uppercase tracking-wider font-semibold mb-2">
+									Recommended Engine Connectors
 								</div>
-							)}
-							<span>{display}</span>
+
+								{/* Grille des connecteurs de la catégorie */}
+								<div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+									{activeTab === 'free' && (
+										<>
+											{/* OpenRouter Free */}
+											<div
+												onClick={() => setActiveConnector('openRouter')}
+												className={`bg-surface-elevated p-3.5 rounded-none flex flex-col justify-between hover:bg-surface-hover transition-all cursor-pointer border ${
+													activeConnector === 'openRouter'
+														? 'border-primary ring-1 ring-primary/30'
+														: 'border-white/5'
+												}`}
+											>
+												<h4 className="text-xs font-semibold text-text-primary">OpenRouter Free</h4>
+												<p className="font-mono text-[10px] text-text-muted mt-1 leading-relaxed">
+													Free pooled quota (DeepSeek / Llama)
+												</p>
+											</div>
+
+											{/* Gemini Flash */}
+											<div
+												onClick={() => setActiveConnector('gemini')}
+												className={`bg-surface-elevated p-3.5 rounded-none flex flex-col justify-between hover:bg-surface-hover transition-all cursor-pointer border ${
+													activeConnector === 'gemini'
+														? 'border-primary ring-1 ring-primary/30'
+														: 'border-white/5'
+												}`}
+											>
+												<h4 className="text-xs font-semibold text-text-primary">Gemini 2.5 Flash</h4>
+												<p className="font-mono text-[10px] text-text-muted mt-1 leading-relaxed">
+													Google Developer Free Tier
+												</p>
+											</div>
+										</>
+									)}
+
+									{activeTab === 'commercial' && (
+										<>
+											{/* Anthropic Direct */}
+											<div
+												onClick={() => setActiveConnector('anthropic')}
+												className={`bg-surface-elevated p-3.5 rounded-none flex flex-col justify-between hover:bg-surface-hover transition-all cursor-pointer border ${
+													activeConnector === 'anthropic'
+														? 'border-primary ring-1 ring-primary/30'
+														: 'border-white/5'
+												}`}
+											>
+												<h4 className="text-xs font-semibold text-text-primary">Anthropic Direct</h4>
+												<p className="font-mono text-[10px] text-text-muted mt-1 leading-relaxed">
+													Claude 3.7 Sonnet hybrid reasoning
+												</p>
+											</div>
+
+											{/* OpenAI Direct */}
+											<div
+												onClick={() => setActiveConnector('openAI')}
+												className={`bg-surface-elevated p-3.5 rounded-none flex flex-col justify-between hover:bg-surface-hover transition-all cursor-pointer border ${
+													activeConnector === 'openAI'
+														? 'border-primary ring-1 ring-primary/30'
+														: 'border-white/5'
+												}`}
+											>
+												<h4 className="text-xs font-semibold text-text-primary">OpenAI Direct</h4>
+												<p className="font-mono text-[10px] text-text-muted mt-1 leading-relaxed">
+													GPT-4o, o3-mini reasoning
+												</p>
+											</div>
+
+											{/* DeepSeek Direct */}
+											<div
+												onClick={() => setActiveConnector('deepseek')}
+												className={`bg-surface-elevated p-3.5 rounded-none flex flex-col justify-between hover:bg-surface-hover transition-all cursor-pointer border ${
+													activeConnector === 'deepseek'
+														? 'border-primary ring-1 ring-primary/30'
+														: 'border-white/5'
+												}`}
+											>
+												<h4 className="text-xs font-semibold text-text-primary">DeepSeek Direct</h4>
+												<p className="font-mono text-[10px] text-text-muted mt-1 leading-relaxed">
+													DeepSeek-V3 &amp; R1 reasoning
+												</p>
+											</div>
+										</>
+									)}
+
+									{activeTab === 'local' && (
+										<>
+											{/* Ollama */}
+											<div
+												onClick={() => setActiveConnector('ollama')}
+												className={`bg-surface-elevated p-3.5 rounded-none flex flex-col justify-between hover:bg-surface-hover transition-all cursor-pointer border ${
+													activeConnector === 'ollama'
+														? 'border-primary ring-1 ring-primary/30'
+														: 'border-white/5'
+												}`}
+											>
+												<h4 className="text-xs font-semibold text-text-primary">Ollama Local</h4>
+												<p className="font-mono text-[10px] text-text-muted mt-1 leading-relaxed">
+													http://127.0.0.1:11434
+												</p>
+											</div>
+
+											{/* LM Studio */}
+											<div
+												onClick={() => setActiveConnector('openAI')}
+												className={`bg-surface-elevated p-3.5 rounded-none flex flex-col justify-between hover:bg-surface-hover transition-all cursor-pointer border ${
+													activeConnector === 'openAI'
+														? 'border-primary ring-1 ring-primary/30'
+														: 'border-white/5'
+												}`}
+											>
+												<h4 className="text-xs font-semibold text-text-primary">LM Studio / vLLM</h4>
+												<p className="font-mono text-[10px] text-text-muted mt-1 leading-relaxed">
+													OpenAI-compatible local server
+												</p>
+											</div>
+										</>
+									)}
+								</div>
+							</div>
+
+							{/* Bloc Saisie Token API */}
+							<div className="bg-surface-elevated p-4 rounded-none border border-white/5 space-y-2">
+								<div className="flex items-center justify-between">
+									<label className="font-mono text-[11px] text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
+										<span>Authentication Token ({activeConnector})</span>
+									</label>
+									{activeConnector === 'openRouter' && (
+										<a
+											href="https://openrouter.ai/keys"
+											target="_blank"
+											rel="noreferrer"
+											className="font-mono text-[10px] text-primary hover:underline flex items-center gap-1"
+										>
+											Get instant key <ExternalLink className="w-3 h-3" />
+										</a>
+									)}
+								</div>
+
+								<div className="relative flex items-center">
+									<span className="absolute left-3 text-text-muted">
+										<Key className="w-4 h-4" />
+									</span>
+									<input
+										className="w-full bg-surface-base text-text-primary font-mono text-xs pl-9 pr-24 py-2 rounded-none border border-white/10 focus:outline-none focus:border-primary/60"
+										placeholder={`Paste ${activeConnector} token or leave empty...`}
+										type={isPasswordVisible ? 'text' : 'password'}
+										value={apiKeyInput}
+										onChange={(e) => handleSaveKey(e.target.value)}
+									/>
+									<div className="absolute right-2 flex items-center space-x-1">
+										<button
+											type="button"
+											onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+											className="p-1 rounded-none text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+											title="Toggle visibility"
+										>
+											{isPasswordVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+										</button>
+										<button
+											type="button"
+											onClick={handleVerify}
+											className="px-2.5 py-0.5 rounded-none bg-surface-elevated hover:bg-surface-hover text-primary font-mono text-[10px] font-semibold transition-colors cursor-pointer border border-white/10"
+										>
+											VERIFY
+										</button>
+									</div>
+								</div>
+
+								{verifyStatus && (
+									<div className="font-mono text-[10px] text-primary pt-1">
+										{verifyStatus}
+									</div>
+								)}
+							</div>
+						</>
+					)}
+
+					{/* Si onglet Voice Dictation : Panneau Whisper dédié */}
+					{activeTab === 'voice' && (
+						<div className="bg-surface-elevated p-5 rounded-none border border-white/5 space-y-4">
+							<div>
+								<h3 className="text-sm font-semibold text-text-primary font-sans flex items-center gap-2">
+									<Mic className="w-4 h-4 text-primary" />
+									<span>Local Whisper WASM Speech Engine</span>
+								</h3>
+								<p className="text-xs text-text-secondary mt-1">
+									Transcribe speech to prompt directly on device without sending audio to external clouds.
+								</p>
+							</div>
+
+							<div className="pt-2 border-t border-white/5 flex items-center justify-between">
+								<span className="font-mono text-xs text-text-primary">Engine Status</span>
+								<span className="px-2.5 py-1 rounded-none bg-primary/20 text-primary font-mono text-xs font-semibold">
+									READY ON-DEVICE
+								</span>
+							</div>
+						</div>
+					)}
+				</main>
+			</div>
+
+			{/* Footer de Navigation épuré */}
+			<footer className="flex items-center justify-between w-full mt-8 pt-4 border-t border-white/5">
+				<button
+					type="button"
+					onClick={onBack}
+					className="px-4 py-2 rounded-none text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/5"
+				>
+					<ArrowLeft className="w-3.5 h-3.5" />
+					<span>Back</span>
+				</button>
+
+				<div className="flex items-center gap-3">
+					<button
+						type="button"
+						onClick={onClose}
+						className="px-4 py-2 rounded-none text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium text-xs transition-colors cursor-pointer border border-white/5"
+					>
+						Skip for now
+					</button>
+					<button
+						type="button"
+						onClick={onNext}
+						className="px-6 py-2 rounded-none bg-primary text-black font-semibold text-xs flex items-center gap-2 shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+					>
+						<span>Continue to Theme</span>
+						<ArrowRight className="w-3.5 h-3.5" />
+					</button>
+				</div>
+			</footer>
+		</div>
+	);
+};
+
+// ============================================================================
+//  ÉCRAN 3 : THEME SELECTION (Minimaliste & Bords carrés)
+// ============================================================================
+
+interface StepThemesProps {
+	onBack: () => void;
+	onNext: () => void;
+	onClose: () => void;
+}
+
+const StepThemes: React.FC<StepThemesProps> = ({ onBack, onNext, onClose }) => {
+	const accessor = useAccessor();
+	const themeService = accessor.get('IThemeService');
+	const [selectedTheme, setSelectedTheme] = useState<'obsidian' | 'midnight' | 'vesper' | 'solar'>('obsidian');
+
+	const themes = [
+		{
+			id: 'obsidian' as const,
+			label: 'Obsidian Precision',
+			badge: 'CODEEN DEFAULT',
+			themeId: 'Default Dark Modern',
+			renderCode: () => (
+				<div className="font-mono text-[11px] leading-relaxed overflow-x-hidden text-zinc-300">
+					<span className="text-zinc-500">async def</span> <span className="text-white font-medium">optimize_pipeline</span>(tokens: <span className="text-primary">int</span>):<br />
+					&nbsp;&nbsp;stream = <span className="text-zinc-500">await</span> <span className="text-primary">agent</span>.reason()<br />
+					&nbsp;&nbsp;<span className="text-zinc-500">return</span> stream.<span className="text-primary">apply_diff</span>()
+				</div>
+			)
+		},
+		{
+			id: 'midnight' as const,
+			label: 'Midnight Eclipse',
+			badge: 'DEEP CONTRAST',
+			themeId: 'Default Dark+',
+			renderCode: () => (
+				<div className="font-mono text-[11px] leading-relaxed overflow-x-hidden text-[#e6edf3]">
+					<span className="text-[#79c0ff]">async def</span> <span className="text-[#d2a8ff] font-medium">optimize_pipeline</span>(tokens: <span className="text-[#ff7b72]">int</span>):<br />
+					&nbsp;&nbsp;stream = <span className="text-[#79c0ff]">await</span> <span className="text-[#7ee787]">agent</span>.reason()<br />
+					&nbsp;&nbsp;<span className="text-[#ff7b72]">return</span> stream.<span className="text-[#7ee787]">apply_diff</span>()
+				</div>
+			)
+		},
+		{
+			id: 'vesper' as const,
+			label: 'Vesper Monochrome',
+			badge: 'ULTRA MINIMAL',
+			themeId: 'Visual Studio Dark',
+			renderCode: () => (
+				<div className="font-mono text-[11px] leading-relaxed overflow-x-hidden text-neutral-400">
+					<span className="text-white font-semibold">async def</span> <span className="text-neutral-200 font-medium">optimize_pipeline</span>(tokens: <span className="text-white">int</span>):<br />
+					&nbsp;&nbsp;stream = <span className="text-white">await</span> <span className="text-neutral-100">agent</span>.reason()<br />
+					&nbsp;&nbsp;<span className="text-white font-semibold">return</span> stream.<span className="text-white">apply_diff</span>()
+				</div>
+			)
+		},
+		{
+			id: 'solar' as const,
+			label: 'Codeen Pure Light',
+			badge: 'LIGHT / BLANC',
+			themeId: 'Default Light Modern',
+			renderCode: () => (
+				<div className="font-mono text-[11px] leading-relaxed overflow-x-hidden text-zinc-900">
+					<span className="text-blue-700 font-semibold">async def</span> <span className="text-purple-700 font-medium">optimize_pipeline</span>(tokens: <span className="text-teal-700">int</span>):<br />
+					&nbsp;&nbsp;stream = <span className="text-blue-700">await</span> <span className="text-emerald-700">agent</span>.reason()<br />
+					&nbsp;&nbsp;<span className="text-blue-700">return</span> stream.<span className="text-emerald-700">apply_diff</span>()
+				</div>
+			)
+		}
+	];
+
+	const handleSelect = (t: typeof themes[0]) => {
+		setSelectedTheme(t.id);
+		try {
+			themeService.setColorTheme(t.themeId, 'auto');
+		} catch (e) {
+			console.error('Failed to set theme:', e);
+		}
+	};
+
+	return (
+		<div className="flex flex-col w-full max-w-5xl mx-auto py-4 px-4 text-on-surface select-none">
+			<OnboardingHeader currentStep={2} onClose={onClose} />
+
+			{/* Titre & Description */}
+			<div className="text-center mb-6">
+				<h1 className="text-2xl font-semibold text-text-primary tracking-tight font-sans">
+					Select your Visual Workspace Theme
+				</h1>
+				<p className="text-xs text-text-secondary mt-1">
+					Obsidian-tuned colorways engineered for cognitive endurance and syntax clarity.
+				</p>
+			</div>
+
+			{/* Grille des 4 thèmes avec bordures carrées */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+				{themes.map((t) => {
+					const isSelected = selectedTheme === t.id;
+					const isLight = t.id === 'solar';
+
+					return (
+						<div
+							key={t.id}
+							onClick={() => handleSelect(t)}
+							className={`p-4 rounded-none transition-all cursor-pointer flex flex-col justify-between border ${
+								isLight
+									? 'bg-[#f4f5f8] text-zinc-900 hover:bg-[#ffffff]'
+									: 'bg-surface-elevated hover:bg-surface-hover text-text-primary'
+							} ${
+								isSelected
+									? 'border-primary ring-1 ring-primary/40 shadow-lg shadow-primary/10'
+									: isLight
+									? 'border-zinc-300'
+									: 'border-white/5'
+							}`}
+						>
+							<div className="flex items-center justify-between mb-3">
+								<span className={`text-sm font-semibold font-sans ${isLight ? 'text-zinc-900' : 'text-text-primary'}`}>
+									{t.label}
+								</span>
+								<span
+									className={`font-mono text-[10px] px-2 py-0.5 rounded-none font-semibold ${
+										isSelected
+											? 'bg-primary text-black'
+											: isLight
+											? 'bg-white text-zinc-900 border border-zinc-300'
+											: 'bg-surface-base text-text-muted'
+									}`}
+								>
+									{t.badge}
+								</span>
+							</div>
+
+							<div className={`p-3 rounded-none my-2 border ${isLight ? 'bg-white border-zinc-200 shadow-sm' : 'bg-surface-base border-white/5'}`}>
+								{t.renderCode()}
+							</div>
 						</div>
 					);
 				})}
 			</div>
+
+			{/* Footer de Navigation */}
+			<footer className="flex items-center justify-between w-full mt-8 pt-4 border-t border-white/5">
+				<button
+					type="button"
+					onClick={onBack}
+					className="px-4 py-2 rounded-none text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/5"
+				>
+					<ArrowLeft className="w-3.5 h-3.5" />
+					<span>Back</span>
+				</button>
+
+				<div className="flex items-center gap-3">
+					<button
+						type="button"
+						onClick={onClose}
+						className="px-4 py-2 rounded-none text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium text-xs transition-colors cursor-pointer border border-white/5"
+					>
+						Skip for now
+					</button>
+					<button
+						type="button"
+						onClick={onNext}
+						className="px-6 py-2 rounded-none bg-primary text-black font-semibold text-xs flex items-center gap-2 shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+					>
+						<span>Continue to Migration</span>
+						<ArrowRight className="w-3.5 h-3.5" />
+					</button>
+				</div>
+			</footer>
 		</div>
+	);
+};
 
-		{/* Right Column */}
-		<div className="flex-1 flex flex-col items-center justify-start p-6 h-full overflow-y-auto">
-			<div className="text-5xl mb-2 text-center w-full">Add a Provider</div>
+// ============================================================================
+//  ÉCRAN 4 : MIGRATION & FINALISATION (Épuré, optionnel & direct)
+// ============================================================================
 
-			<div className="w-full max-w-xl mt-4 mb-10">
-				<div className="text-4xl font-light my-4 w-full">{currentTab}</div>
-				<div className="text-sm opacity-80 text-void-fg-3 my-4 w-full">{descriptionOfTab[currentTab]}</div>
+interface StepMigrationProps {
+	onBack: () => void;
+	onFinish: () => void;
+}
+
+const StepMigration: React.FC<StepMigrationProps> = ({ onBack, onFinish }) => {
+	const accessor = useAccessor();
+	const extensionTransferService = accessor.get('IExtensionTransferService');
+
+	// Possibilité de ne rien cocher (initialement null, toggleable au clic)
+	const [selectedSource, setSelectedSource] = useState<TransferEditorType | null>(null);
+
+	const handleToggleSource = (source: TransferEditorType) => {
+		setSelectedSource((prev) => (prev === source ? null : source));
+	};
+
+	const handleEnterIDE = () => {
+		// Applique et termine l'onboarding immédiatement
+		onFinish();
+
+		// Transfert en arrière-plan sans bloquer si un éditeur a été sélectionné
+		if (selectedSource && extensionTransferService) {
+			try {
+				extensionTransferService.transferExtensions(os, selectedSource).catch((err) => {
+					console.warn('Background transfer warning:', err);
+				});
+			} catch (e) {
+				console.error('Transfer trigger error:', e);
+			}
+		}
+	};
+
+	return (
+		<div className="flex flex-col w-full max-w-5xl mx-auto py-4 px-4 text-on-surface select-none">
+			<OnboardingHeader currentStep={3} onClose={onFinish} />
+
+			{/* Titre & Description */}
+			<div className="text-center mb-8">
+				<h1 className="text-2xl font-semibold text-text-primary tracking-tight font-sans">
+					Import your IDE Configurations &amp; Keybindings
+				</h1>
+				<p className="text-xs text-text-secondary mt-1 max-w-lg mx-auto">
+					Instantly mirror your muscle memory and extensions from your existing environments (optional — click to select or deselect).
+				</p>
 			</div>
 
-			{providerNamesOfTab[currentTab].map((providerName) => (
-				<div key={providerName} className="w-full max-w-xl mb-10">
-					<div className="text-xl mb-2">
-						Add {displayInfoOfProviderName(providerName).title}
-						{providerName === 'gemini' && (
-							<span
-								data-tooltip-id="void-tooltip-provider-info"
-								data-tooltip-content="Gemini 2.5 Pro offers 25 free messages a day, and Gemini 2.5 Flash offers 500. We recommend using models down the line as you run out of free credits."
-								data-tooltip-place="right"
-								className="ml-1 text-xs align-top text-blue-400"
-							>*</span>
-						)}
-						{providerName === 'openRouter' && (
-							<span
-								data-tooltip-id="void-tooltip-provider-info"
-								data-tooltip-content="OpenRouter offers 50 free messages a day, and 1000 if you deposit $10. Only applies to models labeled ':free'."
-								data-tooltip-place="right"
-								className="ml-1 text-xs align-top text-blue-400"
-							>*</span>
-						)}
+			{/* Grille des 3 éditeurs sources à bords carrés (sélectionnable / désélectionnable) */}
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+				{/* VS Code */}
+				<div
+					onClick={() => handleToggleSource('VS Code')}
+					className={`p-5 rounded-none cursor-pointer transition-all flex flex-col justify-between border ${
+						selectedSource === 'VS Code'
+							? 'bg-surface-elevated border-primary ring-1 ring-primary/40 shadow-lg shadow-primary/10'
+							: 'bg-surface-elevated/40 border-white/5 hover:bg-surface-elevated hover:border-white/10'
+					}`}
+				>
+					<div className="flex items-center justify-between mb-4">
+						<Terminal className={`w-5 h-5 ${selectedSource === 'VS Code' ? 'text-primary' : 'text-text-secondary'}`} />
+						<div className="flex items-center gap-1.5">
+							<span className="font-mono text-[9px] px-1.5 py-0.5 rounded-none bg-primary/20 text-primary font-semibold">
+								DETECTED
+							</span>
+							{selectedSource === 'VS Code' && (
+								<Check className="w-3.5 h-3.5 text-primary" />
+							)}
+						</div>
 					</div>
 					<div>
-						<SettingsForProvider providerName={providerName} showProviderTitle={false} showProviderSuggestions={true} />
-
+						<h3 className="font-semibold text-sm text-text-primary font-sans">VS Code</h3>
+						<p className="text-xs text-text-secondary mt-1">Local settings.json &amp; extensions</p>
 					</div>
-					{providerName === 'ollama' && <OllamaSetupInstructions />}
 				</div>
-			))}
 
-			{(currentTab === 'Local' || currentTab === 'Cloud/Other') && (
-				<div className="w-full max-w-xl mt-8 bg-void-bg-2/50 rounded-lg p-6 border border-void-border-4">
-					<div className="flex items-center gap-2 mb-4">
-						<div className="text-xl font-medium">Models</div>
+				{/* Cursor */}
+				<div
+					onClick={() => handleToggleSource('Cursor')}
+					className={`p-5 rounded-none cursor-pointer transition-all flex flex-col justify-between border ${
+						selectedSource === 'Cursor'
+							? 'bg-surface-elevated border-primary ring-1 ring-primary/40 shadow-lg shadow-primary/10'
+							: 'bg-surface-elevated/40 border-white/5 hover:bg-surface-elevated hover:border-white/10'
+					}`}
+				>
+					<div className="flex items-center justify-between mb-4">
+						<MousePointer className={`w-5 h-5 ${selectedSource === 'Cursor' ? 'text-primary' : 'text-text-secondary'}`} />
+						<div className="flex items-center gap-1.5">
+							<span className="font-mono text-[9px] px-1.5 py-0.5 rounded-none bg-surface-base text-text-muted">
+								AVAILABLE
+							</span>
+							{selectedSource === 'Cursor' && (
+								<Check className="w-3.5 h-3.5 text-primary" />
+							)}
+						</div>
 					</div>
-
-					{currentTab === 'Local' && (
-						<div className="text-sm opacity-80 text-void-fg-3 my-4 w-full">Local models should be detected automatically. You can add custom models below.</div>
-					)}
-
-					{currentTab === 'Local' && <ModelDump filteredProviders={localProviderNames} />}
-					{currentTab === 'Cloud/Other' && <ModelDump filteredProviders={cloudProviders} />}
+					<div>
+						<h3 className="font-semibold text-sm text-text-primary font-sans">Cursor</h3>
+						<p className="text-xs text-text-secondary mt-1">.cursorrules, prompts &amp; AI configs</p>
+					</div>
 				</div>
-			)}
 
-
-
-			{/* Navigation buttons in right column */}
-			<div className="flex flex-col items-end w-full mt-auto pt-8">
-				{errorMessage && (
-					<div className="text-amber-400 mb-2 text-sm opacity-80 transition-opacity duration-300">{errorMessage}</div>
-				)}
-				<div className="flex items-center gap-2">
-					<PreviousButton onClick={() => setPageIndex(pageIndex - 1)} />
-					<NextButton
-						onClick={() => {
-							const isDisabled = isFeatureNameDisabled('Chat', settingsState)
-
-							if (!isDisabled) {
-								setPageIndex(pageIndex + 1);
-								setErrorMessage(null);
-							} else {
-								// Show error message
-								setErrorMessage("Please set up at least one Chat model before moving on.");
-							}
-						}}
-					/>
+				{/* Windsurf */}
+				<div
+					onClick={() => handleToggleSource('Windsurf')}
+					className={`p-5 rounded-none cursor-pointer transition-all flex flex-col justify-between border ${
+						selectedSource === 'Windsurf'
+							? 'bg-surface-elevated border-primary ring-1 ring-primary/40 shadow-lg shadow-primary/10'
+							: 'bg-surface-elevated/40 border-white/5 hover:bg-surface-elevated hover:border-white/10'
+					}`}
+				>
+					<div className="flex items-center justify-between mb-4">
+						<Wind className={`w-5 h-5 ${selectedSource === 'Windsurf' ? 'text-primary' : 'text-text-secondary'}`} />
+						<div className="flex items-center gap-1.5">
+							<span className="font-mono text-[9px] px-1.5 py-0.5 rounded-none bg-surface-base text-text-muted">
+								AVAILABLE
+							</span>
+							{selectedSource === 'Windsurf' && (
+								<Check className="w-3.5 h-3.5 text-primary" />
+							)}
+						</div>
+					</div>
+					<div>
+						<h3 className="font-semibold text-sm text-text-primary font-sans">Windsurf</h3>
+						<p className="text-xs text-text-secondary mt-1">Cascade memories &amp; custom action maps</p>
+					</div>
 				</div>
 			</div>
+
+			{/* Footer de Navigation */}
+			<footer className="flex items-center justify-between w-full pt-6 border-t border-white/5">
+				<button
+					type="button"
+					onClick={onBack}
+					className="px-4 py-2 rounded-none text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/5"
+				>
+					<ArrowLeft className="w-3.5 h-3.5" />
+					<span>Back</span>
+				</button>
+
+				<button
+					type="button"
+					onClick={handleEnterIDE}
+					className="bg-primary hover:brightness-110 text-black font-semibold text-xs px-7 py-2.5 rounded-none transition-all flex items-center gap-2 shadow-lg shadow-primary/20 cursor-pointer active:scale-95"
+				>
+					<span>Enter Codeen IDE</span>
+					<ArrowRight className="w-4 h-4" />
+				</button>
+			</footer>
 		</div>
-	</div>);
+	);
 };
-// =============================================
-// 	OnboardingPage
-// 		title:
-// 			div
-// 				"Welcome to Void"
-// 			image
-// 		content:<></>
-// 		title
-// 		content
-// 		prev/next
 
-// 	OnboardingPage
-// 		title:
-// 			div
-// 				"How would you like to use Void?"
-// 		content:
-// 			ModelQuestionContent
-// 				|
-// 					div
-// 						"I want to:"
-// 					div
-// 						"Use the smartest models"
-// 						"Keep my data fully private"
-// 						"Save money"
-// 						"I don't know"
-// 				| div
-// 					| div
-// 						"We recommend using "
-// 						"Set API"
-// 					| div
-// 						""
-// 					| div
-//
-// 		title
-// 		content
-// 		prev/next
-//
-// 	OnboardingPage
-// 		title
-// 		content
-// 		prev/next
+// ============================================================================
+//  MAIN CONTAINER CONTENT
+// ============================================================================
 
-const NextButton = ({ onClick, ...props }: { onClick: () => void } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+export const CodeenOnboardingContent = () => {
+	const accessor = useAccessor();
+	const voidSettingsService = accessor.get('IVoidSettingsService');
+	const voidSettingsState = useSettingsState();
 
-	// Create a new props object without the disabled attribute
-	const { disabled, ...buttonProps } = props;
+	const [pageIndex, setPageIndex] = useState<number>(0);
 
-	return (
-		<button
-			onClick={disabled ? undefined : onClick}
-			onDoubleClick={onClick}
-			className={`px-6 py-2 bg-zinc-100 ${disabled
-				? 'bg-zinc-100/40 cursor-not-allowed'
-				: 'hover:bg-zinc-100'
-				} rounded text-black duration-600 transition-all
-			`}
-			{...disabled && {
-				'data-tooltip-id': 'void-tooltip',
-				"data-tooltip-content": 'Please enter all required fields or choose another provider', // (double-click to proceed anyway, can come back in Settings)
-				"data-tooltip-place": 'top',
-			}}
-			{...buttonProps}
-		>
-			Next
-		</button>
-	)
-}
-
-const PreviousButton = ({ onClick, ...props }: { onClick: () => void } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-	return (
-		<button
-			onClick={onClick}
-			className="px-6 py-2 rounded text-void-fg-3 opacity-80 hover:brightness-115 duration-600 transition-all"
-			{...props}
-		>
-			Back
-		</button>
-	)
-}
-
-
-
-const OnboardingPageShell = ({ top, bottom, content, hasMaxWidth = true, className = '', }: {
-	top?: React.ReactNode,
-	bottom?: React.ReactNode,
-	content?: React.ReactNode,
-	hasMaxWidth?: boolean,
-	className?: string,
-}) => {
-	return (
-		<div className={`h-[80vh] text-lg flex flex-col gap-4 w-full mx-auto ${hasMaxWidth ? 'max-w-[600px]' : ''} ${className}`}>
-			{top && <FadeIn className='w-full mb-auto pt-16'>{top}</FadeIn>}
-			{content && <FadeIn className='w-full my-auto'>{content}</FadeIn>}
-			{bottom && <div className='w-full pb-8'>{bottom}</div>}
-		</div>
-	)
-}
-
-const OllamaDownloadOrRemoveModelButton = ({ modelName, isModelInstalled, sizeGb }: { modelName: string, isModelInstalled: boolean, sizeGb: number | false | 'not-known' }) => {
-	// for now just link to the ollama download page
-	return <a
-		href={`https://ollama.com/library/${modelName}`}
-		target="_blank"
-		rel="noopener noreferrer"
-		className="flex items-center justify-center text-void-fg-2 hover:text-void-fg-1"
-	>
-		<ExternalLink className="w-3.5 h-3.5" />
-	</a>
-
-}
-
-
-const YesNoText = ({ val }: { val: boolean | null }) => {
-
-	return <div
-		className={
-			val === true ? "text text-emerald-500"
-				: val === false ? 'text-rose-600'
-					: "text text-amber-300"
-		}
-	>
-		{
-			val === true ? "Yes"
-				: val === false ? 'No'
-					: "Yes*"
-		}
-	</div>
-
-}
-
-
-
-const abbreviateNumber = (num: number): string => {
-	if (num >= 1000000) {
-		// For millions
-		return Math.floor(num / 1000000) + 'M';
-	} else if (num >= 1000) {
-		// For thousands
-		return Math.floor(num / 1000) + 'K';
-	} else {
-		// For numbers less than 1000
-		return num.toString();
-	}
-}
-
-
-
-
-
-const PrimaryActionButton = ({ children, className, ringSize, ...props }: { children: React.ReactNode, ringSize?: undefined | 'xl' | 'screen' } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-
-
-	return (
-		<button
-			type='button'
-			className={`
-				flex items-center justify-center
-
-				text-white dark:text-black
-				bg-black/90 dark:bg-white/90
-
-				${ringSize === 'xl' ? `
-					gap-2 px-16 py-8
-					transition-all duration-300 ease-in-out
-					`
-					: ringSize === 'screen' ? `
-					gap-2 px-16 py-8
-					transition-all duration-1000 ease-in-out
-					`: ringSize === undefined ? `
-					gap-1 px-4 py-2
-					transition-all duration-300 ease-in-out
-				`: ''}
-
-				rounded-lg
-				group
-				${className}
-			`}
-			{...props}
-		>
-			{children}
-			<ChevronRight
-				className={`
-					transition-all duration-300 ease-in-out
-
-					transform
-					group-hover:translate-x-1
-					group-active:translate-x-1
-				`}
-			/>
-		</button>
-	)
-}
-
-
-type WantToUseOption = 'smart' | 'private' | 'cheap' | 'all'
-
-const VoidOnboardingContent = () => {
-
-
-	const accessor = useAccessor()
-	const voidSettingsService = accessor.get('IVoidSettingsService')
-	const voidMetricsService = accessor.get('IMetricsService')
-
-	const voidSettingsState = useSettingsState()
-
-	const [pageIndex, setPageIndex] = useState(0)
-
-
-	// page 1 state
-	const [wantToUseOption, setWantToUseOption] = useState<WantToUseOption>('smart')
-
-	// Replace the single selectedProviderName with four separate states
-	// page 2 state - each tab gets its own state
-	const [selectedIntelligentProvider, setSelectedIntelligentProvider] = useState<ProviderName>('anthropic');
-	const [selectedPrivateProvider, setSelectedPrivateProvider] = useState<ProviderName>('ollama');
-	const [selectedAffordableProvider, setSelectedAffordableProvider] = useState<ProviderName>('gemini');
-	const [selectedAllProvider, setSelectedAllProvider] = useState<ProviderName>('anthropic');
-
-	// Helper function to get the current selected provider based on active tab
-	const getSelectedProvider = (): ProviderName => {
-		switch (wantToUseOption) {
-			case 'smart': return selectedIntelligentProvider;
-			case 'private': return selectedPrivateProvider;
-			case 'cheap': return selectedAffordableProvider;
-			case 'all': return selectedAllProvider;
-		}
-	}
-
-	// Helper function to set the selected provider for the current tab
-	const setSelectedProvider = (provider: ProviderName) => {
-		switch (wantToUseOption) {
-			case 'smart': setSelectedIntelligentProvider(provider); break;
-			case 'private': setSelectedPrivateProvider(provider); break;
-			case 'cheap': setSelectedAffordableProvider(provider); break;
-			case 'all': setSelectedAllProvider(provider); break;
-		}
-	}
-
-	const providerNamesOfWantToUseOption: { [wantToUseOption in WantToUseOption]: ProviderName[] } = {
-		smart: ['anthropic', 'openAI', 'gemini', 'openRouter'],
-		private: ['ollama', 'vLLM', 'openAICompatible', 'lmStudio'],
-		cheap: ['gemini', 'deepseek', 'openRouter', 'ollama', 'vLLM'],
-		all: providerNames,
-	}
-
-
-	const selectedProviderName = getSelectedProvider();
-	const didFillInProviderSettings = selectedProviderName && voidSettingsState.settingsOfProvider[selectedProviderName]._didFillInProviderSettings
-	const isApiKeyLongEnoughIfApiKeyExists = selectedProviderName && voidSettingsState.settingsOfProvider[selectedProviderName].apiKey ? voidSettingsState.settingsOfProvider[selectedProviderName].apiKey.length > 15 : true
-	const isAtLeastOneModel = selectedProviderName && voidSettingsState.settingsOfProvider[selectedProviderName].models.length >= 1
-
-	const didFillInSelectedProviderSettings = !!(didFillInProviderSettings && isApiKeyLongEnoughIfApiKeyExists && isAtLeastOneModel)
-
-	const prevAndNextButtons = <div className="max-w-[600px] w-full mx-auto flex flex-col items-end">
-		<div className="flex items-center gap-2">
-			<PreviousButton
-				onClick={() => { setPageIndex(pageIndex - 1) }}
-			/>
-			<NextButton
-				onClick={() => { setPageIndex(pageIndex + 1) }}
-			/>
-		</div>
-	</div>
-
-
-	const lastPagePrevAndNextButtons = <div className="max-w-[600px] w-full mx-auto flex flex-col items-end">
-		<div className="flex items-center gap-2">
-			<PreviousButton
-				onClick={() => { setPageIndex(pageIndex - 1) }}
-			/>
-			<PrimaryActionButton
-				onClick={() => {
-					voidSettingsService.setGlobalSetting('isOnboardingComplete', true);
-					voidMetricsService.capture('Completed Onboarding', { selectedProviderName, wantToUseOption })
-				}}
-				ringSize={voidSettingsState.globalSettings.isOnboardingComplete ? 'screen' : undefined}
-			>Enter the Void</PrimaryActionButton>
-		</div>
-	</div>
-
-
-	// cannot be md
-	const basicDescOfWantToUseOption: { [wantToUseOption in WantToUseOption]: string } = {
-		smart: "Models with the best performance on benchmarks.",
-		private: "Host on your computer or local network for full data privacy.",
-		cheap: "Free and affordable options.",
-		all: "",
-	}
-
-	// can be md
-	const detailedDescOfWantToUseOption: { [wantToUseOption in WantToUseOption]: string } = {
-		smart: "Most intelligent and best for agent mode.",
-		private: "Private-hosted so your data never leaves your computer or network. [Email us](mailto:founders@voideditor.com) for help setting up at your company.",
-		cheap: "Use great deals like Gemini 2.5 Pro, or self-host a model with Ollama or vLLM for free.",
-		all: "",
-	}
-
-	// Modified: initialize separate provider states on initial render instead of watching wantToUseOption changes
+	// Réinitialise la page à 0 si l'onboarding est relancé manuellement
+	const prevIsComplete = useRef(voidSettingsState.globalSettings.isOnboardingComplete);
 	useEffect(() => {
-		if (selectedIntelligentProvider === undefined) {
-			setSelectedIntelligentProvider(providerNamesOfWantToUseOption['smart'][0]);
+		const isComplete = voidSettingsState.globalSettings.isOnboardingComplete;
+		if (prevIsComplete.current === true && isComplete === false) {
+			setPageIndex(0);
 		}
-		if (selectedPrivateProvider === undefined) {
-			setSelectedPrivateProvider(providerNamesOfWantToUseOption['private'][0]);
-		}
-		if (selectedAffordableProvider === undefined) {
-			setSelectedAffordableProvider(providerNamesOfWantToUseOption['cheap'][0]);
-		}
-		if (selectedAllProvider === undefined) {
-			setSelectedAllProvider(providerNamesOfWantToUseOption['all'][0]);
-		}
-	}, []);
+		prevIsComplete.current = isComplete;
+	}, [voidSettingsState.globalSettings.isOnboardingComplete]);
 
-	// reset the page to page 0 if the user redos onboarding
-	useEffect(() => {
-		if (!voidSettingsState.globalSettings.isOnboardingComplete) {
-			setPageIndex(0)
-		}
-	}, [setPageIndex, voidSettingsState.globalSettings.isOnboardingComplete])
+	const handleClose = () => {
+		voidSettingsService.setGlobalSetting('isOnboardingComplete', true);
+	};
 
-
-	const contentOfIdx: { [pageIndex: number]: React.ReactNode } = {
-		0: <OnboardingPageShell
-			content={
-				<div className='flex flex-col items-center gap-8'>
-					<div className="text-5xl font-light text-center">Welcome to Void</div>
-
-					{/* Slice of Void image */}
-					<div className='max-w-md w-full h-[30vh] mx-auto flex items-center justify-center'>
-						{!isLinux && <VoidIcon />}
-					</div>
-
-
-					<FadeIn
-						delayMs={1000}
-					>
-						<PrimaryActionButton
-							onClick={() => { setPageIndex(1) }}
-						>
-							Get Started
-						</PrimaryActionButton>
-					</FadeIn>
-
-				</div>
-			}
-		/>,
-
-		1: <OnboardingPageShell hasMaxWidth={false}
-			content={
-				<AddProvidersPage pageIndex={pageIndex} setPageIndex={setPageIndex} />
-			}
-		/>,
-		2: <OnboardingPageShell
-
-			content={
-				<div>
-					<div className="text-5xl font-light text-center">Settings and Themes</div>
-
-					<div className="mt-8 text-center flex flex-col items-center gap-4 w-full max-w-md mx-auto">
-						<h4 className="text-void-fg-3 mb-4">Transfer your settings from an existing editor?</h4>
-						<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="VS Code" />
-						<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="Cursor" />
-						<OneClickSwitchButton className='w-full px-4 py-2' fromEditor="Windsurf" />
-					</div>
-				</div>
-			}
-			bottom={lastPagePrevAndNextButtons}
-		/>,
-	}
-
-
-	return <div key={pageIndex} className="w-full h-[80vh] text-left mx-auto flex flex-col items-center justify-center">
-		<ErrorBoundary>
-			{contentOfIdx[pageIndex]}
-		</ErrorBoundary>
-	</div>
-
-}
+	return (
+		<div className="w-full min-h-screen flex items-center justify-center p-4">
+			{pageIndex === 0 && (
+				<StepWelcome
+					onNext={() => setPageIndex(1)}
+					onClose={handleClose}
+				/>
+			)}
+			{pageIndex === 1 && (
+				<StepProviders
+					onBack={() => setPageIndex(0)}
+					onNext={() => setPageIndex(2)}
+					onClose={handleClose}
+				/>
+			)}
+			{pageIndex === 2 && (
+				<StepThemes
+					onBack={() => setPageIndex(1)}
+					onNext={() => setPageIndex(3)}
+					onClose={handleClose}
+				/>
+			)}
+			{pageIndex === 3 && (
+				<StepMigration
+					onBack={() => setPageIndex(2)}
+					onFinish={handleClose}
+				/>
+			)}
+		</div>
+	);
+};

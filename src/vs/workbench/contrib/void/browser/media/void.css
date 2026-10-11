@@ -27,20 +27,21 @@
 /* Renamed from void-watermark-button to void-openfolder-button */
 .void-openfolder-button {
     padding: 8px 20px;
-    background-color: #306dce;
-    color: white;
+    background-color: #00DC82;
+    color: #00391d;
+    font-weight: 600;
     border: none;
-    border-radius: 4px;
+    border-radius: 2px;
     outline: none !important;
 	box-shadow: none !important;
 	cursor: pointer;
-	transition: background-color 0.2s ease;
+	transition: all 0.2s ease;
 }
 .void-openfolder-button:hover {
-    background-color: #2563eb;
+    background-color: #45f99c;
 }
 .void-openfolder-button:active {
-    background-color: #2563eb;
+    background-color: #38e08d;
 }
 
 /* Added for Open SSH button with slightly darker color */
@@ -49,7 +50,7 @@
     background-color: #656565; /* Slightly darker than the #5a5a5a in the TS file */
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 2px;
     outline: none !important;
 	box-shadow: none !important;
     cursor: pointer;
@@ -69,7 +70,7 @@
 	background-color: var(--vscode-input-background);
 	color: var(--vscode-input-foreground);
 	border: none;
-	border-radius: 4px;
+	border-radius: 2px;
 	outline: none !important;
 	box-shadow: none !important;
 	cursor: pointer;
@@ -85,7 +86,7 @@
 }
 
 .void-link {
-	color: #3b82f6;
+	color: #45f99c;
 	cursor: pointer;
 	transition: all 0.2s ease;
 }
@@ -201,4 +202,19 @@
 .void-scrollable-element::-webkit-scrollbar-corner,
 .void-scrollable-element *::-webkit-scrollbar-corner {
 	background-color: var(--void-bg-3) !important;
+}
+
+/* Codeen Custom Activity Bar Icon */
+.codicon-codeen-view-icon::before {
+	content: '' !important;
+	display: block;
+	width: 16px;
+	height: 16px;
+	background-color: currentColor;
+	-webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 36 32" xmlns="http://www.w3.org/2000/svg"><g fill="black"><path d="M 13 16.5 L 4 16.5 C 4.15 13.8 6.1 11.5 9 11.5 C 11.9 11.5 13.7 13.6 13.8 16 M 4.1 18 C 4.5 21.3 7.1 23 9.7 23 C 11.7 23 13.1 22.1 13.8 20.8 L 15.8 21.8 C 14.6 23.9 12.4 25.2 9.5 25.2 C 5.2 25.2 1.8 22 1.8 17.5 C 1.8 12.8 5.2 9.5 9.5 9.5 C 13.9 9.5 16.1 13 15.9 18 L 13 18 Z M 4.2 14.6 L 13.6 14.6 C 13.2 12.7 11.7 11.6 9.4 11.6 C 7 11.6 5 12.8 4.2 14.6 Z" /></g><g transform="translate(18, 17) scale(1, 0.72) translate(-18, -17)"><line x1="15.2" y1="26" x2="20.8" y2="8" stroke="black" stroke-width="2.6" stroke-linecap="round"/></g><g transform="rotate(180, 27.5, 17.3)" fill="black"><path d="M 12 16.5 L 3 16.5 C 3.15 13.8 5.1 11.5 8 11.5 C 10.9 11.5 12.7 13.6 12.8 16 M 3.1 18 C 3.5 21.3 6.1 23 8.7 23 C 10.7 23 12.1 22.1 12.8 20.8 L 14.8 21.8 C 13.6 23.9 11.4 25.2 8.5 25.2 C 4.2 25.2 0.8 22 0.8 17.5 C 0.8 12.8 4.2 9.5 8.5 9.5 C 12.9 9.5 15.1 13 14.9 18 L 12 18 Z M 3.2 14.6 L 12.6 14.6 C 12.2 12.7 10.7 11.6 8.4 11.6 C 6 11.6 4 12.8 3.2 14.6 Z" /></g></svg>') !important;
+	-webkit-mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 36 32" xmlns="http://www.w3.org/2000/svg"><g fill="black"><path d="M 13 16.5 L 4 16.5 C 4.15 13.8 6.1 11.5 9 11.5 C 11.9 11.5 13.7 13.6 13.8 16 M 4.1 18 C 4.5 21.3 7.1 23 9.7 23 C 11.7 23 13.1 22.1 13.8 20.8 L 15.8 21.8 C 14.6 23.9 12.4 25.2 9.5 25.2 C 5.2 25.2 1.8 22 1.8 17.5 C 1.8 12.8 5.2 9.5 9.5 9.5 C 13.9 9.5 16.1 13 15.9 18 L 13 18 Z M 4.2 14.6 L 13.6 14.6 C 13.2 12.7 11.7 11.6 9.4 11.6 C 7 11.6 5 12.8 4.2 14.6 Z" /></g><g transform="translate(18, 17) scale(1, 0.72) translate(-18, -17)"><line x1="15.2" y1="26" x2="20.8" y2="8" stroke="black" stroke-width="2.6" stroke-linecap="round"/></g><g transform="rotate(180, 27.5, 17.3)" fill="black"><path d="M 12 16.5 L 3 16.5 C 3.15 13.8 5.1 11.5 8 11.5 C 10.9 11.5 12.7 13.6 12.8 16 M 3.1 18 C 3.5 21.3 6.1 23 8.7 23 C 10.7 23 12.1 22.1 12.8 20.8 L 14.8 21.8 C 13.6 23.9 11.4 25.2 8.5 25.2 C 4.2 25.2 0.8 22 0.8 17.5 C 0.8 12.8 4.2 9.5 8.5 9.5 C 12.9 9.5 15.1 13 14.9 18 L 12 18 Z M 3.2 14.6 L 12.6 14.6 C 12.2 12.7 10.7 11.6 8.4 11.6 C 6 11.6 4 12.8 3.2 14.6 Z" /></g></svg>') !important;
+	mask-size: contain;
+	mask-repeat: no-repeat;
 }

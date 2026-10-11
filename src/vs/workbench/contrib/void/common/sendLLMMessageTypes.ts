@@ -6,6 +6,7 @@
 import { InternalToolInfo } from './prompt/prompts.js'
 import { ToolName, ToolParamName } from './toolsServiceTypes.js'
 import { ChatMode, ModelSelection, ModelSelectionOptions, OverridesOfModel, ProviderName, RefreshableProviderName, SettingsOfProvider } from './voidSettingsTypes.js'
+import { ChatImageAttachment } from './chatThreadServiceTypes.js'
 
 
 export const errorDetails = (fullError: Error | null): string | null => {
@@ -32,7 +33,7 @@ export const getErrorMessage: (error: unknown) => string = (error) => {
 export type AnthropicLLMChatMessage = {
 	role: 'assistant',
 	content: string | (AnthropicReasoning | { type: 'text'; text: string }
-		| { type: 'tool_use'; name: string; input: Record<string, any>; id: string; }
+		| { type: 'tool_use'; name: string; input: Record<string, any>; id: string; thoughtSignature?: string; }
 	)[];
 } | {
 	role: 'user',
@@ -43,6 +44,7 @@ export type AnthropicLLMChatMessage = {
 export type OpenAILLMChatMessage = {
 	role: 'system' | 'user' | 'developer';
 	content: string;
+	images?: ChatImageAttachment[];
 } | {
 	role: 'assistant',
 	content: string | (AnthropicReasoning | { type: 'text'; text: string })[];
@@ -57,7 +59,15 @@ export type GeminiLLMChatMessage = {
 	role: 'model'
 	parts: (
 		| { text: string; }
-		| { functionCall: { id: string; name: ToolName, args: Record<string, unknown> } }
+		| {
+			functionCall: {
+				id: string;
+				name: ToolName;
+				args: Record<string, unknown>;
+			};
+			thought_signature?: string;
+			thoughtSignature?: string;
+		}
 	)[];
 } | {
 	role: 'user';
@@ -87,6 +97,7 @@ export type RawToolCallObj = {
 	doneParams: ToolParamName<ToolName>[];
 	id: string;
 	isDone: boolean;
+	thoughtSignature?: string;
 };
 
 export type AnthropicReasoning = ({ type: 'thinking'; thinking: any; signature: string; } | { type: 'redacted_thinking', data: any })

@@ -1,0 +1,585 @@
+<!DOCTYPE html><html class="dark" lang="en" style="width: 1280px; height: 1024px; overflow: hidden; position: relative;"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary-fixed": "#001f28", "on-tertiary-container": "#0042c1", "outline": "#859587", "text-muted": "#6B7280", "diff-addition": "#10B981", "primary": "#45f99c", "agent-indigo": "#2563FF", "border-hairline": "rgba(255, 255, 255, 0.08)", "tertiary": "#d4dbff", "primary-fixed-dim": "#1ce388", "on-primary-fixed-variant": "#00522d", "primary-fixed": "#59ffa4", "background": "#111317", "surface-panel": "#12151B", "surface-base": "#0B0D11", "on-background": "#e2e2e8", "surface-dim": "#111317", "tertiary-fixed-dim": "#b6c4ff", "surface-container-low": "#1a1c20", "inverse-on-surface": "#2f3035", "on-primary-fixed": "#00210f", "on-tertiary-fixed": "#00164f", "error-container": "#93000a", "primary-container": "#00dc82", "on-primary": "#00391d", "on-secondary-container": "#00566b", "tertiary-fixed": "#dce1ff", "secondary-fixed": "#b7eaff", "surface-elevated": "#1A1E26", "on-surface-variant": "#bacbbc", "on-surface": "#e2e2e8", "secondary-fixed-dim": "#4cd6ff", "surface-container-lowest": "#0c0e12", "surface-bright": "#37393e", "outline-variant": "#3c4a3f", "text-primary": "#F3F4F6", "text-secondary": "#9CA3AF", "on-error-container": "#ffdad6", "agent-cyan": "#00D1FF", "surface": "#111317", "surface-container-highest": "#333539", "on-tertiary-fixed-variant": "#003baf", "surface-tint": "#1ce388", "surface-variant": "#333539", "border-subtle": "#242933", "secondary": "#a6e6ff", "surface-hover": "#222732", "on-tertiary": "#00287d", "surface-container-high": "#282a2e", "border-active": "#00DC82", "tertiary-container": "#adbeff", "secondary-container": "#14d1ff", "on-secondary-fixed-variant": "#004e60", "error": "#ffb4ab", "inverse-primary": "#006d3e", "diff-deletion": "#EF4444", "diff-deletion-surface": "rgba(239, 68, 68, 0.12)", "on-secondary": "#003543", "on-primary-container": "#005b32", "surface-container": "#1e2024", "diff-addition-surface": "rgba(16, 185, 129, 0.12)", "inverse-surface": "#e2e2e8", "on-error": "#690005" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "0.75rem", "space-xl": "1.5rem", "space-xs": "0.25rem", "gutter": "0.75rem", "margin": "1rem", "space-lg": "1rem", "space-sm": "0.5rem" }, "fontFamily": { "headline-sm": ["Outfit"], "meta-mono": ["JetBrains Mono"], "code-base": ["JetBrains Mono"], "body-lg": ["Outfit"], "headline-md": ["Outfit"], "body-sm": ["Outfit"], "display-hero-mobile": ["Outfit"], "code-sm": ["JetBrains Mono"], "body-md": ["Outfit"], "label-caps": ["Outfit"], "display-hero": ["Outfit"], "headline-lg": ["Outfit"] }, "fontSize": { "headline-sm": ["15px", { "lineHeight": "20px", "letterSpacing": "-0.015em", "fontWeight": "500" }], "meta-mono": ["10.5px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-base": ["13px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "display-hero-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "code-sm": ["11.5px", { "lineHeight": "16px", "fontWeight": "400" }], "body-md": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }], "display-hero": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.04em", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.025em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-base font-body-md text-on-surface select-none overflow-x-hidden min-h-screen"><header class="fixed top-0 left-0 right-0 h-10 bg-surface-panel z-50 flex items-center justify-between px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-space-xs"><div class="w-3 h-3 rounded-full bg-[#EF4444] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#F59E0B] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#10B981] opacity-80 hover:opacity-100 transition-opacity"></div></div><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">Codeen</span></div></div><div class="flex-1 max-w-xl mx-space-lg"><button class="w-full h-7 bg-surface-elevated hover:bg-surface-hover text-on-surface-variant flex items-center justify-between px-space-sm rounded transition-colors group"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[15px] text-text-muted group-hover:text-primary transition-colors">search</span><span class="font-body-sm text-body-sm text-text-secondary">Search files, symbols, commands</span></div><div class="flex items-center gap-1"><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">Ctrl+P</span><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">⌘K</span></div></button></div><div class="flex items-center gap-space-xs"><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Left Explorer"><span class="material-symbols-outlined text-[18px]">dock_to_left</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Bottom Terminal"><span class="material-symbols-outlined text-[18px]">dock_to_bottom</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Right Auxiliary Bar"><span class="material-symbols-outlined text-[18px]">dock_to_right</span></button><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Settings"><span class="material-symbols-outlined text-[18px]">settings</span></button><img alt="Profile" class="w-6 h-6 rounded-full object-cover ml-space-xs ring-1 ring-border-hairline" src="https://lh3.googleusercontent.com/aida/AEtjO1UVBwqoT3md1Lo2ZWm04cLjY3MMyI72f7vevOYGaxCOFKIsMMmWsU-KO0oW3hdc8z62P5KUaKYutAPRoBwkPwrClIto9gnNmPTmcn3U3tGumOTsd_3Nvh88sbe1cJ-8mPtP1vSdif7wizIyzeOjjnkQxkzPi00HMorIPBwR0v4DktTR5Bh9scwySQ9qT4dGXwLfk8wdRlcYzOylx4SgVq206CyfPSzGtI9VKKp8TQ6EI6OQXRrjXxzYSbM"></div></header><aside class="fixed left-0 top-10 bottom-6 w-12 bg-surface-panel z-40 flex flex-col justify-between py-space-xs"><nav class="flex flex-col items-center gap-space-xs w-full" data-active-classes="bg-surface-elevated text-primary border-l-2 border-border-active"><a aria-current="page" class="w-full h-10 flex items-center justify-center transition-colors bg-surface-elevated text-primary border-l-2 border-border-active" data-path="workbench" href="#" title="Explorer (⌘⇧E)"><span class="material-symbols-outlined text-[20px]">folder</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="global-search" href="#" title="Search (⌘⇧F)"><span class="material-symbols-outlined text-[20px]">search</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="source-control" href="#" title="Source Control (⌘⇧G)"><span class="material-symbols-outlined text-[20px]">commit</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="run-and-debug" href="#" title="Run &amp; Debug (⌘⇧D)"><span class="material-symbols-outlined text-[20px]">play_circle</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="extensions-marketplace" href="#" title="Extensions (⌘⇧X)"><span class="material-symbols-outlined text-[20px]">extension</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="agent-hub" href="#" title="AI Agents Hub"><span class="material-symbols-outlined text-[20px]">smart_toy</span></a></nav><div class="flex flex-col items-center gap-space-xs w-full pb-space-xs"><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Accounts"><span class="material-symbols-outlined text-[20px]">account_circle</span></button><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Preferences"><span class="material-symbols-outlined text-[20px]">tune</span></button></div></aside><div class="pl-12"><main class="relative pt-10 pb-6 w-full min-h-[calc(100vh-2.5rem)] bg-surface-base"><div class="flex flex-col w-full h-[calc(100vh-4rem)] overflow-hidden font-body-md select-none bg-surface-base">
+<!-- Desktop IDE Multi-Column Layout -->
+<div class="flex flex-1 w-full h-full overflow-hidden">
+<!-- Left Explorer Sidebar (Docked Layer 1) -->
+<aside class="w-64 flex-shrink-0 bg-surface-panel flex flex-col justify-between overflow-hidden shadow-sm transition-all duration-200" id="explorer-sidebar">
+<!-- Sidebar Header -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between px-space-md py-space-xs bg-surface-panel">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-text-secondary">Explorer</span>
+<div class="flex items-center gap-space-xs text-text-muted">
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="New File">
+<span class="material-symbols-outlined text-[16px]">note_add</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="New Folder">
+<span class="material-symbols-outlined text-[16px]">create_new_folder</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Refresh">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Collapse Folders">
+<span class="material-symbols-outlined text-[16px]">unfold_less</span>
+</button>
+</div>
+</div>
+<!-- Project Title Accordion -->
+<div class="flex items-center gap-1.5 px-space-sm py-1 bg-surface-container-lowest text-text-primary text-body-sm font-semibold cursor-pointer">
+<span class="material-symbols-outlined text-[15px] text-text-secondary">expand_more</span>
+<span class="font-meta-mono text-meta-mono tracking-tight uppercase">peyopeu-mobile-app</span>
+<span class="ml-auto font-meta-mono text-[9px] px-1 bg-surface-elevated text-primary rounded">GIT</span>
+</div>
+<!-- Tree View List -->
+<div class="flex flex-col py-space-xs font-body-sm text-text-secondary space-y-0.5">
+<!-- Folder: calculatrice -->
+<div class="flex items-center justify-between px-space-md py-1 hover:bg-surface-hover cursor-pointer group transition-colors">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-text-muted group-hover:text-on-surface">chevron_right</span>
+<span class="material-symbols-outlined text-[16px] text-[#F59E0B]">folder</span>
+<span class="group-hover:text-text-primary">calculatrice</span>
+</div>
+<span class="w-1.5 h-1.5 rounded-full bg-diff-addition"></span>
+</div>
+<!-- Active File: generate_png.py -->
+<div class="flex items-center justify-between px-space-md py-1 bg-surface-elevated text-on-surface font-medium cursor-pointer relative shadow-sm">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary"></div>
+<div class="flex items-center gap-1.5 pl-3">
+<span class="material-symbols-outlined text-[16px] text-[#38BDF8]">code</span>
+<span class="text-primary font-code-sm">generate_png.py</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-meta-mono text-meta-mono text-diff-addition font-semibold">M</span>
+<span class="font-meta-mono text-[10px] text-text-muted">3</span>
+</div>
+</div>
+<!-- File: logo.html -->
+<div class="flex items-center justify-between px-space-md py-1 hover:bg-surface-hover cursor-pointer group transition-colors">
+<div class="flex items-center gap-1.5 pl-3">
+<span class="material-symbols-outlined text-[16px] text-[#EA580C]">html</span>
+<span class="group-hover:text-text-primary">logo.html</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-[#F59E0B] font-semibold">U</span>
+</div>
+<!-- File: logo.png -->
+<div class="flex items-center justify-between px-space-md py-1 hover:bg-surface-hover cursor-pointer group transition-colors">
+<div class="flex items-center gap-1.5 pl-3">
+<span class="material-symbols-outlined text-[16px] text-agent-cyan">image</span>
+<span class="group-hover:text-text-primary">logo.png</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">U</span>
+</div>
+<!-- File: logo.svg -->
+<div class="flex items-center justify-between px-space-md py-1 hover:bg-surface-hover cursor-pointer group transition-colors">
+<div class="flex items-center gap-1.5 pl-3">
+<span class="material-symbols-outlined text-[16px] text-[#A855F7]">gesture</span>
+<span class="group-hover:text-text-primary">logo.svg</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">U</span>
+</div>
+<!-- File: PeyonPeu-unsigned.aab -->
+<div class="flex items-center justify-between px-space-md py-1 hover:bg-surface-hover cursor-pointer group transition-colors">
+<div class="flex items-center gap-1.5 pl-3">
+<span class="material-symbols-outlined text-[16px] text-text-muted">archive</span>
+<span class="group-hover:text-text-primary truncate max-w-[130px]">PeyonPeu-unsigned.aab</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">U</span>
+</div>
+<!-- File: PeyonPeu-unsigned.apk -->
+<div class="flex items-center justify-between px-space-md py-1 hover:bg-surface-hover cursor-pointer group transition-colors">
+<div class="flex items-center gap-1.5 pl-3">
+<span class="material-symbols-outlined text-[16px] text-[#22C55E]">android</span>
+<span class="group-hover:text-text-primary truncate max-w-[130px]">PeyonPeu-unsigned.apk</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">U</span>
+</div>
+<!-- File: Readme.html -->
+<div class="flex items-center justify-between px-space-md py-1 hover:bg-surface-hover cursor-pointer group transition-colors">
+<div class="flex items-center gap-1.5 pl-3">
+<span class="material-symbols-outlined text-[16px] text-text-muted">menu_book</span>
+<span class="group-hover:text-text-primary">Readme.html</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">U</span>
+</div>
+</div>
+</div>
+<!-- Outline / Timeline Lower Panels -->
+<div class="bg-surface-panel flex flex-col text-body-sm text-text-secondary">
+<div class="flex items-center justify-between px-space-md py-1.5 hover:bg-surface-hover cursor-pointer bg-surface-container-lowest">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">chevron_right</span>
+<span class="font-label-caps text-label-caps uppercase text-text-muted font-semibold">OUTLINE</span>
+</div>
+<span class="font-meta-mono text-[10px] text-text-muted">6 symbols</span>
+</div>
+<div class="flex items-center justify-between px-space-md py-1.5 hover:bg-surface-hover cursor-pointer bg-surface-container-lowest">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">chevron_right</span>
+<span class="font-label-caps text-label-caps uppercase text-text-muted font-semibold">TIMELINE</span>
+</div>
+<span class="font-meta-mono text-[10px] text-primary">Live</span>
+</div>
+</div>
+</aside>
+<!-- Center Editor: Monaco Diff & Syntax Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface-base relative overflow-hidden">
+<!-- Tabs Strip -->
+<div class="h-9 flex items-center justify-between bg-surface-panel px-space-xs overflow-x-auto">
+<div class="flex items-center h-full">
+<!-- Active Tab: generate_png.py -->
+<div class="flex items-center gap-2 h-full px-space-md bg-surface-base text-text-primary font-code-sm text-code-sm cursor-pointer shadow-sm relative group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-primary"></div>
+<span class="material-symbols-outlined text-[15px] text-[#38BDF8]">code</span>
+<span class="font-medium">generate_png.py</span>
+<span class="font-meta-mono text-[10px] text-diff-addition font-bold">M</span>
+<button class="opacity-0 group-hover:opacity-100 hover:bg-surface-hover p-0.5 rounded text-text-muted transition-all">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<!-- Inactive Tab: logo.html -->
+<div class="flex items-center gap-2 h-full px-space-md hover:bg-surface-hover/60 text-text-secondary font-code-sm text-code-sm cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-[15px] text-[#EA580C]">html</span>
+<span class="">logo.html</span>
+<span class="font-meta-mono text-[10px] text-[#F59E0B]">U</span>
+<button class="opacity-0 group-hover:opacity-100 hover:bg-surface-hover p-0.5 rounded text-text-muted transition-all">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<!-- Inactive Tab: Codeen's Settings -->
+<div class="flex items-center gap-2 h-full px-space-md hover:bg-surface-hover/60 text-text-secondary font-code-sm text-code-sm cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-[15px] text-agent-cyan">tune</span>
+<span class="">Codeen Settings</span>
+<button class="opacity-0 group-hover:opacity-100 hover:bg-surface-hover p-0.5 rounded text-text-muted transition-all">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+</div>
+<!-- Editor Pane Quick Controls -->
+<div class="flex items-center gap-space-xs px-2 text-text-muted">
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Split Editor Right">
+<span class="material-symbols-outlined text-[16px]">vertical_split</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Diff View">
+<span class="material-symbols-outlined text-[16px]">difference</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="More Editor Actions">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Breadcrumbs Path -->
+<div class="flex items-center justify-between px-space-md py-1 bg-surface-container-lowest text-text-secondary font-code-sm text-code-sm">
+<div class="flex items-center gap-1.5">
+<span class="hover:text-text-primary cursor-pointer">peyopeu-mobile-app</span>
+<span class="text-text-muted">/</span>
+<span class="text-text-primary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#38BDF8]">code</span>
+            generate_png.py
+          </span>
+<span class="text-text-muted">›</span>
+<span class="text-agent-cyan">generate_logo_surface()</span>
+</div>
+<div class="flex items-center gap-2 font-meta-mono text-meta-mono text-text-muted">
+<span class="px-1.5 py-0.5 bg-surface-elevated rounded text-primary">Fast Apply Active</span>
+<span class="">Python 3.11</span>
+</div>
+</div>
+<!-- Main Editor Buffer Surface -->
+<div class="flex-1 flex overflow-hidden relative font-code-base text-code-base bg-surface-base">
+<!-- Code Content Area -->
+<div class="flex-1 flex overflow-y-auto overflow-x-hidden relative" id="code-scroll-pane">
+<!-- Line Numbers Gutter -->
+<div class="w-12 py-3 pr-3 text-right bg-surface-container-lowest text-text-muted font-meta-mono text-meta-mono flex flex-col select-none">
+<span class="leading-[22px]">30</span>
+<span class="leading-[22px]">31</span>
+<span class="leading-[22px]">32</span>
+<span class="leading-[22px]">33</span>
+<span class="leading-[22px] text-text-secondary font-bold">50</span>
+<span class="leading-[22px] text-diff-deletion">51</span>
+<span class="leading-[22px] text-diff-deletion">52</span>
+<span class="leading-[22px] text-diff-addition">53</span>
+<span class="leading-[22px] text-diff-addition">54</span>
+<span class="leading-[22px] text-diff-addition">55</span>
+<span class="leading-[22px] text-diff-addition">56</span>
+<span class="leading-[22px] text-diff-addition">57</span>
+<span class="leading-[22px] text-diff-addition">58</span>
+<span class="leading-[22px] text-diff-addition">59</span>
+<span class="leading-[22px] text-diff-addition">60</span>
+<span class="leading-[22px] text-diff-addition">61</span>
+<span class="leading-[22px] text-diff-addition">62</span>
+<span class="leading-[22px]">63</span>
+<span class="leading-[22px]">64</span>
+<span class="leading-[22px]">65</span>
+<span class="leading-[22px]">66</span>
+<span class="leading-[22px]">67</span>
+<span class="leading-[22px]">68</span>
+<span class="leading-[22px]">69</span>
+<span class="leading-[22px]">70</span>
+<span class="leading-[22px]">71</span>
+<span class="leading-[22px]">72</span>
+</div>
+<!-- Code Stream Lines -->
+<div class="flex-1 py-3 pl-4 flex flex-col font-code-base text-code-base text-text-primary whitespace-pre overflow-x-auto">
+<!-- Context Lines -->
+<div class="leading-[22px]"><span class="text-[#F43F5E]">def</span> <span class="text-[#60A5FA]">render_brand_mark</span>(ctx, size=(512, 512), dpi=300):</div>
+<div class="leading-[22px] text-text-muted"> <span class="text-[#6B7280]"># Initialize surface buffer with antialiased high-DPI scaling</span></div>
+<div class="leading-[22px]">    img = Image.new(<span class="text-[#A7F3D0]">"RGBA"</span>, size, (<span class="text-[#F59E0B]">0</span>, <span class="text-[#F59E0B]">0</span>, <span class="text-[#F59E0B]">0</span>, <span class="text-[#F59E0B]">0</span>))</div>
+<div class="leading-[22px]"> <span class="text-[#F43F5E]">for</span> text, color, scale_y, y_offset <span class="text-[#F43F5E]">in</span> segments:</div>
+<!-- SCR-14 Floating Fast Apply Action Banner -->
+<div class="my-2 -ml-2 mr-4 bg-surface-elevated rounded shadow-xl overflow-hidden animate-in fade-in duration-150">
+<div class="flex items-center justify-between px-space-md py-2 bg-surface-panel/90">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">auto_fix_high</span>
+<span class="font-headline-sm text-headline-sm text-text-primary font-semibold">Fast Apply Diff</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">1 of 3</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-meta-mono text-meta-mono px-1.5 py-0.5 rounded bg-diff-addition-surface text-diff-addition font-semibold">+18 lines</span>
+<span class="font-meta-mono text-meta-mono px-1.5 py-0.5 rounded bg-diff-deletion-surface text-diff-deletion font-semibold">-6 lines</span>
+</div>
+</div>
+<!-- Tandem Action Pill Controls -->
+<div class="flex items-center gap-space-xs font-headline-sm">
+<button class="flex items-center gap-1 px-space-md py-1 bg-primary text-on-primary font-semibold rounded text-body-sm hover:brightness-110 active:scale-95 transition-all shadow-sm" id="btn-accept-diff">
+<span class="material-symbols-outlined text-[15px]">check</span>
+<span class="">Accept File</span>
+<span class="font-meta-mono text-[9px] opacity-75 ml-0.5">⌘Enter</span>
+</button>
+<button class="flex items-center gap-1 px-space-sm py-1 bg-surface-hover hover:bg-diff-deletion-surface text-diff-deletion rounded text-body-sm transition-colors" id="btn-reject-diff">
+<span class="material-symbols-outlined text-[15px]">close</span>
+<span class="">Reject</span>
+<span class="font-meta-mono text-[9px] opacity-75 ml-0.5">⌘⌫</span>
+</button>
+<div class="h-4 w-px bg-surface-hover mx-1"></div>
+<button class="flex items-center gap-1 px-2.5 py-1 bg-surface-container-high hover:bg-surface-hover text-text-secondary rounded text-body-sm transition-colors">
+<span class="">Accept All (3)</span>
+</button>
+<div class="flex items-center gap-0.5 ml-1">
+<button class="p-1 hover:bg-surface-hover text-text-muted hover:text-on-surface rounded" title="Previous Diff">
+<span class="material-symbols-outlined text-[16px]">expand_less</span>
+</button>
+<button class="p-1 hover:bg-surface-hover text-text-muted hover:text-on-surface rounded" title="Next Diff">
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Diff Lines Rendering -->
+<div class="leading-[22px]"><span class="text-[#F43F5E]">        elif</span> text == <span class="text-[#A7F3D0]">'e'</span>:</div>
+<!-- Removed Lines -->
+<div class="leading-[22px] bg-diff-deletion-surface text-diff-deletion opacity-85 -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none">-</span>
+<span class="">            bbox = font.getbbox(<span class="text-error">'e'</span>)</span>
+</div>
+<div class="leading-[22px] bg-diff-deletion-surface text-diff-deletion opacity-85 -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none">-</span>
+<span class="">            w = bbox[<span class="text-error">2</span>] - bbox[<span class="text-error">0</span>]</span>
+</div>
+<!-- Added Green Lines (Agent Proposed Code) -->
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            bbox = font.getbbox(<span class="text-[#A7F3D0]">'e'</span>)</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            w = bbox[<span class="text-[#F59E0B]">2</span>] - bbox[<span class="text-[#F59E0B]">0</span>]</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            h = bbox[<span class="text-[#F59E0B]">3</span>] - bbox[<span class="text-[#F59E0B]">1</span>]</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            e_img = Image.new(<span class="text-[#A7F3D0]">"RGBA"</span>, (w + <span class="text-[#F59E0B]">20</span>, h + <span class="text-[#F59E0B]">20</span>), (<span class="text-[#F59E0B]">0</span>, <span class="text-[#F59E0B]">0</span>, <span class="text-[#F59E0B]">0</span>, <span class="text-[#F59E0B]">0</span>))</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            e_draw = ImageDraw.Draw(e_img)</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            e_draw.text((<span class="text-[#F59E0B]">10</span>, <span class="text-[#F59E0B]">10</span>), <span class="text-[#A7F3D0]">'e'</span>, font=font, fill=color)</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            e_img = e_img.rotate(<span class="text-[#F59E0B]">180</span>, resample=Image.Resampling.BICUBIC, expand=<span class="text-[#F43F5E]">True</span>)</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            image.paste(e_img, (<span class="text-[#60A5FA]">int</span>(current_x - <span class="text-[#F59E0B]">4</span>), <span class="text-[#60A5FA]">int</span>(y + y_offset)), e_img)</span>
+</div>
+<div class="leading-[22px] bg-diff-addition-surface text-diff-addition -ml-2 pl-2 flex items-center">
+<span class="font-meta-mono mr-2 select-none text-diff-addition">+</span>
+<span class="">            current_x += w - <span class="text-[#F59E0B]">2</span></span>
+</div>
+<!-- Standard Continuation Lines -->
+<div class="leading-[22px]"><span class="text-[#F43F5E]">        else</span>:</div>
+<div class="leading-[22px] text-text-muted"> <span class="text-[#6B7280]"># Standard text fallback</span></div>
+<div class="leading-[22px]">            draw.text((current_x, y + y_offset), text, font=font, fill=color)</div>
+<div class="leading-[22px]">            bbox = font.getbbox(text)</div>
+<div class="leading-[22px]">            current_x += (bbox[<span class="text-[#F59E0B]">2</span>] - bbox[<span class="text-[#F59E0B]">0</span>]) - <span class="text-[#F59E0B]">2</span> <span class="text-[#6B7280]"># slight letter spacing adjust</span></div>
+<div class="leading-[22px]">    image.save(<span class="text-[#A7F3D0]">"logo.png"</span>, <span class="text-[#A7F3D0]">"PNG"</span>)</div>
+<div class="leading-[22px]"> <span class="text-[#60A5FA]">print</span>(<span class="text-[#A7F3D0]">"logo.png generated successfully with high-DPI raster"</span>)</div>
+</div>
+</div>
+<!-- Minimap Gutter (VScode authentic representation) -->
+<div class="w-16 bg-surface-container-lowest/60 py-2 hidden xl:flex flex-col items-center select-none overflow-hidden opacity-60 hover:opacity-100 transition-opacity">
+<!-- Minimap Simulated Code Canvas -->
+<div class="w-12 h-64 bg-surface-elevated/40 rounded p-1 space-y-1 relative">
+<div class="w-8 h-1 bg-text-muted/30 rounded"></div>
+<div class="w-10 h-1 bg-text-muted/20 rounded"></div>
+<div class="w-7 h-1 bg-text-muted/40 rounded"></div>
+<div class="w-full h-8 bg-diff-addition/20 rounded"></div>
+<div class="w-9 h-1 bg-text-muted/30 rounded"></div>
+<div class="w-6 h-1 bg-text-muted/30 rounded"></div>
+<div class="w-10 h-1 bg-text-muted/40 rounded"></div>
+<div class="w-8 h-1 bg-text-muted/20 rounded"></div>
+<!-- Viewport Slider Box -->
+<div class="absolute inset-x-0 top-6 h-16 bg-primary/10 rounded"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- Right Auxiliary Bar: Codeen AI Agent Panel (SCR-06/07) -->
+<aside class="w-[420px] flex-shrink-0 bg-surface-panel flex flex-col justify-between overflow-hidden shadow-2xl relative">
+<!-- Agent Top Header -->
+<div class="flex items-center justify-between px-space-md py-space-xs bg-surface-panel">
+<div class="flex items-center gap-space-sm">
+
+<!-- Model Selection Pill -->
+<div class="flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container hover:bg-surface-hover text-agent-cyan font-meta-mono text-meta-mono cursor-pointer transition-colors">
+<span class="">Claude 3.7 Sonnet (Thinking)</span>
+<span class="material-symbols-outlined text-[13px]">expand_more</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-text-muted">
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="New Session (+)">
+<span class="material-symbols-outlined text-[17px]">add</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Session History">
+<span class="material-symbols-outlined text-[17px]">history</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Agent Settings">
+<span class="material-symbols-outlined text-[17px]">settings</span>
+</button>
+</div>
+</div>
+<!-- Live Agent Thread Feed -->
+<div class="flex-1 overflow-y-auto px-space-md py-space-md space-y-space-md bg-surface-base/40">
+<!-- User Query Bubble -->
+<div class="flex flex-col gap-1.5 bg-surface-elevated rounded p-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-[10px]">U</div>
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium">Senior Engineer</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">14:02:18</span>
+</div>
+<p class="font-body-md text-body-md text-text-primary leading-relaxed">
+            Refactor the logo generation script to handle the inverted <code class="px-1 py-0.5 bg-surface-panel rounded text-primary font-code-sm">e</code> and custom emerald slash with high DPI antialiasing.
+          </p>
+<!-- Referenced File Chips -->
+<div class="flex items-center gap-1.5 mt-1">
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-panel text-text-secondary font-code-sm text-[11px] hover:text-primary cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[13px] text-[#38BDF8]">code</span>
+<span class="">@generate_png.py:33-72</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-panel text-text-secondary font-code-sm text-[11px] hover:text-primary cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[13px] text-[#EA580C]">html</span>
+<span class="">@logo.html:1-48</span>
+</div>
+</div>
+</div>
+<!-- Agent Reasoning Accordion ("Thinking Process") -->
+<div class="bg-surface-panel rounded shadow-sm overflow-hidden transition-all duration-200">
+<button class="w-full flex items-center justify-between px-space-md py-2 bg-surface-elevated/80 hover:bg-surface-hover text-left transition-colors" id="toggle-reasoning">
+<div class="flex items-center gap-2">
+
+<span class="font-headline-sm text-headline-sm text-text-primary font-semibold">Thinking Process</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">(2.4s • 1,024 tokens)</span>
+</div>
+<span class="material-symbols-outlined text-text-muted text-[16px] transition-transform duration-200" id="reasoning-chevron">expand_more</span>
+</button>
+<div class="px-space-md py-space-sm bg-surface-panel font-body-sm text-text-secondary space-y-1.5 hidden" id="reasoning-content">
+<p class="text-body-sm leading-relaxed">
+              1. Analyzing current Pillow implementation in <span class="font-code-sm text-primary">generate_png.py</span>. Current glyph rotation uses bounding box inversion without resampling, resulting in pixel artifacts.
+            </p>
+<p class="text-body-sm leading-relaxed">
+              2. Inspecting SVG specs in <span class="font-code-sm text-[#EA580C]">logo.html</span>: inverted ‘e’ requires 180° bicubic resampling with RGBA expansion pad of 20px on margins.
+            </p>
+<p class="text-body-sm leading-relaxed">
+              3. Generating surgical fast-apply diff patch targeting lines 51-62. Preserving downstream baseline coordinates.
+            </p>
+</div>
+</div>
+<!-- Tool Call Execution Modules -->
+<div class="flex flex-col gap-2">
+<div class="font-label-caps text-label-caps uppercase text-text-muted tracking-wider px-1">Tool Invocations (3)</div>
+<!-- Tool Call 1: read_file -->
+<div class="flex items-center justify-between p-space-sm bg-surface-elevated rounded shadow-sm hover:bg-surface-hover/80 transition-colors cursor-pointer group">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-1 h-5 rounded-full bg-agent-cyan"></div>
+<span class="material-symbols-outlined text-[15px] text-agent-cyan">file_open</span>
+<div class="flex flex-col min-w-0">
+<span class="font-code-sm text-code-sm text-text-primary font-medium truncate">read_file: logo.html</span>
+<span class="font-meta-mono text-[10px] text-text-muted">48 lines read • 1.2 KB</span>
+</div>
+</div>
+<div class="flex items-center gap-1 font-meta-mono text-meta-mono text-diff-addition">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="">12ms</span>
+</div>
+</div>
+<!-- Tool Call 2: edit_file (Active Streaming) -->
+<div class="flex items-center justify-between p-space-sm bg-surface-elevated rounded shadow-sm hover:bg-surface-hover/80 transition-colors cursor-pointer group relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex items-center gap-2 pl-1.5 min-w-0">
+<span class="material-symbols-outlined text-[15px] text-primary">edit_document</span>
+<div class="flex flex-col min-w-0">
+<span class="font-code-sm text-code-sm text-text-primary font-medium truncate">edit_file: generate_png.py</span>
+<span class="font-meta-mono text-[10px] text-primary">In-editor diff pending review</span>
+</div>
+</div>
+<div class="flex items-center gap-1 font-meta-mono text-meta-mono text-primary font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping mr-0.5"></span>
+<span class="">Streaming</span>
+</div>
+</div>
+<!-- Tool Call 3: terminal execution -->
+<div class="flex flex-col bg-surface-container-lowest rounded p-space-sm shadow-sm font-code-sm text-code-sm">
+<div class="flex items-center justify-between pb-1 text-text-muted">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-agent-indigo">terminal</span>
+<span class="font-medium text-text-secondary">python generate_png.py</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-diff-addition flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">done</span> exit 0
+              </span>
+</div>
+<div class="bg-surface-base p-2 rounded text-text-primary font-code-sm text-[12px] flex items-center gap-1.5 text-diff-addition">
+<span class="text-text-muted">&gt;</span>
+<span class="">logo.png generated successfully (512x512 @ 300dpi)</span>
+</div>
+</div>
+</div>
+<!-- Previous Threads Accordion Mini -->
+<div class="pt-2">
+<div class="flex items-center justify-between text-text-muted px-1 py-1 cursor-pointer hover:text-on-surface">
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Previous Threads</span>
+<span class="material-symbols-outlined text-[15px]">expand_more</span>
+</div>
+<div class="space-y-1 mt-1 font-body-sm text-text-secondary">
+<div class="p-1.5 bg-surface-elevated/40 hover:bg-surface-elevated rounded flex items-center justify-between cursor-pointer transition-colors">
+<span class="truncate max-w-[280px]">creer moi dans ce dossier un dossier calculatrice...</span>
+<span class="font-meta-mono text-[10px] text-text-muted">Today</span>
+</div>
+<div class="p-1.5 bg-surface-elevated/40 hover:bg-surface-elevated rounded flex items-center justify-between cursor-pointer transition-colors">
+<span class="truncate max-w-[280px]">analyse et dis moi de quoi il est question</span>
+<span class="font-meta-mono text-[10px] text-text-muted">Yesterday</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Interactive VoidChatArea Input Box -->
+<div class="p-space-md bg-surface-panel flex flex-col gap-space-xs shadow-lg">
+<!-- Context & Telemetry Row -->
+<div class="flex items-center justify-between px-1 text-text-muted font-meta-mono text-meta-mono">
+<div class="flex items-center gap-2">
+<!-- Context Window Donut Representation -->
+<div class="flex items-center gap-1.5" title="Context Window Utilization">
+<svg class="w-3.5 h-3.5 -rotate-90 text-surface-hover" viewBox="0 0 36 36">
+<circle cx="18" cy="18" fill="none" r="14" stroke="currentColor" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="none" r="14" stroke="#00DC82" stroke-dasharray="88, 100" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<span class="text-text-secondary font-semibold">68% Context</span>
+<span class="text-text-muted">(136k / 200k)</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="flex items-center gap-1 text-agent-cyan hover:underline cursor-pointer">
+<span class="material-symbols-outlined text-[13px]">tune</span> Reasoning: High
+            </span>
+</div>
+</div>
+<!-- Chat Input Container -->
+<div class="relative flex flex-col bg-surface-elevated rounded p-space-sm focus-within:shadow-[0_0_0_1px_#00DC82,0_0_12px_rgba(0,220,130,0.18)] transition-all">
+<textarea class="w-full bg-transparent resize-none outline-none font-body-md text-text-primary placeholder:text-text-muted text-[13px] leading-relaxed" id="agent-chat-input" placeholder="@ to mention, Ctrl+L to add selection, Enter instructions..." rows="2"></textarea>
+<!-- Input Footer Control Badges -->
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-1.5 text-text-muted">
+<!-- Mode Selector -->
+<button class="flex items-center gap-1 px-2 py-0.5 rounded bg-surface-panel hover:bg-surface-hover text-text-secondary font-headline-sm text-body-sm transition-colors">
+<span class="text-primary font-medium">Agent</span>
+<span class="material-symbols-outlined text-[13px]">expand_more</span>
+</button>
+<!-- Model Selector -->
+<button class="flex items-center gap-1 px-2 py-0.5 rounded bg-surface-panel hover:bg-surface-hover text-text-secondary font-meta-mono text-meta-mono transition-colors">
+<span class="">gemini-1.5-pro</span>
+<span class="material-symbols-outlined text-[12px]">expand_more</span>
+</button>
+<!-- Attachment / Mic -->
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Attach file or screenshot">
+<span class="material-symbols-outlined text-[16px]">attach_file</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Voice Input (Whisper)">
+<span class="material-symbols-outlined text-[16px]">mic</span>
+</button>
+</div>
+<!-- Send Action Button -->
+<button class="w-7 h-7 flex items-center justify-center rounded-full bg-primary hover:bg-[#00F08F] text-on-primary transition-all shadow-sm active:scale-95" title="Run Agent (Enter)">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<!-- Inline Micro-Interactions Script -->
+<script>
+  (function() {
+    // Reasoning accordion toggle
+    const toggleBtn = document.getElementById('toggle-reasoning');
+    const content = document.getElementById('reasoning-content');
+    const chevron = document.getElementById('reasoning-chevron');
+
+    if (toggleBtn && content && chevron) {
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = content.classList.contains('hidden');
+        if (isHidden) {
+          content.classList.remove('hidden');
+          chevron.textContent = 'expand_less';
+        } else {
+          content.classList.add('hidden');
+          chevron.textContent = 'expand_more';
+        }
+      });
+    }
+
+    // Fast Apply simulation micro-interaction
+    const acceptBtn = document.getElementById('btn-accept-diff');
+    const rejectBtn = document.getElementById('btn-reject-diff');
+    
+    if (acceptBtn) {
+      acceptBtn.addEventListener('click', () => {
+        acceptBtn.innerHTML = '<span class="material-symbols-outlined text-[15px]">check_circle</span><span>Applied!</span>';
+        acceptBtn.classList.add('bg-diff-addition');
+        setTimeout(() => {
+          acceptBtn.innerHTML = '<span class="material-symbols-outlined text-[15px]">check</span><span>Accept File</span><span class="font-meta-mono text-[9px] opacity-75 ml-0.5">⌘Enter</span>';
+        }, 1500);
+      });
+    }
+
+    if (rejectBtn) {
+      rejectBtn.addEventListener('click', () => {
+        rejectBtn.classList.add('opacity-50');
+        setTimeout(() => {
+          rejectBtn.classList.remove('opacity-50');
+        }, 800);
+      });
+    }
+  })();
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-6 bg-surface-panel z-50 flex items-center justify-between px-space-sm font-meta-mono text-meta-mono text-text-secondary select-none"><div class="flex items-center gap-space-md"><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-primary">alt_route</span><span class="">main*</span></div><div class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-error">cancel</span><span class="">0</span><span class="material-symbols-outlined text-[13px] text-[#F59E0B]">warning</span><span class="">2</span></div><div class="flex items-center gap-1 text-agent-cyan hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] animate-pulse">bolt</span><span class="">Codeen Agent: Idle</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-surface-elevated text-on-surface-variant hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] text-[#F97316]">local_fire_department</span><span class="font-code-sm text-code-sm text-primary">14.2k</span><span class="text-text-muted">($0.04)</span></div><div class="hover:text-on-surface cursor-pointer">Ln 42, Col 18</div><div class="hover:text-on-surface cursor-pointer">Spaces: 2</div><div class="hover:text-on-surface cursor-pointer">UTF-8</div><div class="hover:text-on-surface cursor-pointer">TypeScript JSX</div><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px]">notifications</span></div></div></footer>
+
+</body></html>

@@ -8,7 +8,7 @@ import { useAccessor, useActiveURI, useIsDark, useSettingsState } from '../util/
 
 import '../styles.css'
 import { VOID_CTRL_K_ACTION_ID, VOID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
-import { Circle, MoreVertical } from 'lucide-react';
+import { MessageSquare, Sparkles, MoreVertical } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { VoidSelectionHelperProps } from '../../../../../../contrib/void/browser/voidSelectionHelperWidget.js';
@@ -38,7 +38,7 @@ const VoidSelectionHelper = ({ rerenderKey }: VoidSelectionHelperProps) => {
 	const ctrlLKeybind = keybindingService.lookupKeybinding(VOID_CTRL_L_ACTION_ID)
 	const ctrlKKeybind = keybindingService.lookupKeybinding(VOID_CTRL_K_ACTION_ID)
 
-	const dividerHTML = <div className='w-[0.5px] bg-void-border-3'></div>
+	const dividerHTML = <div className='w-px h-3.5 bg-border-hairline mx-0.5'></div>
 
 	const [reactRerenderCount, setReactRerenderKey] = useState(rerenderKey)
 	const [clickState, setClickState] = useState<'init' | 'clickedOption' | 'clickedMore'>('init')
@@ -61,11 +61,6 @@ const VoidSelectionHelper = ({ rerenderKey }: VoidSelectionHelperProps) => {
 		setReactRerenderKey(rerenderKey)
 		setClickState('init')
 	}
-	// useEffect(() => {
-	// }, [rerenderKey, reactRerenderCount, setReactRerenderKey, setClickState])
-
-	// if the user selected an option, close
-
 
 	if (clickState === 'clickedOption') {
 		return null
@@ -73,64 +68,75 @@ const VoidSelectionHelper = ({ rerenderKey }: VoidSelectionHelperProps) => {
 
 	const defaultHTML = <>
 		{ctrlLKeybind &&
-			<div
+			<button
+				type='button'
 				className='
-					flex items-center px-2 py-1.5
-					cursor-pointer
+					flex items-center gap-1.5 px-2 py-1 rounded
+					hover:bg-surface-hover text-text-primary text-[12px]
+					transition-colors duration-150 cursor-pointer group
 				'
 				onClick={() => {
 					commandService.executeCommand(VOID_CTRL_L_ACTION_ID)
 					setClickState('clickedOption');
 				}}
+				title="Chat about selection (Ctrl+L)"
 			>
-				<span>Add to Chat</span>
-				<span className='ml-1 px-1 rounded bg-[var(--vscode-keybindingLabel-background)] text-[var(--vscode-keybindingLabel-foreground)] border border-[var(--vscode-keybindingLabel-border)]'>
-					{ctrlLKeybind.getLabel()}
+				<MessageSquare className='w-3.5 h-3.5 text-agent-cyan shrink-0' />
+				<span className='font-mono text-[11px] text-text-secondary group-hover:text-text-primary'>
+					{ctrlLKeybind.getLabel()} Chat
 				</span>
-			</div>
+			</button>
 		}
 		{ctrlLKeybind && ctrlKKeybind &&
 			dividerHTML
 		}
 		{ctrlKKeybind &&
-			<div
+			<button
+				type='button'
 				className='
-					flex items-center px-2 py-1.5
-					cursor-pointer
+					flex items-center gap-1.5 px-2 py-1 rounded
+					bg-surface-hover text-primary text-[12px]
+					transition-colors duration-150 cursor-pointer shadow-xs group
 				'
 				onClick={() => {
 					commandService.executeCommand(VOID_CTRL_K_ACTION_ID)
 					setClickState('clickedOption');
 				}}
+				title="Quick Edit selection (Ctrl+K)"
 			>
-				<span className='ml-1'>Edit Inline</span>
-				<span className='ml-1 px-1 rounded bg-[var(--vscode-keybindingLabel-background)] text-[var(--vscode-keybindingLabel-foreground)] border border-[var(--vscode-keybindingLabel-border)]'>
-					{ctrlKKeybind.getLabel()}
+				<Sparkles className='w-3.5 h-3.5 text-primary shrink-0' />
+				<span className='font-mono text-[11px] text-primary font-semibold group-hover:brightness-110'>
+					{ctrlKKeybind.getLabel()} Edit
 				</span>
-			</div>
+			</button>
 		}
 
 		{dividerHTML}
 
-		<div
+		<button
+			type='button'
 			className='
-				flex items-center px-0.5
-				cursor-pointer
+				flex items-center px-1.5 py-1 rounded
+				hover:bg-surface-hover text-text-muted hover:text-text-primary
+				transition-colors duration-150 cursor-pointer
 			'
 			onClick={() => {
 				setClickState('clickedMore');
 			}}
+			title="More Agent Operations"
 		>
-			<MoreVertical className="w-4" />
-		</div>
+			<MoreVertical className="w-3.5 h-3.5" />
+		</button>
 	</>
 
 
 	const moreOptionsHTML = <>
-		<div
+		<button
+			type='button'
 			className='
-				flex items-center px-2 py-1.5
-				cursor-pointer
+				flex items-center px-2.5 py-1 rounded text-[11.5px]
+				hover:bg-surface-hover text-text-secondary hover:text-text-primary
+				transition-all duration-150 cursor-pointer
 			'
 			onClick={() => {
 				commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID);
@@ -138,28 +144,31 @@ const VoidSelectionHelper = ({ rerenderKey }: VoidSelectionHelperProps) => {
 			}}
 		>
 			Disable Suggestions?
-		</div>
+		</button>
 
 		{dividerHTML}
 
-		<div
+		<button
+			type='button'
 			className='
-				flex items-center px-0.5
-				cursor-pointer
+				flex items-center px-1 py-1 rounded
+				hover:bg-surface-hover text-text-muted hover:text-text-primary
+				transition-all duration-150 cursor-pointer
 			'
 			onClick={() => {
 				setClickState('init');
 			}}
 		>
-			<MoreVertical className="w-4" />
-		</div>
+			<MoreVertical className="w-3.5 h-3.5" />
+		</button>
 	</>
 
 	return <div className='
 		pointer-events-auto select-none
 		z-[1000]
-		rounded-sm shadow-md flex flex-nowrap text-nowrap
-		border border-void-border-3 bg-void-bg-2
+		rounded shadow-xl flex items-center flex-nowrap text-nowrap
+		border border-border-hairline bg-surface-elevated px-2 py-1 gap-1
+		backdrop-blur-md
 		transition-all duration-200
 	'>
 		{clickState === 'init' ? defaultHTML

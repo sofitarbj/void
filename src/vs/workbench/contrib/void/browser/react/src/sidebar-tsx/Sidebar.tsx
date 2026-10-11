@@ -22,8 +22,8 @@ export const Sidebar = ({ className }: { className: string }) => {
 			// default background + text styles for sidebar
 			className={`
 				w-full h-full
-				bg-void-bg-2
-				text-void-fg-1
+				bg-surface-panel
+				text-text-primary
 			`}
 		>
 

@@ -14,6 +14,7 @@ export type ToolMessage<T extends ToolName> = {
 	id: string;
 	rawParams: RawToolParamsObj;
 	mcpServerName: string | undefined; // the server name at the time of the call
+	thoughtSignature?: string;
 } & (
 		// in order of events:
 		| { type: 'invalid_params', result: null, name: T, }
@@ -53,6 +54,7 @@ export type ChatMessage =
 		content: string; // content displayed to the LLM on future calls - allowed to be '', will be replaced with (empty)
 		displayContent: string; // content displayed to user  - allowed to be '', will be ignored
 		selections: StagingSelectionItem[] | null; // the user's selection
+		images?: ChatImageAttachment[]; // F2: multimodal image attachments
 		state: {
 			stagingSelections: StagingSelectionItem[];
 			isBeingEdited: boolean;
@@ -88,6 +90,27 @@ export type StagingSelectionItem = {
 	state?: undefined;
 }
 
+
+// --- F2: Image attachments (multimodal) ---
+export type ChatImageAttachment = {
+	base64: string;
+	mimeType: 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp';
+	fileName?: string;
+}
+
+// --- F4/F12: Task list (todo_list tool) ---
+export type TodoItem = {
+	id: string;
+	content: string;
+	status: 'pending' | 'in_progress' | 'completed';
+	priority: 'high' | 'medium' | 'low';
+}
+
+// --- F13: Ask user question ---
+export type UserQuestionOption = {
+	label: string;
+	description: string;
+}
 
 // a link to a symbol (an underlined link to a piece of code)
 export type CodespanLocationLink = {

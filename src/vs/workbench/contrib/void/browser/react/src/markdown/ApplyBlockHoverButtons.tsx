@@ -9,7 +9,7 @@ import { usePromise, useRefState } from '../util/helpers.js'
 import { isFeatureNameDisabled } from '../../../../common/voidSettingsTypes.js'
 import { URI } from '../../../../../../../base/common/uri.js'
 import { FileSymlink, LucideIcon, RotateCw, Terminal } from 'lucide-react'
-import { Check, X, Square, Copy, Play, } from 'lucide-react'
+import { Check, X, Square, Copy, Play, ChevronRight } from 'lucide-react'
 import { getBasename, ListableToolItem, voidOpenFileFn, ToolChildrenWrapper } from '../sidebar-tsx/SidebarChat.js'
 import { PlacesType, VariantType } from 'react-tooltip'
 
@@ -196,12 +196,13 @@ const tooltipPropsForApplyBlock = ({ tooltipName, color = undefined, position = 
 	'data-tooltip-offset': offset,
 })
 
-export const useEditToolStreamState = ({ applyBoxId, uri }: { applyBoxId: string, uri: URI }) => {
+export const useEditToolStreamState = ({ applyBoxId, uri }: { applyBoxId: string, uri: URI | undefined }) => {
 	const accessor = useAccessor()
 	const voidCommandBarService = accessor.get('IVoidCommandBarService')
-	const [streamState, setStreamState] = useState(voidCommandBarService.getStreamState(uri))
+	const [streamState, setStreamState] = useState(uri ? voidCommandBarService.getStreamState(uri) : 'idle-no-changes')
 	// listen for stream updates on this box
 	useCommandBarURIListener(useCallback((uri_) => {
+		if (!uri || !uri_) return
 		const shouldUpdate = uri.fsPath === uri_.fsPath
 		if (shouldUpdate) { setStreamState(voidCommandBarService.getStreamState(uri)) }
 	}, [voidCommandBarService, applyBoxId, uri]))
@@ -524,27 +525,43 @@ export const BlockCodeApplyWrapper = ({
 	const { currStreamStateRef } = useApplyStreamState({ applyBoxId })
 	const currStreamState = currStreamStateRef.current
 
+	// Ouvert pendant l'écriture du code (!canApply), refermé automatiquement dès que le code est terminé (canApply)
+	const [isOpen, setIsOpen] = useState(!canApply)
+
+	useEffect(() => {
+		if (!canApply) {
+			setIsOpen(true)
+		} else {
+			setIsOpen(false)
+		}
+	}, [canApply])
 
 	const name = uri !== 'current' ?
 		<ListableToolItem
-			name={<span className='not-italic'>{getBasename(uri.fsPath)}</span>}
+			name={<span className='not-italic font-mono text-xs'>{getBasename(uri.fsPath)}</span>}
 			isSmall={true}
 			showDot={false}
 			onClick={() => { voidOpenFileFn(uri, accessor) }}
 		/>
-		: <span>{language}</span>
+		: <span className="font-mono text-xs">{language}</span>
 
-
-	return <div className='border border-void-border-3 rounded overflow-hidden bg-void-bg-3 my-1'>
+	return <div className='border border-border-hairline/70 rounded-sm overflow-hidden bg-surface-elevated/40 my-1 transition-all duration-200'>
 		{/* header */}
-		<div className=" select-none flex justify-between items-center py-1 px-2 border-b border-void-border-3 cursor-default">
-			<div className="flex items-center">
+		<div
+			onClick={() => setIsOpen(v => !v)}
+			className="select-none flex justify-between items-center py-1 px-2 border-b border-border-hairline/40 cursor-pointer hover:bg-surface-hover/60 transition-colors"
+		>
+			<div className="flex items-center gap-1.5 min-w-0">
+				<ChevronRight className={`w-3.5 h-3.5 text-text-muted shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
 				<StatusIndicatorForApplyButton uri={uri} applyBoxId={applyBoxId} />
-				<span className="text-[13px] font-light text-void-fg-3">
+				<span className="text-[12px] font-medium text-text-secondary truncate">
 					{name}
 				</span>
 			</div>
-			<div className={`${canApply ? '' : 'hidden'} flex items-center gap-1`}>
+			<div
+				onClick={(e) => e.stopPropagation()}
+				className={`${canApply ? '' : 'hidden'} flex items-center gap-1 shrink-0 ml-2`}
+			>
 				<JumpToFileButton uri={uri} />
 				{currStreamState === 'idle-no-changes' && <CopyButton codeStr={codeStr} toolTipName='Copy' />}
 				<ApplyButtonsHTML uri={uri} applyBoxId={applyBoxId} codeStr={codeStr} language={language} />
@@ -552,9 +569,10 @@ export const BlockCodeApplyWrapper = ({
 		</div>
 
 		{/* contents */}
-		<ToolChildrenWrapper>
-			{children}
-		</ToolChildrenWrapper>
+		{isOpen && (
+			<ToolChildrenWrapper>
+				{children}
+			</ToolChildrenWrapper>
+		)}
 	</div>
-
 }

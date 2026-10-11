@@ -5,7 +5,7 @@ import { registerSingleton, InstantiationType } from '../../../../platform/insta
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
 import { IEditorService } from '../../../services/editor/common/editorService.js';
-import { ChatMessage } from '../common/chatThreadServiceTypes.js';
+import { ChatMessage, ChatImageAttachment } from '../common/chatThreadServiceTypes.js';
 import { getIsReasoningEnabledState, getReservedOutputTokenSpace, getModelCapabilities } from '../common/modelCapabilities.js';
 import { reParsedToolXMLString, chat_systemMessage } from '../common/prompt/prompts.js';
 import { AnthropicLLMChatMessage, AnthropicReasoning, GeminiLLMChatMessage, LLMChatMessage, LLMFIMMessage, OpenAILLMChatMessage, RawToolParamsObj } from '../common/sendLLMMessageTypes.js';
@@ -18,6 +18,8 @@ import { URI } from '../../../../base/common/uri.js';
 import { EndOfLinePreference } from '../../../../editor/common/model.js';
 import { ToolName } from '../common/toolsServiceTypes.js';
 import { IMCPService } from '../common/mcpService.js';
+import { IVoidMemoryService } from '../common/voidMemoryService.js';
+import { ISmartContextService } from './smartContextService.js';
 
 export const EMPTY_MESSAGE = '(empty message)'
 
@@ -29,9 +31,11 @@ type SimpleLLMMessage = {
 	id: string;
 	name: ToolName;
 	rawParams: RawToolParamsObj;
+	thoughtSignature?: string;
 } | {
 	role: 'user';
 	content: string;
+	images?: ChatImageAttachment[];
 } | {
 	role: 'assistant';
 	content: string;
@@ -39,6 +43,26 @@ type SimpleLLMMessage = {
 }
 
 
+
+// F2: Convert user message with images to multimodal content array
+const userMessageWithImages = (msg: SimpleLLMMessage & { role: 'user' }, format: 'openai' | 'anthropic'): any => {
+	if (!msg.images || msg.images.length === 0) return undefined
+	if (format === 'openai') {
+		const parts: any[] = [{ type: 'text', text: msg.content || '' }]
+		for (const img of msg.images) {
+			parts.push({ type: 'image_url', image_url: { url: `data:${img.mimeType};base64,${img.base64}` } })
+		}
+		return parts
+	}
+	if (format === 'anthropic') {
+		const parts: any[] = [{ type: 'text', text: msg.content || '' }]
+		for (const img of msg.images) {
+			parts.push({ type: 'image', source: { type: 'base64', media_type: img.mimeType, data: img.base64 } })
+		}
+		return parts
+	}
+	return undefined
+}
 
 const CHARS_PER_TOKEN = 4 // assume abysmal chars per token
 const TRIM_TO_LEN = 120
@@ -77,6 +101,14 @@ const prepareMessages_openai_tools = (messages: SimpleLLMMessage[]): AnthropicOr
 		const currMsg = messages[i]
 
 		if (currMsg.role !== 'tool') {
+			// F2: Convert user messages with images to multimodal format
+			if (currMsg.role === 'user') {
+				const multimodal = userMessageWithImages(currMsg, 'openai')
+				if (multimodal) {
+					newMessages.push({ role: 'user', content: multimodal } as any)
+					continue
+				}
+			}
 			newMessages.push(currMsg)
 			continue
 		}
@@ -178,7 +210,7 @@ const prepareMessages_anthropic_tools = (messages: SimpleLLMMessage[], supportsA
 			// make it so the assistant called the tool
 			if (prevMsg?.role === 'assistant') {
 				if (typeof prevMsg.content === 'string') prevMsg.content = [{ type: 'text', text: prevMsg.content }]
-				prevMsg.content.push({ type: 'tool_use', id: currMsg.id, name: currMsg.name, input: currMsg.rawParams })
+				prevMsg.content.push({ type: 'tool_use', id: currMsg.id, name: currMsg.name, input: currMsg.rawParams, thoughtSignature: currMsg.thoughtSignature })
 			}
 
 			// turn each tool into a user message with tool results at the end
@@ -327,7 +359,13 @@ const prepareOpenAIOrAnthropicMessages = ({
 	}
 
 	let totalLen = 0
-	for (const m of messages) { totalLen += m.content.length }
+	for (const m of messages) {
+		totalLen += m.content.length
+		// F2: Account for image tokens in budget — each image ~1600 tokens (~6400 chars)
+		if (m.role === 'user' && 'images' in m && (m as any).images?.length) {
+			totalLen += (m as any).images.length * 6_400
+		}
+	}
 	const charsNeedToTrim = totalLen - Math.max(
 		(contextWindow - reservedOutputTokenSpace) * CHARS_PER_TOKEN, // can be 0, in which case charsNeedToTrim=everything, bad
 		5_000 // ensure we don't trim at least 5k chars (just a random small value)
@@ -458,7 +496,15 @@ const prepareGeminiMessages = (messages: AnthropicLLMChatMessage[]) => {
 					}
 					else if (c.type === 'tool_use') {
 						latestToolName = c.name
-						return { functionCall: { id: c.id, name: c.name, args: c.input } }
+						const sig = c.thoughtSignature
+						return {
+							functionCall: {
+								id: c.id,
+								name: c.name,
+								args: c.input,
+							},
+							...(sig ? { thoughtSignature: sig } : {})
+						}
 					}
 					else return null
 				}).filter(m => !!m)
@@ -541,6 +587,8 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		@IVoidSettingsService private readonly voidSettingsService: IVoidSettingsService,
 		@IVoidModelService private readonly voidModelService: IVoidModelService,
 		@IMCPService private readonly mcpService: IMCPService,
+		@IVoidMemoryService private readonly memoryService: IVoidMemoryService,
+		@ISmartContextService private readonly smartContextService: ISmartContextService,
 	) {
 		super()
 	}
@@ -563,14 +611,17 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		}
 	}
 
-	// Get combined AI instructions from settings and .voidrules files
+	// Get combined AI instructions from settings, .voidrules files, and persistent user rules
 	private _getCombinedAIInstructions(): string {
 		const globalAIInstructions = this.voidSettingsService.state.globalSettings.aiInstructions;
 		const voidRulesFileContent = this._getVoidRulesFileContents();
+		// Phase 3: also include persistent user rules stored in memory service
+		const persistedUserRules = this.memoryService.getUserRules();
 
 		const ans: string[] = []
 		if (globalAIInstructions) ans.push(globalAIInstructions)
 		if (voidRulesFileContent) ans.push(voidRulesFileContent)
+		if (persistedUserRules) ans.push(persistedUserRules)
 		return ans.join('\n\n')
 	}
 
@@ -593,7 +644,8 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		const mcpTools = this.mcpService.getMCPTools()
 
 		const persistentTerminalIDs = this.terminalToolService.listPersistentTerminalIds()
-		const systemMessage = chat_systemMessage({ workspaceFolders, openedURIs, directoryStr, activeURI, persistentTerminalIDs, chatMode, mcpTools, includeXMLToolDefinitions })
+		const memoryContext = this.memoryService.getMemoryContext()
+		const systemMessage = chat_systemMessage({ workspaceFolders, openedURIs, directoryStr, activeURI, persistentTerminalIDs, chatMode, mcpTools, includeXMLToolDefinitions, memoryContext })
 		return systemMessage
 	}
 
@@ -622,12 +674,14 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 					name: m.name,
 					id: m.id,
 					rawParams: m.rawParams,
+					thoughtSignature: m.thoughtSignature,
 				})
 			}
 			else if (m.role === 'user') {
 				simpleLLMMessages.push({
 					role: m.role,
 					content: m.content,
+					images: m.images,
 				})
 			}
 		}
@@ -689,7 +743,22 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		const aiInstructions = this._getCombinedAIInstructions();
 		const isReasoningEnabled = getIsReasoningEnabledState('Chat', providerName, modelName, modelSelectionOptions, overridesOfModel)
 		const reservedOutputTokenSpace = getReservedOutputTokenSpace(providerName, modelName, { isReasoningEnabled, overridesOfModel })
-		const llmMessages = this._chatMessagesToSimpleMessages(chatMessages)
+		let llmMessages = this._chatMessagesToSimpleMessages(chatMessages)
+
+		// Smart context compression for long sessions (>10 messages)
+		if (llmMessages.length > 10) {
+			const historyBudgetTokens = Math.floor(contextWindow * 0.5) // 50% for history
+			const { recentMessages, summary } = this.smartContextService.compressHistory(
+				llmMessages.map(m => ({ role: m.role, content: m.content })),
+				historyBudgetTokens
+			)
+			if (summary) {
+				// Replace old messages with summary + recent ones
+				const summaryMsg: SimpleLLMMessage = { role: 'user', content: summary }
+				const recentLlmMessages = llmMessages.slice(llmMessages.length - recentMessages.length)
+				llmMessages = [summaryMsg, ...recentLlmMessages]
+			}
+		}
 
 		const { messages, separateSystemMessage } = prepareMessages({
 			messages: llmMessages,

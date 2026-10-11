@@ -9,15 +9,15 @@
 	z-index: 2550;
 	left: 50%;
 	-webkit-app-region: no-drag;
-	border-radius: 6px;
+	border-radius: 2px;
 }
 
 .quick-input-titlebar {
 	cursor: grab;
 	display: flex;
 	align-items: center;
-	border-top-right-radius: 5px;
-	border-top-left-radius: 5px;
+	border-top-right-radius: 2px;
+	border-top-left-radius: 2px;
 }
 
 .quick-input-left-action-bar {

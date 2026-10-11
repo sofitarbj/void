@@ -35,49 +35,45 @@ export const VoidCommandBarMain = ({ uri, editor }: VoidCommandBarProps) => {
 
 
 
-export const AcceptAllButtonWrapper = ({ text, onClick, className, ...props }: { text: string, onClick: () => void, className?: string } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+export const AcceptAllButtonWrapper = ({ text, onClick, className = '', ...props }: { text: string, onClick: () => void, className?: string } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
 	<button
 		className={`
-			px-2 py-0.5
-			flex items-center gap-1
-			text-white text-[11px] text-nowrap
-			h-full rounded-none
+			px-3 py-1
+			flex items-center gap-1.5
+			bg-[#00DC82] hover:bg-[#45f99c] text-[#00391d]
+			font-semibold text-xs text-nowrap
+			rounded active:scale-95
+			transition-all duration-150 shadow-sm
 			cursor-pointer
 			${className}
 		`}
-		style={{
-			backgroundColor: 'var(--vscode-button-background)',
-			color: 'var(--vscode-button-foreground)',
-			border: 'none',
-		}}
 		type='button'
 		onClick={onClick}
 		{...props}
 	>
-		{text ? <span>{text}</span> : <Check size={16} />}
+		<Check className="w-3.5 h-3.5 stroke-[2.5]" />
+		<span>{text}</span>
 	</button>
 )
 
-export const RejectAllButtonWrapper = ({ text, onClick, className, ...props }: { text: string, onClick: () => void, className?: string } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+export const RejectAllButtonWrapper = ({ text, onClick, className = '', ...props }: { text: string, onClick: () => void, className?: string } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
 	<button
 		className={`
-			px-2 py-0.5
+			px-2.5 py-1
 			flex items-center gap-1
-			text-white text-[11px] text-nowrap
-			h-full rounded-none
+			bg-[#1F1418] hover:bg-[#2A181E] text-[#F87171] hover:text-[#FFA3A3]
+			font-medium text-xs text-nowrap
+			rounded border border-[#4A1B22] hover:border-[#69242E]
+			transition-colors duration-150
 			cursor-pointer
 			${className}
 		`}
-		style={{
-			backgroundColor: 'var(--vscode-button-secondaryBackground)',
-			color: 'var(--vscode-button-secondaryForeground)',
-			border: 'none',
-		}}
 		type='button'
 		onClick={onClick}
 		{...props}
 	>
-		{text ? <span>{text}</span> : <X size={16} />}
+		<X className="w-3.5 h-3.5 stroke-[2]" />
+		<span>{text}</span>
 	</button>
 )
 
@@ -249,12 +245,19 @@ export const VoidCommandBar = ({ uri, editor }: VoidCommandBarProps) => {
 				</div>
 			)}
 
-			<div className="flex items-center bg-void-bg-2 rounded shadow-md border border-void-border-2 [&>*:first-child]:pl-3 [&>*:last-child]:pr-3 [&>*]:px-3 [&>*]:border-r [&>*]:border-void-border-2 [&>*:last-child]:border-r-0">
+			<div className="flex items-center bg-surface-panel/95 backdrop-blur-md rounded-xl shadow-2xl border border-border-hairline p-1.5 gap-2 text-text-primary">
+				{/* Brand Tag / Title */}
+				<div className="flex items-center gap-1.5 pl-1.5 pr-2 border-r border-border-hairline">
+					<span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+					<span className="font-semibold text-xs text-text-primary whitespace-nowrap" style={{ fontFamily: 'Outfit, sans-serif' }}>
+						Fast Apply Diff
+					</span>
+				</div>
 
 				{/* Diff Navigation Group */}
-				<div className="flex items-center py-0.5">
+				<div className="flex items-center gap-1 pr-2 border-r border-border-hairline">
 					<button
-						className="cursor-pointer"
+						className="cursor-pointer p-0.5 rounded hover:bg-surface-hover text-text-muted hover:text-text-primary transition-colors disabled:opacity-40"
 						disabled={upDownDisabled}
 						onClick={() => commandBarService.goToDiffIdx(prevDiffIdx)}
 						onKeyDown={(e) => {
@@ -266,20 +269,20 @@ export const VoidCommandBar = ({ uri, editor }: VoidCommandBarProps) => {
 						data-tooltip-id="void-tooltip"
 						data-tooltip-content={`${upKeybindLabel ? `${upKeybindLabel}` : ''}`}
 						data-tooltip-delay-show={500}
+						title="Previous diff"
 					>
-						<MoveUp className='size-3 transition-opacity duration-200 opacity-70 hover:opacity-100' />
+						<MoveUp className='w-3 h-3' />
 					</button>
-					<span className={`text-xs whitespace-nowrap px-1 ${!isADiffInThisFile ? 'opacity-70' : ''}`}>
+					<span className={`font-mono text-[11px] whitespace-nowrap px-1 ${!isADiffInThisFile ? 'opacity-70' : 'text-text-secondary'}`}>
 						{isADiffInThisFile
-							? `Diff ${(currDiffIdx ?? 0) + 1} of ${sortedDiffIds.length}`
+							? `${(currDiffIdx ?? 0) + 1} of ${sortedDiffIds.length}`
 							: streamState === 'streaming'
-								? 'No changes yet'
+								? 'Streaming...'
 								: 'No changes'
 						}
-
 					</span>
 					<button
-						className="cursor-pointer"
+						className="cursor-pointer p-0.5 rounded hover:bg-surface-hover text-text-muted hover:text-text-primary transition-colors disabled:opacity-40"
 						disabled={upDownDisabled}
 						onClick={() => commandBarService.goToDiffIdx(nextDiffIdx)}
 						onKeyDown={(e) => {
@@ -291,17 +294,16 @@ export const VoidCommandBar = ({ uri, editor }: VoidCommandBarProps) => {
 						data-tooltip-id="void-tooltip"
 						data-tooltip-content={`${downKeybindLabel ? `${downKeybindLabel}` : ''}`}
 						data-tooltip-delay-show={500}
+						title="Next diff"
 					>
-						<MoveDown className='size-3 transition-opacity duration-200 opacity-70 hover:opacity-100' />
+						<MoveDown className='w-3 h-3' />
 					</button>
 				</div>
 
-
-
 				{/* File Navigation Group */}
-				<div className="flex items-center py-0.5">
+				<div className="flex items-center gap-1 pr-2 border-r border-border-hairline">
 					<button
-						className="cursor-pointer"
+						className="cursor-pointer p-0.5 rounded hover:bg-surface-hover text-text-muted hover:text-text-primary transition-colors disabled:opacity-40"
 						disabled={leftRightDisabled}
 						onClick={() => commandBarService.goToURIIdx(prevURIIdx)}
 						onKeyDown={(e) => {
@@ -313,17 +315,18 @@ export const VoidCommandBar = ({ uri, editor }: VoidCommandBarProps) => {
 						data-tooltip-id="void-tooltip"
 						data-tooltip-content={`${leftKeybindLabel ? `${leftKeybindLabel}` : ''}`}
 						data-tooltip-delay-show={500}
+						title="Previous file"
 					>
-						<MoveLeft className='size-3 transition-opacity duration-200 opacity-70 hover:opacity-100' />
+						<MoveLeft className='w-3 h-3' />
 					</button>
-					<span className="text-xs whitespace-nowrap px-1 mx-0.5">
+					<span className="font-mono text-[11px] whitespace-nowrap px-1 text-text-secondary">
 						{currFileIdx !== null
-							? `File ${currFileIdx + 1} of ${sortedCommandBarURIs.length}`
+							? `File ${currFileIdx + 1}/${sortedCommandBarURIs.length}`
 							: `${sortedCommandBarURIs.length} file${sortedCommandBarURIs.length === 1 ? '' : 's'}`
 						}
 					</span>
 					<button
-						className="cursor-pointer"
+						className="cursor-pointer p-0.5 rounded hover:bg-surface-hover text-text-muted hover:text-text-primary transition-colors disabled:opacity-40"
 						disabled={leftRightDisabled}
 						onClick={() => commandBarService.goToURIIdx(nextURIIdx)}
 						onKeyDown={(e) => {
@@ -335,44 +338,52 @@ export const VoidCommandBar = ({ uri, editor }: VoidCommandBarProps) => {
 						data-tooltip-id="void-tooltip"
 						data-tooltip-content={`${rightKeybindLabel ? `${rightKeybindLabel}` : ''}`}
 						data-tooltip-delay-show={500}
+						title="Next file"
 					>
-						<MoveRight className='size-3 transition-opacity duration-200 opacity-70 hover:opacity-100' />
+						<MoveRight className='w-3 h-3' />
 					</button>
 				</div>
 
-
-				{/* Accept/Reject buttons - only shown when appropriate */}
+				{/* Accept/Reject Tandem Action Pills - only shown when appropriate */}
 				{showAcceptRejectAll && (
-					<div className='flex self-stretch gap-0 !px-0 !py-0'>
+					<div className='flex items-center gap-1.5'>
 						<AcceptAllButtonWrapper
-							// text={`Accept File${acceptFileKeybindLabel ? ` ${acceptFileKeybindLabel}` : ''}`}
-							text={`Accept File`}
+							text="Accept File"
 							data-tooltip-id='void-tooltip'
 							data-tooltip-content={acceptFileKeybindLabel}
 							data-tooltip-delay-show={500}
 							onClick={onAcceptFile}
 						/>
 						<RejectAllButtonWrapper
-							// text={`Reject File${rejectFileKeybindLabel ? ` ${rejectFileKeybindLabel}` : ''}`}
-							text={`Reject File`}
+							text="Reject"
 							data-tooltip-id='void-tooltip'
 							data-tooltip-content={rejectFileKeybindLabel}
 							data-tooltip-delay-show={500}
 							onClick={onRejectFile}
 						/>
+						<div className="h-4 w-px bg-surface-hover mx-0.5" />
+						<button
+							type="button"
+							onClick={onAcceptAll}
+							data-tooltip-id='void-tooltip'
+							data-tooltip-content={acceptAllKeybindLabel}
+							className="px-2.5 py-1 bg-[#161F1C] hover:bg-[#1C2924] text-[#45f99c] hover:text-[#59ffa4] rounded text-xs font-medium transition-colors border border-[#00dc8233] hover:border-[#00dc8266] cursor-pointer"
+						>
+							Accept All ({sortedCommandBarURIs.length})
+						</button>
 					</div>
 				)}
+
 				{/* Triple colon menu button */}
-				{showAcceptRejectAll && <div className='!px-0 !py-0 self-stretch flex justify-center items-center'>
+				{showAcceptRejectAll && (
 					<div
-						className="cursor-pointer px-1 self-stretch flex justify-center items-center"
+						className="cursor-pointer p-1 rounded hover:bg-surface-hover text-text-muted hover:text-text-primary transition-colors"
 						onClick={() => setShowAcceptRejectAllButtons(!showAcceptRejectAllButtons)}
+						title="More diff actions"
 					>
-						<EllipsisVertical
-							className="size-3"
-						/>
+						<EllipsisVertical className="w-3.5 h-3.5" />
 					</div>
-				</div>}
+				)}
 			</div>
 		</div>
 	)

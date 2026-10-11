@@ -4,11 +4,11 @@
  *--------------------------------------------------------------------------------------*/
 
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'; // Added useRef import just in case it was missed, though likely already present
-import { ProviderName, SettingName, displayInfoOfSettingName, providerNames, VoidStatefulModelInfo, customSettingNamesOfProvider, RefreshableProviderName, refreshableProviderNames, displayInfoOfProviderName, nonlocalProviderNames, localProviderNames, GlobalSettingName, featureNames, displayInfoOfFeatureName, isProviderNameDisabled, FeatureName, hasDownloadButtonsOnModelsProviderNames, subTextMdOfProviderName } from '../../../../common/voidSettingsTypes.js'
+import { ProviderName, SettingName, displayInfoOfSettingName, providerNames, VoidStatefulModelInfo, customSettingNamesOfProvider, RefreshableProviderName, refreshableProviderNames, displayInfoOfProviderName, nonlocalProviderNames, localProviderNames, ollamaProviderNames, mlxProviderNames, appleProviderNames, otherLocalProviderNames, GlobalSettingName, featureNames, displayInfoOfFeatureName, isProviderNameDisabled, FeatureName, hasDownloadButtonsOnModelsProviderNames, subTextMdOfProviderName } from '../../../../common/voidSettingsTypes.js'
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js'
 import { VoidButtonBgDarken, VoidCustomDropdownBox, VoidInputBox2, VoidSimpleInputBox, VoidSwitch } from '../util/inputs.js'
 import { useAccessor, useIsDark, useIsOptedOut, useRefreshModelListener, useRefreshModelState, useSettingsState } from '../util/services.js'
-import { X, RefreshCw, Loader2, Check, Asterisk, Plus } from 'lucide-react'
+import { X, RefreshCw, Loader2, Check, Asterisk, Plus, Search, Key, Mic, Shield, Cpu, Sliders, Database, Terminal, Settings2, Sparkles } from 'lucide-react'
 import { URI } from '../../../../../../../base/common/uri.js'
 import { ModelDropdown } from './ModelDropdown.js'
 import { ChatMarkdownRender } from '../markdown/ChatMarkdownRender.js'
@@ -23,14 +23,20 @@ import { MCPServer } from '../../../../common/mcpServiceTypes.js';
 import { useMCPServiceState } from '../util/services.js';
 import { OPT_OUT_KEY } from '../../../../common/storageKeys.js';
 import { StorageScope, StorageTarget } from '../../../../../../../platform/storage/common/storage.js';
+import { LocalVoiceModelSettings } from '../local-voice/LocalVoiceModelSettings.js';
+import { CodeenWordmark, CodeenLogoFull } from '../util/CodeenWordmark.js';
 
 type Tab =
 	| 'models'
-	| 'localProviders'
+	| 'voice'
+	| 'ollama'
+	| 'mlx'
+	| 'apple'
+	| 'localOther'
 	| 'providers'
 	| 'featureOptions'
-	| 'mcp'
 	| 'general'
+	| 'mcp'
 	| 'all';
 
 
@@ -95,11 +101,14 @@ const RefreshModelButton = ({ providerName }: { providerName: RefreshableProvide
 	/>
 }
 
-const RefreshableModels = () => {
+const RefreshableModels = ({ providerNamesFilter }: { providerNamesFilter?: readonly ProviderName[] } = {}) => {
 	const settingsState = useSettingsState()
 
+	const names = providerNamesFilter
+		? refreshableProviderNames.filter(p => providerNamesFilter.includes(p))
+		: refreshableProviderNames
 
-	const buttons = refreshableProviderNames.map(providerName => {
+	const buttons = names.map(providerName => {
 		if (!settingsState.settingsOfProvider[providerName]._didFillInProviderSettings) return null
 		return <RefreshModelButton key={providerName} providerName={providerName} />
 	})
@@ -744,13 +753,39 @@ export const SettingsForProvider = ({ providerName, showProviderTitle, showProvi
 }
 
 
-export const VoidProviderSettings = ({ providerNames }: { providerNames: ProviderName[] }) => {
+export const VoidProviderSettings = ({ providerNames }: { providerNames: readonly ProviderName[] }) => {
 	return <>
 		{providerNames.map(providerName =>
 			<SettingsForProvider key={providerName} providerName={providerName} showProviderTitle={true} showProviderSuggestions={true} />
 		)}
 	</>
 }
+
+const LocalProviderSection = ({ title, description, instructions, providerNames, refreshable, autoSetup, modelFilter }: {
+	title: string
+	description?: string
+	instructions?: React.ReactNode
+	providerNames: readonly ProviderName[]
+	refreshable?: boolean
+	autoSetup?: React.ReactNode
+	modelFilter?: readonly ProviderName[]
+}) => (
+	<div className='flex flex-col gap-4 mb-12'>
+		<h2 className='text-3xl mb-1'>{title}</h2>
+		{description && <h3 className='text-void-fg-3 mb-2'>{description}</h3>}
+		{instructions && <div className='opacity-80 mb-2'>{instructions}</div>}
+		{autoSetup}
+		{refreshable && <RefreshableModels providerNamesFilter={providerNames} />}
+		<VoidProviderSettings providerNames={providerNames} />
+		{modelFilter && (
+			<>
+				<div className='w-full h-[1px] my-2' />
+				<h3 className='text-lg text-void-fg-3 mb-2'>Models for {title}</h3>
+				<ModelDump filteredProviders={[...modelFilter]} />
+			</>
+		)}
+	</div>
+)
 
 
 type TabName = 'models' | 'general'
@@ -831,7 +866,70 @@ export const OllamaSetupInstructions = ({ sayWeAutoDetect }: { sayWeAutoDetect?:
 		>
 			<ChatMarkdownRender string={`3. Run \`ollama pull your_model\` to install a model.`} chatMessageLocation={undefined} />
 		</div>
-		{sayWeAutoDetect && <div className=' pl-6'><ChatMarkdownRender string={`Void automatically detects locally running models and enables them.`} chatMessageLocation={undefined} /></div>}
+		{sayWeAutoDetect && <div className=' pl-6'><ChatMarkdownRender string={`Codeen automatically detects locally running models and enables them.`} chatMessageLocation={undefined} /></div>}
+	</div>
+}
+
+export const AutoSetupMlxToggle = () => {
+	if (os !== 'mac') return null
+
+	const settingName: GlobalSettingName = 'autoSetupMlx'
+	const accessor = useAccessor()
+	const voidSettingsService = accessor.get('IVoidSettingsService')
+	const voidSettingsState = useSettingsState()
+	const enabled = voidSettingsState.globalSettings[settingName]
+
+	return <ButtonLeftTextRightOption
+		leftButton={<VoidSwitch
+			size='xxs'
+			value={enabled}
+			onChange={(newVal) => {
+				voidSettingsService.setGlobalSetting(settingName, newVal)
+			}}
+		/>}
+		text='On macOS: install mlx-lm (pip) if needed, start mlx_lm.server, and autodetect the loaded model.'
+	/>
+}
+
+export const AutoSetupAppleFoundationModelsToggle = () => {
+	if (os !== 'mac') return null
+
+	const settingName: GlobalSettingName = 'autoSetupAppleFoundationModels'
+	const accessor = useAccessor()
+	const voidSettingsService = accessor.get('IVoidSettingsService')
+	const voidSettingsState = useSettingsState()
+	const enabled = voidSettingsState.globalSettings[settingName]
+
+	return <ButtonLeftTextRightOption
+		leftButton={<VoidSwitch
+			size='xxs'
+			value={enabled}
+			onChange={(newVal) => {
+				voidSettingsService.setGlobalSetting(settingName, newVal)
+			}}
+		/>}
+		text='On macOS: install maclocal-api (afm) via Homebrew or pip, start the server on port 9999, and enable model foundation.'
+	/>
+}
+
+export const MlxSetupInstructions = () => {
+	return <div className='prose-p:my-0 prose-ol:list-decimal prose-p:py-0 prose-ol:my-0 prose-ol:py-0 text-void-fg-3 text-sm list-decimal select-text mb-4'>
+		<div><ChatMarkdownRender string={`MLX (one model at a time)`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`1. Codeen can run \`pip install mlx-lm\` and start \`mlx_lm.server\` for you (toggle in Settings → Models). Default model: \`mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit\` on port 8080.`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`2. Codeen shows only **one** autodetected entry: the model currently loaded by the server.`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`3. **Switch models**: stop the server, run \`mlx_lm.server --model <other-hf-repo>\`, then click **Refresh** next to MLX in Settings → Models.`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`4. **Second model in parallel**: run another server on a different port (e.g. \`mlx_lm.server --model … --port 8081\`), then at the bottom of the model list use **Add Model** → **OpenAI-Compatible** with \`http://127.0.0.1:8081/v1\`, or add the model id manually under MLX if the endpoint exposes multiple ids.`} chatMessageLocation={undefined} /></div>
+	</div>
+}
+
+export const AppleFoundationModelsSetupInstructions = () => {
+	if (os !== 'mac') return null
+	return <div className='prose-p:my-0 prose-ol:list-decimal prose-p:py-0 prose-ol:my-0 prose-ol:py-0 text-void-fg-3 text-sm list-decimal select-text mb-4'>
+		<div><ChatMarkdownRender string={`Apple — [maclocal-api](https://github.com/scouzi1966/maclocal-api) (\`afm\`)`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`1. Requires macOS 26+, Apple Silicon, and Apple Intelligence. Codeen auto-installs \`afm\` (Homebrew: \`brew tap scouzi1966/afm && brew install scouzi1966/afm/afm\`, or pip: \`pip install macafm\`).`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`2. Default server: \`afm -p 9999\` → endpoint \`http://127.0.0.1:9999/v1\`, model id \`foundation\`.`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`3. **LoRA adapter**: \`afm -a ./my-adapter.fmadapter -p 9998\`, then set Codeen’s endpoint to \`http://127.0.0.1:9998\` and refresh.`} chatMessageLocation={undefined} /></div>
+		<div className='pl-6'><ChatMarkdownRender string={`4. **Other local models**: use **MLX** (\`mlx_lm.server\`) or \`afm mlx -m <hf-repo>\` from maclocal-api — this provider is only Apple’s on-device Foundation model.`} chatMessageLocation={undefined} /></div>
 	</div>
 }
 
@@ -920,6 +1018,125 @@ export const OneClickSwitchButton = ({ fromEditor = 'VS Code', className = '' }:
 
 
 // full settings
+
+// Skills Settings Panel — like MCP but for skills
+const SkillsSettingsPanel = () => {
+	const accessor = useAccessor()
+	const skillService = accessor.get('ISkillService')
+	const [newSkillName, setNewSkillName] = useState('')
+	const [newSkillDesc, setNewSkillDesc] = useState('')
+	const [newSkillTriggers, setNewSkillTriggers] = useState('')
+	const [newSkillContent, setNewSkillContent] = useState('')
+	const [showAddForm, setShowAddForm] = useState(false)
+	const [, forceUpdate] = useState(0)
+
+	const skills = skillService?.getAvailableSkills?.() ?? []
+
+	return (
+		<div>
+			<h2 className='text-3xl mb-2'>Skills</h2>
+			<h4 className='text-void-fg-3 mb-4'>
+				Specialized knowledge modules the AI can invoke for domain-specific tasks. Skills provide targeted instructions for frontend, testing, security, and more.
+			</h4>
+
+			<div className='my-2'>
+				<VoidButtonBgDarken className='px-4 py-1 w-full max-w-48' onClick={() => setShowAddForm(!showAddForm)}>
+					{showAddForm ? 'Cancel' : 'Add Skill'}
+				</VoidButtonBgDarken>
+			</div>
+
+			{/* Add skill form */}
+			{showAddForm && (
+				<div className='flex flex-col gap-2 my-4 p-3 rounded-md border border-void-border-3 bg-void-bg-1 max-w-[500px]'>
+					<input
+						type='text'
+						title='Skill name'
+						placeholder='Skill name (e.g. react-patterns)'
+						className='w-full px-2 py-1 text-sm bg-void-bg-2 border border-void-border-3 rounded text-void-fg-2 outline-none'
+						value={newSkillName}
+						onChange={e => setNewSkillName(e.target.value)}
+					/>
+					<input
+						type='text'
+						title='Skill description'
+						placeholder='Short description'
+						className='w-full px-2 py-1 text-sm bg-void-bg-2 border border-void-border-3 rounded text-void-fg-2 outline-none'
+						value={newSkillDesc}
+						onChange={e => setNewSkillDesc(e.target.value)}
+					/>
+					<input
+						type='text'
+						title='Trigger keywords'
+						placeholder='Trigger keywords (comma-separated)'
+						className='w-full px-2 py-1 text-sm bg-void-bg-2 border border-void-border-3 rounded text-void-fg-2 outline-none'
+						value={newSkillTriggers}
+						onChange={e => setNewSkillTriggers(e.target.value)}
+					/>
+					<textarea
+						title='Skill content'
+						placeholder='Skill instructions (Markdown)...'
+						className='w-full px-2 py-1 text-sm bg-void-bg-2 border border-void-border-3 rounded text-void-fg-2 outline-none min-h-[120px] resize-y'
+						value={newSkillContent}
+						onChange={e => setNewSkillContent(e.target.value)}
+					/>
+					<VoidButtonBgDarken
+						className='px-4 py-1 w-full max-w-32'
+						onClick={() => {
+							if (!newSkillName.trim()) return
+							const skillDef = {
+								name: newSkillName.trim().toLowerCase().replace(/\s+/g, '-'),
+								description: newSkillDesc.trim(),
+								triggers: newSkillTriggers.split(',').map(t => t.trim()).filter(Boolean),
+								content: newSkillContent.trim(),
+								source: 'user' as const,
+							}
+							// Add to service (in-memory for now)
+							if (skillService && 'addSkill' in skillService) {
+								(skillService as any).addSkill(skillDef)
+							}
+							setNewSkillName('')
+							setNewSkillDesc('')
+							setNewSkillTriggers('')
+							setNewSkillContent('')
+							setShowAddForm(false)
+							forceUpdate(n => n + 1)
+						}}
+					>
+						Save Skill
+					</VoidButtonBgDarken>
+				</div>
+			)}
+
+			{/* Skills list */}
+			<div className='flex flex-col gap-1 mt-4'>
+				{skills.length === 0 && (
+					<div className='text-void-fg-3 text-sm'>No skills found</div>
+				)}
+				{skills.map((skill) => (
+					<div key={skill.name} className='flex items-start gap-2 p-2 rounded-md border border-void-border-3 bg-void-bg-1'>
+						<div className='flex-1 min-w-0'>
+							<div className='flex items-center gap-1.5'>
+								<span className='text-sm font-medium text-void-fg-1'>{skill.name}</span>
+								<span className='text-[10px] px-1 rounded bg-void-bg-2 text-void-fg-3'>
+									{skill.source}
+								</span>
+							</div>
+							<div className='text-xs text-void-fg-3 mt-0.5'>{skill.description}</div>
+							{skill.triggers.length > 0 && (
+								<div className='flex flex-wrap gap-1 mt-1'>
+									{skill.triggers.slice(0, 5).map(t => (
+										<span key={t} className='text-[10px] px-1 rounded bg-void-bg-3 text-void-fg-4'>{t}</span>
+									))}
+									{skill.triggers.length > 5 && <span className='text-[10px] text-void-fg-4'>+{skill.triggers.length - 5}</span>}
+								</div>
+							)}
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	)
+}
 
 // MCP Server component
 const MCPServerComponent = ({ name, server }: { name: string, server: MCPServer }) => {
@@ -1034,16 +1251,26 @@ export const Settings = () => {
 	// ─── sidebar nav ──────────────────────────
 	const [selectedSection, setSelectedSection] =
 		useState<Tab>('models');
+	const [searchQuery, setSearchQuery] = useState('');
 
-	const navItems: { tab: Tab; label: string }[] = [
-		{ tab: 'models', label: 'Models' },
-		{ tab: 'localProviders', label: 'Local Providers' },
-		{ tab: 'providers', label: 'Main Providers' },
-		{ tab: 'featureOptions', label: 'Feature Options' },
-		{ tab: 'general', label: 'General' },
-		{ tab: 'mcp', label: 'MCP' },
-		{ tab: 'all', label: 'All Settings' },
+	const navItems: { tab: Tab; label: string; icon: any }[] = [
+		{ tab: 'models', label: 'Models & Routing', icon: Sliders },
+		{ tab: 'voice', label: 'Local Voice (Whisper)', icon: Mic },
+		{ tab: 'ollama', label: 'Ollama Engine', icon: Cpu },
+		...(os === 'mac' ? ([
+			{ tab: 'mlx' as const, label: 'MLX Apple Silicon', icon: Cpu },
+			{ tab: 'apple' as const, label: 'Apple Intelligence', icon: Cpu },
+		]) : []),
+		{ tab: 'localOther', label: 'Local (Other Engines)', icon: Terminal },
+		{ tab: 'providers', label: 'Providers & API Keys', icon: Key },
+		{ tab: 'featureOptions', label: 'Agent Autonomy & Features', icon: Shield },
+		{ tab: 'mcp', label: 'MCP Servers', icon: Database },
+		{ tab: 'general', label: 'General & Backups', icon: Settings2 },
+		{ tab: 'all', label: 'All Settings', icon: Sparkles },
 	];
+	const filteredNavItems = navItems.filter(item =>
+		!searchQuery.trim() || item.label.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 	const shouldShowTab = (tab: Tab) => selectedSection === 'all' || selectedSection === tab;
 	const accessor = useAccessor()
 	const commandService = accessor.get('ICommandService')
@@ -1064,12 +1291,12 @@ export const Settings = () => {
 		if (t === 'Chats') {
 			// Export chat threads
 			dataStr = JSON.stringify(chatThreadsService.state, null, 2)
-			downloadName = 'void-chats.json'
+			downloadName = 'codeen-chats.json'
 		}
 		else if (t === 'Settings') {
 			// Export user settings
 			dataStr = JSON.stringify(voidSettingsService.state, null, 2)
-			downloadName = 'void-settings.json'
+			downloadName = 'codeen-settings.json'
 		}
 		else {
 			dataStr = ''
@@ -1121,81 +1348,181 @@ export const Settings = () => {
 		ss(s => s + 1)
 	}
 
+	const activeSectionLabel = navItems.find(n => n.tab === selectedSection)?.label || 'Settings'
 
 	return (
-		<div className={`@@void-scope ${isDark ? 'dark' : ''}`} style={{ height: '100%', width: '100%', overflow: 'auto' }}>
-			<div className="flex flex-col md:flex-row w-full gap-6 max-w-[900px] mx-auto mb-32" style={{ minHeight: '80vh' }}>
+		<div
+			className={`@@void-scope ${isDark ? 'dark' : ''} bg-surface-base text-text-primary w-full h-full overflow-hidden flex flex-col`}
+			style={{ height: '100%', width: '100%', maxHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+		>
+			<div
+				className="flex flex-col md:flex-row w-full h-full gap-6 max-w-6xl mx-auto py-6 px-6 overflow-hidden min-h-0 flex-1"
+				style={{ flex: '1 1 0%', height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden', display: 'flex' }}
+			>
 				{/* ──────────────  SIDEBAR  ────────────── */}
 
-				<aside className="md:w-1/4 w-full p-6 shrink-0">
+				<aside
+					className="md:w-72 w-full p-4 shrink-0 bg-surface-panel/40 border border-border-hairline rounded-sm h-full overflow-y-auto flex flex-col gap-4 shadow-sm min-h-0"
+					style={{ height: '100%', maxHeight: '100%', minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}
+				>
+					<div className="flex items-center justify-center px-2 py-1 border-b border-border-hairline pb-3">
+						<CodeenLogoFull size="sm" />
+					</div>
+
+					{/* Search configuration input */}
+					<div className="relative w-full">
+						<div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-text-muted">
+							<Search size={14} />
+						</div>
+						<input
+							type="text"
+							placeholder="Search configuration..."
+							value={searchQuery}
+							onChange={e => setSearchQuery(e.target.value)}
+							className="w-full h-8 pl-8 pr-3 bg-surface-elevated text-text-primary placeholder:text-text-muted text-[12px] font-sans rounded-sm border border-border-hairline focus:border-primary/50 focus:outline-none transition-colors"
+						/>
+					</div>
+
+					{/* Section hierarchy label */}
+					<div className="flex items-center justify-between px-1">
+						<span className="font-mono text-[10px] uppercase text-text-muted tracking-wider font-semibold">Engine Subsystems</span>
+					</div>
+
 					{/* vertical tab list */}
-					<div className="flex flex-col gap-2 mt-12">
-						{navItems.map(({ tab, label }) => (
-							<button
-								key={tab}
-								onClick={() => {
-									if (tab === 'all') {
-										setSelectedSection('all');
-										window.scrollTo({ top: 0, behavior: 'smooth' });
-									} else {
-										setSelectedSection(tab);
-									}
-								}}
-								className={`
-          py-2 px-4 rounded-md text-left transition-all duration-200
-          ${selectedSection === tab
-										? 'bg-[#0e70c0]/80 text-white font-medium shadow-sm'
-										: 'bg-void-bg-2 hover:bg-void-bg-2/80 text-void-fg-1'}
-        `}
-							>
-								{label}
-							</button>
-						))}
+					<div className="flex flex-col gap-1">
+						{filteredNavItems.map(({ tab, label, icon: IconComponent }) => {
+							const isActive = selectedSection === tab;
+							return (
+								<button
+									key={tab}
+									onClick={() => {
+										if (tab === 'all') {
+											setSelectedSection('all');
+										} else {
+											setSelectedSection(tab);
+										}
+									}}
+									className={`
+										py-2 px-3 rounded-sm text-left text-[12.5px] transition-all duration-150 cursor-pointer flex items-center justify-between group
+										${isActive
+											? 'bg-primary/10 text-primary border border-primary/30 font-semibold shadow-xs'
+											: 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated/70 border border-transparent'}
+									`}
+								>
+									<div className="flex items-center gap-2.5 min-w-0">
+										<IconComponent size={15} className={`shrink-0 ${isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-primary transition-colors'}`} />
+										<span className="truncate">{label}</span>
+									</div>
+									{isActive && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0"></span>}
+								</button>
+							);
+						})}
 					</div>
 				</aside>
 
 				{/* ───────────── MAIN PANE ───────────── */}
-				<main className="flex-1 p-6 select-none">
+				<main
+					className="flex-1 min-h-0 min-w-0 p-6 bg-surface-panel/30 border border-border-hairline rounded-sm h-full overflow-y-auto"
+					style={{ flex: '1 1 0%', height: '100%', maxHeight: '100%', minHeight: 0, minWidth: 0, overflowY: 'auto' }}
+				>
+					<div className='max-w-3xl pb-28'>
+						{/* Header Banner Section */}
+						<div className="flex flex-col gap-1 pb-4 mb-6 border-b border-border-hairline">
+							<div className="flex items-center gap-2 font-mono text-[11px] text-text-muted uppercase tracking-wider mb-1">
+								<span>Configuration Hub</span>
+								<span>/</span>
+								<span className="text-primary font-semibold">{activeSectionLabel}</span>
+							</div>
+							<div className="flex flex-wrap items-center justify-between gap-3">
+								<div>
+									<h1 className='text-2xl font-bold text-text-primary tracking-tight'>{activeSectionLabel}</h1>
+									<p className='text-xs text-text-muted mt-0.5'>Assign specialized intelligence models and parameters for maximum speed and token efficiency.</p>
+								</div>
+								<div className="flex items-center gap-2">
+									<span className="font-mono text-[10.5px] bg-surface-elevated text-text-secondary px-2.5 py-1 rounded-sm border border-border-hairline shadow-xs">
+										Scope: Project Default (.codeen)
+									</span>
+									<ErrorBoundary>
+										<RedoOnboardingButton />
+									</ErrorBoundary>
+								</div>
+							</div>
+						</div>
 
-
-
-					<div className='max-w-3xl'>
-
-						<h1 className='text-2xl w-full'>{`Void's Settings`}</h1>
-
-						<div className='w-full h-[1px] my-2' />
-
-						{/* Models section (formerly FeaturesTab) */}
-						<ErrorBoundary>
-							<RedoOnboardingButton />
-						</ErrorBoundary>
-
-						<div className='w-full h-[1px] my-4' />
-
-						{/* All sections in flex container with gap-12 */}
-						<div className='flex flex-col gap-12'>
+						{/* All sections in flex container with gap-10 */}
+						<div className='flex flex-col gap-10'>
 							{/* Models section (formerly FeaturesTab) */}
 							<div className={shouldShowTab('models') ? `` : 'hidden'}>
 								<ErrorBoundary>
-									<h2 className={`text-3xl mb-2`}>Models</h2>
+									<h2 className={`text-2xl font-semibold mb-2 text-text-primary`}>Models</h2>
 									<ModelDump />
-									<div className='w-full h-[1px] my-4' />
+									<div className='w-full h-[1px] my-4 bg-border-hairline' />
 									<AutoDetectLocalModelsToggle />
-									<RefreshableModels />
+									<div className='w-full h-[1px] my-4 bg-border-hairline' />
+									<p className='text-text-muted text-sm mb-4'>Per-provider setup and refresh are under <strong>Ollama</strong>, <strong>MLX</strong>, and <strong>Apple</strong> in the sidebar.</p>
 								</ErrorBoundary>
 							</div>
 
-							{/* Local Providers section */}
-							<div className={shouldShowTab('localProviders') ? `` : 'hidden'}>
+							<div className={shouldShowTab('voice') ? `` : 'hidden'}>
 								<ErrorBoundary>
-									<h2 className={`text-3xl mb-2`}>Local Providers</h2>
-									<h3 className={`text-void-fg-3 mb-2`}>{`Void can access any model that you host locally. We automatically detect your local models by default.`}</h3>
+									<LocalVoiceModelSettings />
+								</ErrorBoundary>
+							</div>
 
-									<div className='opacity-80 mb-4'>
-										<OllamaSetupInstructions sayWeAutoDetect={true} />
-									</div>
+							<div className={shouldShowTab('ollama') ? `` : 'hidden'}>
+								<ErrorBoundary>
+									<LocalProviderSection
+										title='Ollama'
+										description='Pull models with `ollama pull` — Codeen autodetects them at your endpoint.'
+										instructions={<OllamaSetupInstructions sayWeAutoDetect={true} />}
+										providerNames={ollamaProviderNames}
+										refreshable
+										modelFilter={ollamaProviderNames}
+									/>
+								</ErrorBoundary>
+							</div>
 
-									<VoidProviderSettings providerNames={localProviderNames} />
+							{os === 'mac' && (
+								<div className={shouldShowTab('mlx') ? `` : 'hidden'}>
+									<ErrorBoundary>
+										<LocalProviderSection
+											title='MLX'
+											description='One loaded model at a time via mlx_lm.server (port 8080 by default).'
+											instructions={<MlxSetupInstructions />}
+											providerNames={mlxProviderNames}
+											refreshable
+											autoSetup={<AutoSetupMlxToggle />}
+											modelFilter={mlxProviderNames}
+										/>
+									</ErrorBoundary>
+								</div>
+							)}
+
+							{os === 'mac' && (
+								<div className={shouldShowTab('apple') ? `` : 'hidden'}>
+									<ErrorBoundary>
+										<LocalProviderSection
+											title='Apple'
+											description='On-device Foundation model via maclocal-api (`afm`, port 9999).'
+											instructions={<AppleFoundationModelsSetupInstructions />}
+											providerNames={appleProviderNames}
+											refreshable
+											autoSetup={<AutoSetupAppleFoundationModelsToggle />}
+											modelFilter={appleProviderNames}
+										/>
+									</ErrorBoundary>
+								</div>
+							)}
+
+							<div className={shouldShowTab('localOther') ? `` : 'hidden'}>
+								<ErrorBoundary>
+									<LocalProviderSection
+										title='Local (other)'
+										description='vLLM and LM Studio — OpenAI-compatible local servers.'
+										providerNames={otherLocalProviderNames}
+										refreshable
+										modelFilter={otherLocalProviderNames}
+									/>
 								</ErrorBoundary>
 							</div>
 
@@ -1203,7 +1530,7 @@ export const Settings = () => {
 							<div className={shouldShowTab('providers') ? `` : 'hidden'}>
 								<ErrorBoundary>
 									<h2 className={`text-3xl mb-2`}>Main Providers</h2>
-									<h3 className={`text-void-fg-3 mb-2`}>{`Void can access models from Anthropic, OpenAI, OpenRouter, and more.`}</h3>
+									<h3 className={`text-void-fg-3 mb-2`}>{`Codeen can access models from Anthropic, OpenAI, OpenRouter, and more.`}</h3>
 
 									<VoidProviderSettings providerNames={nonlocalProviderNames} />
 								</ErrorBoundary>
@@ -1340,7 +1667,6 @@ export const Settings = () => {
 										</div>
 
 
-
 										<div className='w-full'>
 											<h4 className={`text-base`}>Editor</h4>
 											<div className='text-sm text-void-fg-3 mt-1'>{`Settings that control the visibility of Void suggestions in the code editor.`}</div>
@@ -1396,7 +1722,7 @@ export const Settings = () => {
 								<div>
 									<ErrorBoundary>
 										<h2 className='text-3xl mb-2'>One-Click Switch</h2>
-										<h4 className='text-void-fg-3 mb-4'>{`Transfer your editor settings into Void.`}</h4>
+										<h4 className='text-void-fg-3 mb-4'>{`Transfer your editor settings into Codeen.`}</h4>
 
 										<div className='flex flex-col gap-2'>
 											<OneClickSwitchButton className='w-48' fromEditor="VS Code" />
@@ -1409,11 +1735,11 @@ export const Settings = () => {
 								{/* Import/Export section */}
 								<div>
 									<h2 className='text-3xl mb-2'>Import/Export</h2>
-									<h4 className='text-void-fg-3 mb-4'>{`Transfer Void's settings and chats in and out of Void.`}</h4>
+									<h4 className='text-void-fg-3 mb-4'>{`Transfer Codeen's settings and chats in and out of Codeen.`}</h4>
 									<div className='flex flex-col gap-8'>
 										{/* Settings Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Settings')} />
+											<input key={2 * s} ref={fileInputSettingsRef} type='file' accept='.json' title='Import settings file' className='hidden' onChange={handleUpload('Settings')} />
 											<VoidButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputSettingsRef.current?.click() }}>
 												Import Settings
 											</VoidButtonBgDarken>
@@ -1427,7 +1753,7 @@ export const Settings = () => {
 
 										{/* Chats Subcategory */}
 										<div className='flex flex-col gap-2 max-w-48 w-full'>
-											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' className='hidden' onChange={handleUpload('Chats')} />
+											<input key={2 * s + 1} ref={fileInputChatsRef} type='file' accept='.json' title='Import chats file' className='hidden' onChange={handleUpload('Chats')} />
 											<VoidButtonBgDarken className='px-4 py-1 w-full' onClick={() => { fileInputChatsRef.current?.click() }}>
 												Import Chats
 											</VoidButtonBgDarken>

@@ -19,7 +19,6 @@
 	--void-fg-1: var(--vscode-editor-foreground);
 	--void-fg-2: var(--vscode-input-foreground);
 	--void-fg-3: var(--vscode-input-placeholderForeground);
-	/* --void-fg-4: var(--vscode-tab-inactiveForeground); */
 	--void-fg-4: var(--vscode-list-deemphasizedForeground);
 
 	--void-warning: var(--vscode-charts-yellow);
@@ -31,6 +30,36 @@
 
 	--void-ring-color: #007FD4;
 	--void-link-color: #007FD4;
+
+	/* --- Codeen Obsidian Precision Design System Tokens --- */
+	--codeen-surface-base: #0B0D11;
+	--codeen-surface-panel: #12151B;
+	--codeen-surface-elevated: #1A1E26;
+	--codeen-surface-hover: #222732;
+	--codeen-surface-container-high: #282a2e;
+	--codeen-surface-container-lowest: #0c0e12;
+
+	--codeen-border-subtle: #242933;
+	--codeen-border-hairline: rgba(255, 255, 255, 0.08);
+	--codeen-primary: #45f99c;
+	--codeen-primary-hover: #59ffa4;
+	--codeen-primary-container: #00dc82;
+	--codeen-on-primary: #00391d;
+	--codeen-surface-tint: #1ce388;
+
+	--codeen-agent-cyan: #00D1FF;
+	--codeen-agent-cyan-container: rgba(0, 209, 255, 0.12);
+	--codeen-agent-indigo: #2563FF;
+	--codeen-agent-indigo-container: rgba(37, 99, 255, 0.12);
+
+	--codeen-diff-addition: #10B981;
+	--codeen-diff-addition-surface: rgba(16, 185, 129, 0.12);
+	--codeen-diff-deletion: #EF4444;
+	--codeen-diff-deletion-surface: rgba(239, 68, 68, 0.12);
+
+	--codeen-text-primary: #F3F4F6;
+	--codeen-text-secondary: #9CA3AF;
+	--codeen-text-muted: #6B7280;
 }
 
 .select-child-restyle select {
@@ -47,55 +76,10 @@
 	outline: none !important;
 }
 
-
-
 .inherit-bg-all-restyle > * {
 	background-color: inherit !important;
 }
 
-
 .bg-editor-style-override {
 	--vscode-sideBar-background: var(--vscode-editor-background);
 }
-
-
-
-/* html {
-	font-size: var(--vscode-font-size);
-}
-
-.btn {
-	@apply cursor-pointer transition-colors;
-
-	&.btn-primary {
-		@apply bg-vscode-button-bg text-vscode-button-fg;
-
-		&:not(:disabled) {
-			@apply hover:bg-vscode-button-hoverBg;
-		}
-	}
-
-	&.btn-sm {
-		@apply px-3 py-1 text-sm;
-	}
-
-	&.btn-secondary {
-		@apply bg-vscode-button-secondary-bg text-vscode-button-secondary-fg;
-
-		&:not(:disabled) {
-			@apply hover:bg-vscode-button-secondary-hoverBg;
-		}
-	}
-
-	&:disabled {
-		@apply opacity-75 cursor-not-allowed;
-	}
-}
-
-.input {
-	@apply bg-vscode-input-bg text-vscode-input-fg border-vscode-input-border focus:outline-vscode-focus-border;
-}
-
-.dropdown {
-	@apply bg-vscode-dropdown-bg text-vscode-dropdown-foreground border-vscode-dropdown-border focus:outline-vscode-focus-border;
-} */

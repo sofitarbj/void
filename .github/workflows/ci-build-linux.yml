@@ -1,0 +1,89 @@
+name: CI Build — Linux
+
+on:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  resolve-version:
+    name: Resolve Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./product.json').voidVersion ?? require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+  build-linux-x64:
+    name: Build Linux x64 (.deb & .rpm)
+    needs: resolve-version
+    runs-on: ubuntu-22.04
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libsecret-1-dev libx11-dev libxkbfile-dev rpm fakeroot
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React components
+        run: npm run buildreact
+        working-directory: src/vs/workbench/contrib/void/browser/react
+
+      - name: Compile TypeScript
+        run: npm run compile
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
+
+      - name: Package Linux app
+        run: npx gulp vscode-linux-x64
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
+
+      - name: Build Debian Package (.deb)
+        run: npx gulp vscode-linux-x64-build-deb
+        env:
+          VSCODE_QUALITY: stable
+
+      - name: Build RPM Package (.rpm)
+        run: npx gulp vscode-linux-x64-build-rpm
+        env:
+          VSCODE_QUALITY: stable
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Codeen-Linux-x64-${{ env.VERSION }}
+          path: |
+            .build/linux/deb/*
+            .build/linux/rpm/*
+          retention-days: 7

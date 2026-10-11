@@ -49,7 +49,7 @@ class VoidSettingsInput extends EditorInput {
 	}
 
 	override getName(): string {
-		return nls.localize('voidSettingsInputsName', 'Void\'s Settings');
+		return nls.localize('voidSettingsInputsName', 'Codeen\'s Settings');
 	}
 
 	override getIcon() {
@@ -77,10 +77,13 @@ class VoidSettingsPane extends EditorPane {
 	protected createEditor(parent: HTMLElement): void {
 		parent.style.height = '100%';
 		parent.style.width = '100%';
+		parent.style.overflow = 'hidden';
 
 		const settingsElt = document.createElement('div');
 		settingsElt.style.height = '100%';
 		settingsElt.style.width = '100%';
+		settingsElt.style.overflow = 'hidden';
+		settingsElt.style.position = 'relative';
 
 		parent.appendChild(settingsElt);
 
@@ -112,7 +115,7 @@ class VoidSettingsPane extends EditorPane {
 
 // register Settings pane
 Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
-	EditorPaneDescriptor.create(VoidSettingsPane, VoidSettingsPane.ID, nls.localize('VoidSettingsPane', "Void\'s Settings Pane")),
+	EditorPaneDescriptor.create(VoidSettingsPane, VoidSettingsPane.ID, nls.localize('VoidSettingsPane', "Codeen\'s Settings Pane")),
 	[new SyncDescriptor(VoidSettingsInput)]
 );
 
@@ -123,7 +126,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: VOID_TOGGLE_SETTINGS_ACTION_ID,
-			title: nls.localize2('voidSettings', "Void: Toggle Settings"),
+			title: nls.localize2('voidSettings', "Codeen: Toggle Settings"),
 			icon: Codicon.settingsGear,
 			menu: [
 				{
@@ -172,7 +175,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: VOID_OPEN_SETTINGS_ACTION_ID,
-			title: nls.localize2('voidSettingsAction2', "Void: Open Settings"),
+			title: nls.localize2('voidSettingsAction2', "Codeen: Open Settings"),
 			f1: true,
 			icon: Codicon.settingsGear,
 		});
@@ -202,7 +205,7 @@ MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
 	group: '0_command',
 	command: {
 		id: VOID_TOGGLE_SETTINGS_ACTION_ID,
-		title: nls.localize('voidSettingsActionGear', "Void\'s Settings")
+		title: nls.localize('voidSettingsActionGear', "Codeen\'s Settings")
 	},
 	order: 1
 });

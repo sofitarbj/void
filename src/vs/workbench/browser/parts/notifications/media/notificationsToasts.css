@@ -37,7 +37,7 @@
 .monaco-workbench > .notifications-toasts .notification-toast-container > .notification-toast .monaco-scrollable-element,
 .monaco-workbench > .notifications-toasts .notification-toast-container > .notification-toast .monaco-list:not(.element-focused):focus:before,
 .monaco-workbench > .notifications-toasts .notification-toast-container > .notification-toast .monaco-list-row {
-	border-radius: 4px;
+	border-radius: 2px;
 }
 
 .monaco-workbench.reduce-motion > .notifications-toasts .notification-toast-container > .notification-toast {

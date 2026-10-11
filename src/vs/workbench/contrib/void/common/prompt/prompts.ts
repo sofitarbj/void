@@ -11,23 +11,24 @@ import { os } from '../helpers/systemInfo.js';
 import { RawToolParamsObj } from '../sendLLMMessageTypes.js';
 import { approvalTypeOfBuiltinToolName, BuiltinToolCallParams, BuiltinToolName, BuiltinToolResultType, ToolName } from '../toolsServiceTypes.js';
 import { ChatMode } from '../voidSettingsTypes.js';
+import { VoidMemoryContext } from '../voidMemoryServiceTypes.js';
 
 // Triple backtick wrapper used throughout the prompts for code blocks
 export const tripleTick = ['```', '```']
 
 // Maximum limits for directory structure information
-export const MAX_DIRSTR_CHARS_TOTAL_BEGINNING = 20_000
+export const MAX_DIRSTR_CHARS_TOTAL_BEGINNING = 5_000
 export const MAX_DIRSTR_CHARS_TOTAL_TOOL = 20_000
-export const MAX_DIRSTR_RESULTS_TOTAL_BEGINNING = 100
+export const MAX_DIRSTR_RESULTS_TOTAL_BEGINNING = 50
 export const MAX_DIRSTR_RESULTS_TOTAL_TOOL = 100
 
 // tool info
-export const MAX_FILE_CHARS_PAGE = 500_000
-export const MAX_CHILDREN_URIs_PAGE = 500
+export const MAX_FILE_CHARS_PAGE = 50_000
+export const MAX_CHILDREN_URIs_PAGE = 100
 
 // terminal tool info
-export const MAX_TERMINAL_CHARS = 100_000
-export const MAX_TERMINAL_INACTIVE_TIME = 8 // seconds
+export const MAX_TERMINAL_CHARS = 8_000
+export const MAX_TERMINAL_INACTIVE_TIME = 6 // seconds
 export const MAX_TERMINAL_BG_COMMAND_TIME = 5
 
 
@@ -277,6 +278,15 @@ export const builtinTools: {
 		},
 	},
 
+	write_to_file: {
+		name: 'write_to_file',
+		description: `Create a new file AND write content to it in one operation. Use this instead of create_file_or_folder + rewrite_file when you want to create a file with initial content. The file and parent directories will be created automatically if they don't exist.`,
+		params: {
+			...uriParam('file'),
+			content: { description: 'The content to write to the file. Must be a string.' }
+		},
+	},
+
 	delete_file_or_folder: {
 		name: 'delete_file_or_folder',
 		description: `Delete a file or folder at the given path.`,
@@ -336,7 +346,76 @@ export const builtinTools: {
 		name: 'kill_persistent_terminal',
 		description: `Interrupts and closes a persistent terminal that you opened with open_persistent_terminal.`,
 		params: { persistent_terminal_id: { description: `The ID of the persistent terminal.` } }
-	}
+	},
+
+	send_command_input: {
+		name: 'send_command_input',
+		description: `Sends text input to a persistent terminal that is waiting for user input (e.g. password prompt, confirmation). The input is written to the terminal's stdin followed by a newline.`,
+		params: {
+			persistent_terminal_id: { description: 'The ID of the persistent terminal waiting for input.' },
+			input: { description: 'The text to send to the terminal stdin (newline is appended automatically).' },
+		}
+	},
+
+	todo_list: {
+		name: 'todo_list',
+		description: `Create or update a task list to track your progress on the current work. The list is displayed to the user in real-time. Use this to organize multi-step tasks.`,
+		params: {
+			todos: { description: 'A JSON array of todo items. Each item: { "id": "unique_id", "content": "task description", "status": "pending|in_progress|completed", "priority": "high|medium|low" }' },
+		}
+	},
+
+	todo_write: {
+		name: 'todo_write',
+		description: `Create and maintain a structured task list for the current session. Tracks progress and surfaces status in real-time. Passing the updated list replaces the entire previous list.`,
+		params: {
+			todos: { description: 'A JSON array of todo items: [{ "id": "unique_id", "content": "task description", "status": "pending|in_progress|completed" }]' },
+		}
+	},
+
+	ask_user_question: {
+		name: 'ask_user_question',
+		description: `Ask the user a question with predefined options. Use this when you need clarification or a decision from the user before proceeding. The execution will pause until the user responds.`,
+		params: {
+			question: { description: 'The question to ask the user.' },
+			options: { description: 'A JSON array of options: [{ "label": "Short label", "description": "Longer explanation" }]. Max 4 options.' },
+			allow_free_text: { description: 'Optional. If true, the user can also type a free-text response instead of choosing an option. Default: true.' },
+		}
+	},
+
+	invoke_skill: {
+		name: 'invoke_skill',
+		description: `Load a specialized knowledge skill to get domain-specific instructions. Use this when working on tasks in specific domains (frontend, API, testing, security, etc.). Available skills can be listed by calling with skill_name="list".`,
+		params: {
+			skill_name: { description: 'The name of the skill to load, or "list" to see available skills.' },
+		}
+	},
+
+	search_web: {
+		name: 'search_web',
+		description: `Search the web for relevant information. Use this when you need up-to-date information, documentation, or answers that may not be in the codebase. Returns a summary of search results.`,
+		params: {
+			query: { description: 'The search query string.' },
+		}
+	},
+
+	read_url_content: {
+		name: 'read_url_content',
+		description: `Read and extract the main text content from a URL. Use this to fetch documentation, blog posts, or any web page content. Returns cleaned text content (limited to ~50k chars).`,
+		params: {
+			url: { description: 'The URL to read content from. Must be an HTTP or HTTPS URL.' },
+		}
+	},
+
+	create_system_doc: {
+		name: 'create_system_doc',
+		description: `Create a system document (implementation plan, task list, walkthrough, design doc) in the .void/docs/ directory. Use this instead of write_to_file for project documentation. The document will be automatically organized and versioned.`,
+		params: {
+			type: { description: 'Document type: "implementation_plan", "task_list", "walkthrough", "design_doc", or "architecture_notes".' },
+			title: { description: 'A descriptive title for the document.' },
+			content: { description: 'The markdown content of the document.' },
+		}
+	},
 
 
 	// go_to_definition
@@ -425,7 +504,13 @@ const systemToolsXMLPrompt = (chatMode: ChatMode, mcpTools: InternalToolInfo[] |
 // ======================================================== chat (normal, gather, agent) ========================================================
 
 
-export const chat_systemMessage = ({ workspaceFolders, openedURIs, activeURI, persistentTerminalIDs, directoryStr, chatMode: mode, mcpTools, includeXMLToolDefinitions }: { workspaceFolders: string[], directoryStr: string, openedURIs: string[], activeURI: string | undefined, persistentTerminalIDs: string[], chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined, includeXMLToolDefinitions: boolean }) => {
+export const chat_systemMessage = ({ workspaceFolders, openedURIs, activeURI, persistentTerminalIDs, directoryStr, chatMode: mode, mcpTools, includeXMLToolDefinitions, memoryContext }: { workspaceFolders: string[], directoryStr: string, openedURIs: string[], activeURI: string | undefined, persistentTerminalIDs: string[], chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined, includeXMLToolDefinitions: boolean, memoryContext?: VoidMemoryContext }) => {
+
+	// Detect project type from directory structure for contextual guidelines
+	const isWebProject = /package\.json|index\.html|vite\.config|next\.config|webpack\.config/i.test(directoryStr)
+	const isNextJs = /next\.config/i.test(directoryStr)
+	const isVite = /vite\.config/i.test(directoryStr)
+
 	const header = (`You are an expert coding ${mode === 'agent' ? 'agent' : 'assistant'} whose job is \
 ${mode === 'agent' ? `to help the user develop, run, and make changes to their codebase.`
 			: mode === 'gather' ? `to search, understand, and reference files in the user's codebase.`
@@ -482,6 +567,14 @@ ${directoryStr}
 		details.push(`You will OFTEN need to gather context before making a change. Do not immediately make a change unless you have ALL relevant context.`)
 		details.push(`ALWAYS have maximal certainty in a change BEFORE you make it. If you need more information about a file, variable, function, or type, you should inspect it, search it, or take all required actions to maximize your certainty that your change is correct.`)
 		details.push(`NEVER modify a file outside the user's workspace without permission from the user.`)
+		details.push(`PLANNING — For complex multi-step tasks (architectural changes, new features spanning multiple files, refactors):
+1. STOP and use create_system_doc tool with type="implementation_plan" BEFORE making any code changes.
+2. The plan must include: Goal, Proposed Changes (file by file), and a Verification Plan.
+3. Present the plan to the user and wait for explicit approval ("yes", "proceed", "go ahead", etc.) before executing.
+4. During execution, use create_system_doc with type="task_list" to track progress with checkboxes: [ ] todo, [/] in progress, [x] done.
+5. After completion, use create_system_doc with type="walkthrough" summarizing what was done and how to verify it.
+IMPORTANT: ALWAYS use create_system_doc for implementation_plan, task_list, walkthrough, design_doc, and architecture_notes. These documents are automatically organized in .void/docs/ with versioning and metadata.
+For SIMPLE tasks (single file edits, quick fixes, answering questions), skip planning and act directly.`)
 	}
 
 	if (mode === 'gather') {
@@ -512,13 +605,65 @@ Here's an example of a good code block:\n${chatSuggestionDiffExample}`)
 ${details.map((d, i) => `${i + 1}. ${d}`).join('\n\n')}`)
 
 
-	// return answer
+	// --- Persistent Memory Context ---
+
+	const userRulesBlock = memoryContext?.userRules
+		? `The following are user-defined rules that you MUST ALWAYS FOLLOW WITHOUT EXCEPTION:\n<user_rules>\n${memoryContext.userRules}\n</user_rules>`
+		: null
+
+	const persistentContextParts: string[] = []
+	if (memoryContext?.lastConversationSummary) {
+		persistentContextParts.push(`## Summary of Last Conversation\n${memoryContext.lastConversationSummary}`)
+	}
+	if (memoryContext?.knowledgeItems && memoryContext.knowledgeItems.length > 0) {
+		const kiStr = memoryContext.knowledgeItems
+			.map((ki, i) => `### Knowledge Item ${i + 1}: ${ki.title}\n${ki.summary}`)
+			.join('\n\n')
+		persistentContextParts.push(`## Knowledge Items (Curated from Past Work)\n${kiStr}`)
+	}
+	const persistentContextBlock = persistentContextParts.length > 0
+		? `You can retrieve information from past conversations via the following persistent context:\n<persistent_context>\n${persistentContextParts.join('\n\n')}\n</persistent_context>`
+		: null
+
+	// --- Phase 3: Web App Guidelines (conditional) ---
+	const webGuidelinesBlock = (mode === 'agent' && isWebProject) ? `\
+The user is working on a web project. Apply these guidelines:
+<web_application_development>
+## Technology Stack
+- Use ${isNextJs ? 'Next.js (App Router)' : isVite ? 'Vite + React' : 'the existing framework in this project'}.
+- Style with Vanilla CSS or the CSS framework already present in the project.
+- Never introduce TailwindCSS unless it already exists in the project.
+
+## Design Principles
+- Use rich, modern aesthetics: harmonious color palettes (HSL), smooth gradients, subtle micro-animations.
+- Use modern typography (Inter, Roboto, or Outfit from Google Fonts) instead of browser defaults.
+- Make every UI feel premium — avoid basic/MVP-looking designs.
+- Add hover effects and interactive micro-animations for engagement.
+
+## SEO Best Practices
+- Include descriptive <title> tags and meta descriptions on every page.
+- Use a single <h1> per page with proper heading hierarchy.
+- Use semantic HTML5 elements.
+
+## Implementation Rules
+- Check if a file exists before creating it.
+- Do NOT use placeholder images — generate or reference real assets.
+- Keep components focused and reusable.
+</web_application_development>` : null
+
+	// return answer — ordered stable-first for prompt caching (Anthropic/OpenAI)
+	// Stable blocks (cachable, rarely change within a session):
 	const ansStrs: string[] = []
-	ansStrs.push(header)
-	ansStrs.push(sysInfo)
-	if (toolDefinitions) ansStrs.push(toolDefinitions)
-	ansStrs.push(importantDetails)
-	ansStrs.push(fsInfo)
+	ansStrs.push(header)                                        // L0: always same per session
+	if (userRulesBlock) ansStrs.push(userRulesBlock)            // L4: stable per session
+	if (toolDefinitions) ansStrs.push(toolDefinitions)          // L0: stable per session
+	ansStrs.push(importantDetails)                              // L0: stable per session
+	if (webGuidelinesBlock) ansStrs.push(webGuidelinesBlock)    // L0: stable per session
+	// --- cache boundary (elements above are cachable) ---
+	// Variable blocks (change between turns):
+	ansStrs.push(sysInfo)                                       // L1: changes rarely
+	if (persistentContextBlock) ansStrs.push(persistentContextBlock) // L4: changes rarely
+	ansStrs.push(fsInfo)                                        // L3: can change
 
 	const fullSystemMsgStr = ansStrs
 		.join('\n\n\n')

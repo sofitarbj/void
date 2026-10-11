@@ -29,7 +29,7 @@ export const inputBorder = registerColor('input.border',
 	nls.localize('inputBoxBorder', "Input box border."));
 
 export const inputActiveOptionBorder = registerColor('inputOption.activeBorder',
-	{ dark: '#007ACC', light: '#007ACC', hcDark: contrastBorder, hcLight: contrastBorder },
+	{ dark: '#00DC82', light: '#00DC82', hcDark: contrastBorder, hcLight: contrastBorder },
 	nls.localize('inputBoxActiveOptionBorder', "Border color of activated options in input fields."));
 
 export const inputActiveOptionHoverBackground = registerColor('inputOption.hoverBackground',
@@ -110,7 +110,7 @@ export const selectBorder = registerColor('dropdown.border',
 // ------ button
 
 export const buttonForeground = registerColor('button.foreground',
-	Color.white,
+	{ dark: '#0B0D11', light: '#0B0D11', hcDark: Color.white, hcLight: Color.black },
 	nls.localize('buttonForeground', "Button foreground color."));
 
 export const buttonSeparator = registerColor('button.separator',
@@ -118,11 +118,11 @@ export const buttonSeparator = registerColor('button.separator',
 	nls.localize('buttonSeparator', "Button separator color."));
 
 export const buttonBackground = registerColor('button.background',
-	{ dark: '#0E639C', light: '#007ACC', hcDark: null, hcLight: '#0F4A85' },
+	{ dark: '#00DC82', light: '#00DC82', hcDark: null, hcLight: '#00DC82' },
 	nls.localize('buttonBackground', "Button background color."));
 
 export const buttonHoverBackground = registerColor('button.hoverBackground',
-	{ dark: lighten(buttonBackground, 0.2), light: darken(buttonBackground, 0.2), hcDark: buttonBackground, hcLight: buttonBackground },
+	{ dark: '#00f08f', light: '#00f08f', hcDark: buttonBackground, hcLight: buttonBackground },
 	nls.localize('buttonHoverBackground', "Button background color when hovering."));
 
 export const buttonBorder = registerColor('button.border',
@@ -130,15 +130,15 @@ export const buttonBorder = registerColor('button.border',
 	nls.localize('buttonBorder', "Button border color."));
 
 export const buttonSecondaryForeground = registerColor('button.secondaryForeground',
-	{ dark: Color.white, light: Color.white, hcDark: Color.white, hcLight: foreground },
+	{ dark: '#D1D5DB', light: '#1F2937', hcDark: Color.white, hcLight: foreground },
 	nls.localize('buttonSecondaryForeground', "Secondary button foreground color."));
 
 export const buttonSecondaryBackground = registerColor('button.secondaryBackground',
-	{ dark: '#3A3D41', light: '#5F6A79', hcDark: null, hcLight: Color.white },
+	{ dark: '#1A1E26', light: '#E5E7EB', hcDark: null, hcLight: Color.white },
 	nls.localize('buttonSecondaryBackground', "Secondary button background color."));
 
 export const buttonSecondaryHoverBackground = registerColor('button.secondaryHoverBackground',
-	{ dark: lighten(buttonSecondaryBackground, 0.2), light: darken(buttonSecondaryBackground, 0.2), hcDark: null, hcLight: null },
+	{ dark: '#222732', light: '#D1D5DB', hcDark: null, hcLight: null },
 	nls.localize('buttonSecondaryHoverBackground', "Secondary button background color when hovering."));
 
 // ------ radio

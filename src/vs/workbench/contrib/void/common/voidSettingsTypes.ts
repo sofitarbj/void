@@ -6,7 +6,8 @@
 
 import { defaultModelsOfProvider, defaultProviderSettings, ModelOverrides } from './modelCapabilities.js';
 import { ToolApprovalType } from './toolsServiceTypes.js';
-import { VoidSettingsState } from './voidSettingsService.js'
+import { VoidSettingsState } from './voidSettingsService.js';
+import { LocalVoiceModelId } from './localVoiceModelTypes.js';
 
 
 type UnionOfKeys<T> = T extends T ? keyof T : never;
@@ -16,7 +17,13 @@ type UnionOfKeys<T> = T extends T ? keyof T : never;
 export type ProviderName = keyof typeof defaultProviderSettings
 export const providerNames = Object.keys(defaultProviderSettings) as ProviderName[]
 
-export const localProviderNames = ['ollama', 'vLLM', 'lmStudio'] satisfies ProviderName[] // all local names
+export const ollamaProviderNames = ['ollama'] as const satisfies ProviderName[]
+export const mlxProviderNames = ['mlx'] as const satisfies ProviderName[]
+export const appleProviderNames = ['appleFoundationModels'] as const satisfies ProviderName[]
+/** vLLM, LM Studio — separate from Ollama / MLX / Apple */
+export const otherLocalProviderNames = ['vLLM', 'lmStudio'] as const satisfies ProviderName[]
+
+export const localProviderNames = [...ollamaProviderNames, ...mlxProviderNames, ...appleProviderNames, ...otherLocalProviderNames] satisfies ProviderName[] // all local names
 export const nonlocalProviderNames = providerNames.filter((name) => !(localProviderNames as string[]).includes(name)) // all non-local names
 
 type CustomSettingName = UnionOfKeys<typeof defaultProviderSettings[ProviderName]>
@@ -82,6 +89,12 @@ export const displayInfoOfProviderName = (providerName: ProviderName): DisplayIn
 	else if (providerName === 'lmStudio') {
 		return { title: 'LM Studio', }
 	}
+	else if (providerName === 'mlx') {
+		return { title: 'MLX', }
+	}
+	else if (providerName === 'appleFoundationModels') {
+		return { title: 'Apple', }
+	}
 	else if (providerName === 'openAICompatible') {
 		return { title: 'OpenAI-Compatible', }
 	}
@@ -121,12 +134,14 @@ export const subTextMdOfProviderName = (providerName: ProviderName): string => {
 	if (providerName === 'xAI') return 'Get your [API Key here](https://console.x.ai).'
 	if (providerName === 'mistral') return 'Get your [API Key here](https://console.mistral.ai/api-keys).'
 	if (providerName === 'openAICompatible') return `Use any provider that's OpenAI-compatible (use this for llama.cpp and more).`
-	if (providerName === 'googleVertex') return 'You must authenticate before using Vertex with Void. Read more about endpoints [here](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/call-vertex-using-openai-library), and regions [here](https://cloud.google.com/vertex-ai/docs/general/locations#available-regions).'
+	if (providerName === 'googleVertex') return 'You must authenticate before using Vertex with Codeen. Read more about endpoints [here](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/call-vertex-using-openai-library), and regions [here](https://cloud.google.com/vertex-ai/docs/general/locations#available-regions).'
 	if (providerName === 'microsoftAzure') return 'Read more about endpoints [here](https://learn.microsoft.com/en-us/rest/api/aifoundry/model-inference/get-chat-completions/get-chat-completions?view=rest-aifoundry-model-inference-2024-05-01-preview&tabs=HTTP), and get your API key [here](https://learn.microsoft.com/en-us/azure/search/search-security-api-keys?tabs=rest-use%2Cportal-find%2Cportal-query#find-existing-keys).'
 	if (providerName === 'awsBedrock') return 'Connect via a LiteLLM proxy or the AWS [Bedrock-Access-Gateway](https://github.com/aws-samples/bedrock-access-gateway). LiteLLM Bedrock setup docs are [here](https://docs.litellm.ai/docs/providers/bedrock).'
 	if (providerName === 'ollama') return 'Read more about custom [Endpoints here](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-can-i-expose-ollama-on-my-network).'
 	if (providerName === 'vLLM') return 'Read more about custom [Endpoints here](https://docs.vllm.ai/en/latest/getting_started/quickstart.html#openai-compatible-server).'
 	if (providerName === 'lmStudio') return 'Read more about custom [Endpoints here](https://lmstudio.ai/docs/app/api/endpoints/openai).'
+	if (providerName === 'mlx') return 'Only one loaded model is listed at a time (autodetected). See the MLX instructions below to switch models or add a second one.'
+	if (providerName === 'appleFoundationModels') return 'Codeen can auto-detect two models here: **system** (fully on-device, no network) and **pcc** (offloaded to Apple\'s [Private Cloud Compute](https://security.apple.com/blog/private-cloud-compute/) for larger requests, under the same privacy guarantees as on-device). On macOS 27+ these come from the built-in `fm serve`; on macOS 26 and earlier from [maclocal-api](https://github.com/scouzi1966/maclocal-api) (`afm` on port 9999, install via Homebrew or `pip install macafm`, model id `foundation`). For MLX models on the same stack, run `afm mlx -m <model>` separately or use the **MLX** provider.'
 	if (providerName === 'liteLLM') return 'Read more about endpoints [here](https://docs.litellm.ai/docs/providers/openai_compatible).'
 
 	throw new Error(`subTextMdOfProviderName: Unknown provider name: "${providerName}"`)
@@ -166,20 +181,24 @@ export const displayInfoOfSettingName = (providerName: ProviderName, settingName
 			title: providerName === 'ollama' ? 'Endpoint' :
 				providerName === 'vLLM' ? 'Endpoint' :
 					providerName === 'lmStudio' ? 'Endpoint' :
+						providerName === 'mlx' ? 'Endpoint' :
+							providerName === 'appleFoundationModels' ? 'Endpoint' :
 						providerName === 'openAICompatible' ? 'baseURL' : // (do not include /chat/completions)
 							providerName === 'googleVertex' ? 'baseURL' :
 								providerName === 'microsoftAzure' ? 'baseURL' :
 									providerName === 'liteLLM' ? 'baseURL' :
 										providerName === 'awsBedrock' ? 'Endpoint' :
-											'(never)',
+												'(never)',
 
 			placeholder: providerName === 'ollama' ? defaultProviderSettings.ollama.endpoint
 				: providerName === 'vLLM' ? defaultProviderSettings.vLLM.endpoint
 					: providerName === 'openAICompatible' ? 'https://my-website.com/v1'
 						: providerName === 'lmStudio' ? defaultProviderSettings.lmStudio.endpoint
+							: providerName === 'mlx' ? defaultProviderSettings.mlx.endpoint
+								: providerName === 'appleFoundationModels' ? defaultProviderSettings.appleFoundationModels.endpoint
 							: providerName === 'liteLLM' ? 'http://localhost:4000'
 								: providerName === 'awsBedrock' ? 'http://localhost:4000/v1'
-									: '(never)',
+										: '(never)',
 
 
 		}
@@ -334,6 +353,18 @@ export const defaultSettingsOfProvider: SettingsOfProvider = {
 		...modelInfoOfDefaultModelNames(defaultModelsOfProvider.vLLM),
 		_didFillInProviderSettings: undefined,
 	},
+	mlx: {
+		...defaultCustomSettings,
+		...defaultProviderSettings.mlx,
+		...modelInfoOfDefaultModelNames(defaultModelsOfProvider.mlx),
+		_didFillInProviderSettings: undefined,
+	},
+	appleFoundationModels: {
+		...defaultCustomSettings,
+		...defaultProviderSettings.appleFoundationModels,
+		...modelInfoOfDefaultModelNames(defaultModelsOfProvider.appleFoundationModels),
+		_didFillInProviderSettings: undefined,
+	},
 	googleVertex: { // aggregator (serves models from multiple providers)
 		...defaultCustomSettings,
 		...defaultProviderSettings.googleVertex,
@@ -440,6 +471,8 @@ export type ChatMode = 'agent' | 'gather' | 'normal'
 
 export type GlobalSettings = {
 	autoRefreshModels: boolean;
+	autoSetupAppleFoundationModels: boolean;
+	autoSetupMlx: boolean;
 	aiInstructions: string;
 	enableAutocomplete: boolean;
 	syncApplyToChat: boolean;
@@ -452,10 +485,14 @@ export type GlobalSettings = {
 	isOnboardingComplete: boolean;
 	disableSystemMessage: boolean;
 	autoAcceptLLMChanges: boolean;
+	/** Selected local speech-to-text model. The model binary is managed separately. */
+	localVoiceModelId: LocalVoiceModelId | null;
 }
 
 export const defaultGlobalSettings: GlobalSettings = {
 	autoRefreshModels: true,
+	autoSetupAppleFoundationModels: true,
+	autoSetupMlx: true,
 	aiInstructions: '',
 	enableAutocomplete: false,
 	syncApplyToChat: true,
@@ -468,6 +505,7 @@ export const defaultGlobalSettings: GlobalSettings = {
 	isOnboardingComplete: false,
 	disableSystemMessage: false,
 	autoAcceptLLMChanges: false,
+	localVoiceModelId: null,
 }
 
 export type GlobalSettingName = keyof GlobalSettings

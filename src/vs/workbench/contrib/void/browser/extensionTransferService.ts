@@ -10,14 +10,15 @@ import { URI } from '../../../../base/common/uri.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
 import { InstantiationType, registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-import { TransferEditorType, TransferFilesInfo } from './extensionTransferTypes.js';
+import { TransferEditorType, TransferFilesInfo, InstalledEditorsResult, ExportConfigResult } from './extensionTransferTypes.js';
 
 
 export interface IExtensionTransferService {
 	readonly _serviceBrand: undefined; // services need this, just leave it undefined
 	transferExtensions(os: 'mac' | 'windows' | 'linux' | null, fromEditor: TransferEditorType): Promise<string | undefined>
 	deleteBlacklistExtensions(os: 'mac' | 'windows' | 'linux' | null): Promise<void>
-
+	detectInstalledEditors(os: 'mac' | 'windows' | 'linux' | null): Promise<InstalledEditorsResult>
+	exportCodeenConfiguration(os: 'mac' | 'windows' | 'linux' | null, exportDirUri?: URI): Promise<ExportConfigResult>
 }
 
 export const IExtensionTransferService = createDecorator<IExtensionTransferService>('ExtensionTransferService');
@@ -172,6 +173,105 @@ class ExtensionTransferService extends Disposable implements IExtensionTransferS
 			}
 		}
 	}
+
+	async detectInstalledEditors(os: 'mac' | 'windows' | 'linux' | null): Promise<InstalledEditorsResult> {
+		const result: InstalledEditorsResult = { vsCode: false, cursor: false, windsurf: false };
+		if (!os) return result;
+
+		try {
+			const vsCodeFiles = transferTheseFilesOfOS(os, 'VS Code');
+			const cursorFiles = transferTheseFilesOfOS(os, 'Cursor');
+			const windsurfFiles = transferTheseFilesOfOS(os, 'Windsurf');
+
+			const [hasVSCode, hasCursor, hasWindsurf] = await Promise.all([
+				this._fileService.exists(vsCodeFiles[0].from).catch(() => false),
+				this._fileService.exists(cursorFiles[0].from).catch(() => false),
+				this._fileService.exists(windsurfFiles[0].from).catch(() => false),
+			]);
+
+			result.vsCode = hasVSCode;
+			result.cursor = hasCursor;
+			result.windsurf = hasWindsurf;
+		} catch (err) {
+			console.warn('[ExtensionTransferService] Error detecting installed editors:', err);
+		}
+
+		return result;
+	}
+
+	async exportCodeenConfiguration(os: 'mac' | 'windows' | 'linux' | null, exportDirUri?: URI): Promise<ExportConfigResult> {
+		if (!os) {
+			return { success: false, exportedFiles: [], error: 'OS not supported for export' };
+		}
+
+		try {
+			const homeDir = env['HOME'] || env['USERPROFILE'];
+			if (!homeDir) throw new Error('Home directory could not be determined');
+
+			const targetDir = exportDirUri ?? URI.joinPath(URI.file(homeDir), `codeen-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`);
+			const targetExists = await this._fileService.exists(targetDir);
+			if (!targetExists) {
+				await this._fileService.createFolder(targetDir);
+			}
+
+			// Source files from Codeen user profile
+			const sourceCandidates: { name: string; uris: URI[] }[] = [];
+
+			if (os === 'mac') {
+				sourceCandidates.push(
+					{ name: 'settings.json', uris: [URI.joinPath(URI.file(homeDir), 'Library', 'Application Support', 'Codeen', 'User', 'settings.json'), URI.joinPath(URI.file(homeDir), 'Library', 'Application Support', 'Void', 'User', 'settings.json')] },
+					{ name: 'keybindings.json', uris: [URI.joinPath(URI.file(homeDir), 'Library', 'Application Support', 'Codeen', 'User', 'keybindings.json'), URI.joinPath(URI.file(homeDir), 'Library', 'Application Support', 'Void', 'User', 'keybindings.json')] },
+				);
+			} else if (os === 'linux') {
+				sourceCandidates.push(
+					{ name: 'settings.json', uris: [URI.joinPath(URI.file(homeDir), '.config', 'Codeen', 'User', 'settings.json'), URI.joinPath(URI.file(homeDir), '.config', 'Void', 'User', 'settings.json')] },
+					{ name: 'keybindings.json', uris: [URI.joinPath(URI.file(homeDir), '.config', 'Codeen', 'User', 'keybindings.json'), URI.joinPath(URI.file(homeDir), '.config', 'Void', 'User', 'keybindings.json')] },
+				);
+			} else if (os === 'windows') {
+				const appdata = env['APPDATA'] || homeDir;
+				sourceCandidates.push(
+					{ name: 'settings.json', uris: [URI.joinPath(URI.file(appdata), 'Codeen', 'User', 'settings.json'), URI.joinPath(URI.file(appdata), 'Void', 'User', 'settings.json')] },
+					{ name: 'keybindings.json', uris: [URI.joinPath(URI.file(appdata), 'Codeen', 'User', 'keybindings.json'), URI.joinPath(URI.file(appdata), 'Void', 'User', 'keybindings.json')] },
+				);
+			}
+
+			const exportedFiles: string[] = [];
+
+			for (const candidate of sourceCandidates) {
+				for (const uri of candidate.uris) {
+					if (await this._fileService.exists(uri).catch(() => false)) {
+						const dest = URI.joinPath(targetDir, candidate.name);
+						await this._fileService.copy(uri, dest, true);
+						exportedFiles.push(candidate.name);
+						break;
+					}
+				}
+			}
+
+			// Generate export manifest
+			const manifest = {
+				product: 'Codeen IDE',
+				exportedAt: new Date().toISOString(),
+				os,
+				exportedFiles,
+			};
+			const manifestUri = URI.joinPath(targetDir, 'codeen-export-manifest.json');
+			await this._fileService.writeFile(manifestUri, VSBuffer.fromString(JSON.stringify(manifest, null, 2)));
+			exportedFiles.push('codeen-export-manifest.json');
+
+			return {
+				success: true,
+				exportedFiles,
+				exportPath: targetDir.fsPath,
+			};
+		} catch (err: any) {
+			return {
+				success: false,
+				exportedFiles: [],
+				error: err?.message || 'Unknown export error',
+			};
+		}
+	}
 }
 
 
@@ -283,7 +383,13 @@ const transferTheseFilesOfOS = (os: 'mac' | 'windows' | 'linux' | null, fromEdit
 		if (fromEditor === 'VS Code') {
 			return [{
 				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Code', 'User', 'settings.json'),
+				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Codeen', 'User', 'settings.json'),
+			}, {
+				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Code', 'User', 'settings.json'),
 				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Void', 'User', 'settings.json'),
+			}, {
+				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Code', 'User', 'keybindings.json'),
+				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Codeen', 'User', 'keybindings.json'),
 			}, {
 				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Code', 'User', 'keybindings.json'),
 				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Void', 'User', 'keybindings.json'),
@@ -295,7 +401,13 @@ const transferTheseFilesOfOS = (os: 'mac' | 'windows' | 'linux' | null, fromEdit
 		} else if (fromEditor === 'Cursor') {
 			return [{
 				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Cursor', 'User', 'settings.json'),
+				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Codeen', 'User', 'settings.json'),
+			}, {
+				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Cursor', 'User', 'settings.json'),
 				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Void', 'User', 'settings.json'),
+			}, {
+				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Cursor', 'User', 'keybindings.json'),
+				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Codeen', 'User', 'keybindings.json'),
 			}, {
 				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Cursor', 'User', 'keybindings.json'),
 				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Void', 'User', 'keybindings.json'),
@@ -307,7 +419,13 @@ const transferTheseFilesOfOS = (os: 'mac' | 'windows' | 'linux' | null, fromEdit
 		} else if (fromEditor === 'Windsurf') {
 			return [{
 				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Windsurf', 'User', 'settings.json'),
+				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Codeen', 'User', 'settings.json'),
+			}, {
+				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Windsurf', 'User', 'settings.json'),
 				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Void', 'User', 'settings.json'),
+			}, {
+				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Windsurf', 'User', 'keybindings.json'),
+				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Codeen', 'User', 'keybindings.json'),
 			}, {
 				from: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Windsurf', 'User', 'keybindings.json'),
 				to: URI.joinPath(URI.from({ scheme: 'file' }), appdata, 'Void', 'User', 'keybindings.json'),

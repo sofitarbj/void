@@ -7,6 +7,7 @@ import { SendLLMMessageParams, OnText, OnFinalMessage, OnError } from '../../com
 import { IMetricsService } from '../../common/metricsService.js';
 import { displayInfoOfProviderName } from '../../common/voidSettingsTypes.js';
 import { sendLLMMessageToProviderImplementation } from './sendLLMMessage.impl.js';
+import { SecretGuard } from '../../common/agent/secretGuard.js';
 
 
 export const sendLLMMessage = async ({
@@ -100,6 +101,11 @@ export const sendLLMMessage = async ({
 		captureLLMEvent(`${loggingName} - Sending FIM`, { prefixLen: messages_?.prefix?.length, suffixLen: messages_?.suffix?.length })
 
 
+	const maskedSeparateSystemMessage = separateSystemMessage ? SecretGuard.mask(separateSystemMessage) : undefined;
+	const maskedMessages = messagesType === 'chatMessages'
+		? (messages_ as any[]).map(msg => SecretGuard.maskChatMessage(msg))
+		: SecretGuard.maskFIMMessage(messages_ as any);
+
 	try {
 		const implementation = sendLLMMessageToProviderImplementation[providerName]
 		if (!implementation) {
@@ -108,12 +114,12 @@ export const sendLLMMessage = async ({
 		}
 		const { sendFIM, sendChat } = implementation
 		if (messagesType === 'chatMessages') {
-			await sendChat({ messages: messages_, onText, onFinalMessage, onError, settingsOfProvider, modelSelectionOptions, overridesOfModel, modelName, _setAborter, providerName, separateSystemMessage, chatMode, mcpTools })
+			await sendChat({ messages: maskedMessages as any, onText, onFinalMessage, onError, settingsOfProvider, modelSelectionOptions, overridesOfModel, modelName, _setAborter, providerName, separateSystemMessage: maskedSeparateSystemMessage, chatMode, mcpTools })
 			return
 		}
 		if (messagesType === 'FIMMessage') {
 			if (sendFIM) {
-				await sendFIM({ messages: messages_, onText, onFinalMessage, onError, settingsOfProvider, modelSelectionOptions, overridesOfModel, modelName, _setAborter, providerName, separateSystemMessage })
+				await sendFIM({ messages: maskedMessages as any, onText, onFinalMessage, onError, settingsOfProvider, modelSelectionOptions, overridesOfModel, modelName, _setAborter, providerName, separateSystemMessage: maskedSeparateSystemMessage })
 				return
 			}
 			onError({ message: `Error running Autocomplete with ${providerName} - ${modelName}.`, fullError: null })

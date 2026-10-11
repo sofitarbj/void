@@ -18,6 +18,7 @@ import { IContextViewService, IContextMenuService } from '../../../../../../../p
 import { IFileService } from '../../../../../../../platform/files/common/files.js';
 import { IHoverService } from '../../../../../../../platform/hover/browser/hover.js';
 import { IThemeService } from '../../../../../../../platform/theme/common/themeService.js';
+import { IWorkbenchThemeService } from '../../../../../../services/themes/common/workbenchThemeService.js';
 import { ILLMMessageService } from '../../../../common/sendLLMMessageService.js';
 import { IRefreshModelService } from '../../../../../../../workbench/contrib/void/common/refreshModelService.js';
 import { IVoidSettingsService } from '../../../../../../../workbench/contrib/void/common/voidSettingsService.js';
@@ -45,6 +46,7 @@ import { IVoidModelService } from '../../../../common/voidModelService.js'
 import { IWorkspaceContextService } from '../../../../../../../platform/workspace/common/workspace.js'
 import { IVoidCommandBarService } from '../../../voidCommandBarService.js'
 import { INativeHostService } from '../../../../../../../platform/native/common/native.js';
+import { IFileDialogService } from '../../../../../../../platform/dialogs/common/dialogs.js';
 import { IEditCodeService } from '../../../editCodeServiceInterface.js'
 import { IToolsService } from '../../../toolsService.js'
 import { IConvertToLLMMessageService } from '../../../convertToLLMMessageService.js'
@@ -54,6 +56,11 @@ import { IExtensionManagementService } from '../../../../../../../platform/exten
 import { IMCPService } from '../../../../common/mcpService.js';
 import { IStorageService, StorageScope } from '../../../../../../../platform/storage/common/storage.js'
 import { OPT_OUT_KEY } from '../../../../common/storageKeys.js'
+import { IVoidBudgetService } from '../../../../common/voidBudgetService.js';
+import { VoidBudgetState } from '../../../../common/voidBudgetServiceTypes.js';
+import { IVoidMemoryService } from '../../../../common/voidMemoryService.js';
+import { ISkillService } from '../../../skillService.js';
+import { VoidMemoryState } from '../../../../common/voidMemoryServiceTypes.js';
 
 
 // normally to do this you'd use a useEffect that calls .onDidChangeState(), but useEffect mounts too late and misses initial state changes
@@ -83,6 +90,12 @@ const activeURIListeners: Set<(uri: URI | null) => void> = new Set();
 
 const mcpListeners: Set<() => void> = new Set()
 
+let budgetState: VoidBudgetState
+const budgetStateListeners: Set<(s: VoidBudgetState) => void> = new Set()
+
+let memoryState: VoidMemoryState
+const memoryStateListeners: Set<(s: VoidMemoryState) => void> = new Set()
+
 
 // must call this before you can use any of the hooks below
 // this should only be called ONCE! this is the only place you don't need to dispose onDidChange. If you use state.onDidChange anywhere else, make sure to dispose it!
@@ -101,9 +114,11 @@ export const _registerServices = (accessor: ServicesAccessor) => {
 		voidCommandBarService: accessor.get(IVoidCommandBarService),
 		modelService: accessor.get(IModelService),
 		mcpService: accessor.get(IMCPService),
+		budgetService: accessor.get(IVoidBudgetService),
+		memoryService: accessor.get(IVoidMemoryService),
 	}
 
-	const { settingsStateService, chatThreadsStateService, refreshModelService, themeService, editCodeService, voidCommandBarService, modelService, mcpService } = stateServices
+	const { settingsStateService, chatThreadsStateService, refreshModelService, themeService, editCodeService, voidCommandBarService, modelService, mcpService, budgetService, memoryService } = stateServices
 
 
 
@@ -176,6 +191,21 @@ export const _registerServices = (accessor: ServicesAccessor) => {
 		})
 	)
 
+	budgetState = budgetService.state
+	disposables.push(
+		budgetService.onDidChangeState(() => {
+			budgetState = budgetService.state
+			budgetStateListeners.forEach(l => l(budgetState))
+		})
+	)
+
+	memoryState = memoryService.state
+	disposables.push(
+		memoryService.onDidChangeState(() => {
+			memoryState = memoryService.state
+			memoryStateListeners.forEach(l => l(memoryState))
+		})
+	)
 
 	return disposables
 }
@@ -230,6 +260,12 @@ const getReactAccessor = (accessor: ServicesAccessor) => {
 
 		IStorageService: accessor.get(IStorageService),
 
+		IVoidBudgetService: accessor.get(IVoidBudgetService),
+		IVoidMemoryService: accessor.get(IVoidMemoryService),
+		ISkillService: accessor.get(ISkillService),
+		IWorkbenchThemeService: accessor.get(IWorkbenchThemeService),
+		IFileDialogService: accessor.get(IFileDialogService),
+
 	} as const
 	return reactAccessor
 }
@@ -242,6 +278,8 @@ const _registerAccessor = (accessor: ServicesAccessor) => {
 	const reactAccessor = getReactAccessor(accessor)
 	reactAccessor_ = reactAccessor
 }
+
+export const areServicesRegistered = () => reactAccessor_ !== null;
 
 // -- services --
 export const useAccessor = () => {
@@ -355,6 +393,29 @@ export const useIsDark = () => {
 	return isDark
 }
 
+export const useThemeSwitcher = () => {
+	const accessor = useAccessor()
+	const workbenchThemeService = accessor.get('IWorkbenchThemeService')
+	const isDark = useIsDark()
+
+	const currentTheme = workbenchThemeService.getColorTheme()
+
+	const setTheme = useCallback(async (themeId: string) => {
+		try {
+			await workbenchThemeService.setColorTheme(themeId, 1 /* ConfigurationTarget.USER */)
+		} catch (err) {
+			console.warn('[useThemeSwitcher] Failed to switch theme:', err)
+		}
+	}, [workbenchThemeService])
+
+	return {
+		isDark,
+		currentThemeId: currentTheme.id,
+		currentThemeLabel: currentTheme.label,
+		setTheme,
+	}
+}
+
 export const useCommandBarURIListener = (listener: (uri: URI) => void) => {
 	useEffect(() => {
 		commandBarURIStateListeners.add(listener);
@@ -424,5 +485,29 @@ export const useIsOptedOut = () => {
 		return () => disposables.clear()
 	}, [storageService, getVal])
 
+	return s
+}
+
+
+export const useBudgetState = () => {
+	const accessor = useAccessor()
+	const budgetService = accessor.get('IVoidBudgetService')
+	const [s, ss] = useState(budgetService?.state ?? budgetState)
+	useEffect(() => {
+		// sync in case state changed before mount
+		ss(budgetService?.state ?? budgetState)
+		budgetStateListeners.add(ss)
+		return () => { budgetStateListeners.delete(ss) }
+	}, [budgetService, ss])
+	return s
+}
+
+export const useMemoryState = () => {
+	const [s, ss] = useState(memoryState)
+	useEffect(() => {
+		ss(memoryState)
+		memoryStateListeners.add(ss)
+		return () => { memoryStateListeners.delete(ss) }
+	}, [ss])
 	return s
 }

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en" style=""><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary-fixed": "#001f28", "on-tertiary-container": "#0042c1", "outline": "#859587", "text-muted": "#6B7280", "diff-addition": "#10B981", "primary": "#45f99c", "agent-indigo": "#2563FF", "border-hairline": "rgba(255, 255, 255, 0.08)", "tertiary": "#d4dbff", "primary-fixed-dim": "#1ce388", "on-primary-fixed-variant": "#00522d", "primary-fixed": "#59ffa4", "background": "#111317", "surface-panel": "#12151B", "surface-base": "#0B0D11", "on-background": "#e2e2e8", "surface-dim": "#111317", "tertiary-fixed-dim": "#b6c4ff", "surface-container-low": "#1a1c20", "inverse-on-surface": "#2f3035", "on-primary-fixed": "#00210f", "on-tertiary-fixed": "#00164f", "error-container": "#93000a", "primary-container": "#00dc82", "on-primary": "#00391d", "on-secondary-container": "#00566b", "tertiary-fixed": "#dce1ff", "secondary-fixed": "#b7eaff", "surface-elevated": "#1A1E26", "on-surface-variant": "#bacbbc", "on-surface": "#e2e2e8", "secondary-fixed-dim": "#4cd6ff", "surface-container-lowest": "#0c0e12", "surface-bright": "#37393e", "outline-variant": "#3c4a3f", "text-primary": "#F3F4F6", "text-secondary": "#9CA3AF", "on-error-container": "#ffdad6", "agent-cyan": "#00D1FF", "surface": "#111317", "surface-container-highest": "#333539", "on-tertiary-fixed-variant": "#003baf", "surface-tint": "#1ce388", "surface-variant": "#333539", "border-subtle": "#242933", "secondary": "#a6e6ff", "surface-hover": "#222732", "on-tertiary": "#00287d", "surface-container-high": "#282a2e", "border-active": "#00DC82", "tertiary-container": "#adbeff", "secondary-container": "#14d1ff", "on-secondary-fixed-variant": "#004e60", "error": "#ffb4ab", "inverse-primary": "#006d3e", "diff-deletion": "#EF4444", "diff-deletion-surface": "rgba(239, 68, 68, 0.12)", "on-secondary": "#003543", "on-primary-container": "#005b32", "surface-container": "#1e2024", "diff-addition-surface": "rgba(16, 185, 129, 0.12)", "inverse-surface": "#e2e2e8", "on-error": "#690005" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "0.75rem", "space-xl": "1.5rem", "space-xs": "0.25rem", "gutter": "0.75rem", "margin": "1rem", "space-lg": "1rem", "space-sm": "0.5rem" }, "fontFamily": { "headline-sm": ["Outfit"], "meta-mono": ["JetBrains Mono"], "code-base": ["JetBrains Mono"], "body-lg": ["Outfit"], "headline-md": ["Outfit"], "body-sm": ["Outfit"], "display-hero-mobile": ["Outfit"], "code-sm": ["JetBrains Mono"], "body-md": ["Outfit"], "label-caps": ["Outfit"], "display-hero": ["Outfit"], "headline-lg": ["Outfit"] }, "fontSize": { "headline-sm": ["15px", { "lineHeight": "20px", "letterSpacing": "-0.015em", "fontWeight": "500" }], "meta-mono": ["10.5px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-base": ["13px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "display-hero-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "code-sm": ["11.5px", { "lineHeight": "16px", "fontWeight": "400" }], "body-md": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }], "display-hero": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.04em", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.025em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-base font-body-md text-on-surface select-none overflow-x-hidden min-h-screen"><header class="fixed top-0 left-0 right-0 h-10 bg-surface-panel z-50 flex items-center justify-between px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-space-xs"><div class="w-3 h-3 rounded-full bg-[#EF4444] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#F59E0B] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#10B981] opacity-80 hover:opacity-100 transition-opacity"></div></div><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px]">terminal</span><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">Codeen</span><span class="font-meta-mono text-meta-mono text-agent-cyan bg-surface-elevated px-1.5 py-0.5 rounded">AI</span></div></div><div class="flex-1 max-w-xl mx-space-lg"><button class="w-full h-7 bg-surface-elevated hover:bg-surface-hover text-on-surface-variant flex items-center justify-between px-space-sm rounded transition-colors group"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[15px] text-text-muted group-hover:text-primary transition-colors">search</span><span class="font-body-sm text-body-sm text-text-secondary">Search files, symbols, commands</span></div><div class="flex items-center gap-1"><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">Ctrl+P</span><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">⌘K</span></div></button></div><div class="flex items-center gap-space-xs"><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Left Explorer"><span class="material-symbols-outlined text-[18px]">dock_to_left</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Bottom Terminal"><span class="material-symbols-outlined text-[18px]">dock_to_bottom</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Right Auxiliary Bar"><span class="material-symbols-outlined text-[18px]">dock_to_right</span></button><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Settings"><span class="material-symbols-outlined text-[18px]">settings</span></button><img alt="Profile" class="w-6 h-6 rounded-full object-cover ml-space-xs ring-1 ring-border-hairline" src="https://lh3.googleusercontent.com/aida/AEtjO1UVBwqoT3md1Lo2ZWm04cLjY3MMyI72f7vevOYGaxCOFKIsMMmWsU-KO0oW3hdc8z62P5KUaKYutAPRoBwkPwrClIto9gnNmPTmcn3U3tGumOTsd_3Nvh88sbe1cJ-8mPtP1vSdif7wizIyzeOjjnkQxkzPi00HMorIPBwR0v4DktTR5Bh9scwySQ9qT4dGXwLfk8wdRlcYzOylx4SgVq206CyfPSzGtI9VKKp8TQ6EI6OQXRrjXxzYSbM"/></div></header><aside class="fixed left-0 top-10 bottom-6 w-12 bg-surface-panel z-40 flex flex-col justify-between py-space-xs"><nav class="flex flex-col items-center gap-space-xs w-full" data-active-classes="bg-surface-elevated text-primary border-l-2 border-border-active"><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="workbench" href="#" title="Explorer (⌘⇧E)"><span class="material-symbols-outlined text-[20px]">folder</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="global-search" href="#" title="Search (⌘⇧F)"><span class="material-symbols-outlined text-[20px]">search</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="source-control" href="#" title="Source Control (⌘⇧G)"><span class="material-symbols-outlined text-[20px]">commit</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="run-and-debug" href="#" title="Run &amp; Debug (⌘⇧D)"><span class="material-symbols-outlined text-[20px]">play_circle</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="extensions-marketplace" href="#" title="Extensions (⌘⇧X)"><span class="material-symbols-outlined text-[20px]">extension</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="agent-hub" href="#" title="AI Agents Hub"><span class="material-symbols-outlined text-[20px]">smart_toy</span></a></nav><div class="flex flex-col items-center gap-space-xs w-full pb-space-xs"><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Accounts"><span class="material-symbols-outlined text-[20px]">account_circle</span></button><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Preferences"><span class="material-symbols-outlined text-[20px]">tune</span></button></div></aside><div class="pl-12"><main class="relative pt-10 pb-6 w-full min-h-[calc(100vh-2.5rem)] bg-surface-base"><div class="flex flex-col w-full">
+<!-- IDE Workspace Backdrop Simulation (dimmed behind modal) -->
+<div class="relative w-full min-h-[calc(100vh-4rem)] flex items-center justify-center p-space-md sm:p-space-lg overflow-hidden">
+<!-- Background Code Editor Grid Preview (Deep Workspace Context) -->
+<div class="absolute inset-0 opacity-15 pointer-events-none select-none font-code-sm text-code-sm text-text-muted p-space-lg leading-relaxed font-meta-mono overflow-hidden">
+<div class="text-text-secondary">// engine/telemetry/budget_supervisor.rs</div>
+<div>pub async fn track_invocation(model: &amp;ModelId, prompt_tokens: u32, completion_tokens: u32) -&gt; Result&lt;TelemetryRecord, EngineError&gt; {</div>
+<div class="pl-4">let cost = calculate_standard_tariff(model, prompt_tokens, completion_tokens)?;</div>
+<div class="pl-4">let mut enclave = LOCAL_ENCLAVE_STORAGE.lock().await;</div>
+<div class="pl-4">enclave.append_transaction(LocalTransaction::new(model, cost, prompt_tokens + completion_tokens))?;</div>
+<div class="pl-4">tracing::debug!(target: "intelligence_runtime", "Recorded tokens offline in local enclave");</div>
+<div class="pl-4">Ok(TelemetryRecord { prompt_tokens, completion_tokens, cost })</div>
+<div>}</div>
+</div>
+<!-- Centered Dialog Frame -->
+<div class="relative w-full max-w-[920px] bg-surface-panel shadow-2xl rounded-xl border border-border-subtle flex flex-col overflow-hidden text-on-surface backdrop-blur-md">
+<!-- Top Accent Hairline -->
+<div class="h-[2px] w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-80"></div>
+<!-- Modal Header -->
+<header class="px-space-lg py-space-md bg-surface-panel border-b border-border-subtle flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-elevated flex items-center justify-center text-text-primary">
+<span class="material-symbols-outlined text-[18px] text-text-primary">local_fire_department</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline-md text-headline-md text-text-primary truncate">Intelligence Token &amp; Budget Telemetry</h2>
+<span class="font-meta-mono text-meta-mono px-2 py-0.5 rounded bg-surface-elevated text-text-secondary uppercase">Local Enclave Only</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted">Real-time local metering across Copilot, Fast Apply, MCP tools, and inline agents</p>
+</div>
+</div>
+<!-- Controls: Time Range, Export, Close -->
+<div class="flex items-center gap-2">
+<div class="relative">
+<button class="h-8 px-2.5 rounded bg-surface-elevated hover:bg-surface-hover text-text-primary font-body-sm text-body-sm flex items-center gap-1.5 transition-colors border border-border-hairline" id="timeRangeBtn">
+<span class="material-symbols-outlined text-[16px] text-text-muted">calendar_today</span>
+<span>Last 7 Days</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">expand_more</span>
+</button>
+</div>
+<button class="h-8 px-2.5 rounded bg-surface-elevated hover:bg-surface-hover text-text-primary font-body-sm text-body-sm flex items-center gap-1.5 transition-colors border border-border-hairline" title="Export raw SQLite session data">
+<span class="material-symbols-outlined text-[16px] text-text-muted">download</span>
+<span class="hidden sm:inline">Export CSV</span>
+</button>
+<button class="w-8 h-8 rounded bg-surface-elevated hover:bg-surface-hover text-text-secondary hover:text-text-primary flex items-center justify-center transition-colors border border-border-hairline" title="Close dialog (Esc)">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Modal Body -->
+<div class="p-space-lg space-y-space-lg max-h-[calc(88vh-8rem)] overflow-y-auto">
+<!-- KPI Cards Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- KPI 1: Tokens -->
+<div class="bg-surface-elevated p-space-md rounded-lg border border-border-hairline flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-label-caps text-label-caps uppercase tracking-wider mb-1">
+<span>Total Tokens (7d)</span>
+<span class="material-symbols-outlined text-[15px] text-text-muted">data_usage</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-text-primary">1.42M</span>
+<span class="font-meta-mono text-meta-mono px-1.5 py-0.5 rounded bg-surface-panel text-text-secondary border border-border-hairline">↑ 12%</span>
+</div>
+</div>
+<div class="mt-3 pt-2.5 border-t border-border-subtle flex items-center justify-between font-meta-mono text-meta-mono text-text-muted">
+<span>980k Prompt</span>
+<span class="text-text-secondary">·</span>
+<span>440k Completion</span>
+</div>
+</div>
+<!-- KPI 2: Cost & Budget -->
+<div class="bg-surface-elevated p-space-md rounded-lg border border-border-hairline flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-label-caps text-label-caps uppercase tracking-wider mb-1">
+<span>Estimated Cost</span>
+<span class="material-symbols-outlined text-[15px] text-text-muted">payments</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-primary">$2.38</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">/ $25.00 Cap</span>
+</div>
+</div>
+<div class="mt-3 pt-2.5 border-t border-border-subtle flex flex-col gap-1.5">
+<div class="flex justify-between font-meta-mono text-meta-mono text-text-muted">
+<span>9.5% used of monthly cap</span>
+<span class="text-primary font-medium">$22.62 left</span>
+</div>
+<div class="w-full h-1.5 bg-surface-panel rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 9.5%;"></div>
+</div>
+</div>
+</div>
+<!-- KPI 3: Speed & Edge Local Offload -->
+<div class="bg-surface-elevated p-space-md rounded-lg border border-border-hairline flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-label-caps text-label-caps uppercase tracking-wider mb-1">
+<span>Speed &amp; Efficiency</span>
+<span class="material-symbols-outlined text-[15px] text-text-muted">speed</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-text-primary">124 <span class="font-headline-sm text-headline-sm font-normal text-text-muted">t/s avg</span></span>
+</div>
+</div>
+<div class="mt-3 pt-2.5 border-t border-border-subtle">
+<p class="font-body-sm text-body-sm text-text-muted leading-tight">
+<span class="text-text-primary font-medium">84% requests</span> handled by zero-latency edge or offline local Ollama nodes.
+              </p>
+</div>
+</div>
+</section>
+<!-- Visual Analytics Chart Section -->
+<section class="bg-surface-elevated p-space-md rounded-lg border border-border-hairline">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Daily Consumption &amp; Cost Trend</h3>
+<p class="font-body-sm text-body-sm text-text-muted">Volume spikes mapped against active pair-programming &amp; refactoring sessions</p>
+</div>
+<!-- Chart Legends -->
+<div class="flex items-center gap-4 font-meta-mono text-meta-mono text-text-secondary">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-[2px] bg-primary"></span>
+<span>Peak Volume (Tokens)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-[2px] bg-[#00dc82]/40"></span>
+<span>Local/Free Quota</span>
+</div>
+</div>
+</div>
+<!-- SVG Bar Chart with Tooltip Anchor -->
+<div class="relative w-full pt-2">
+<!-- Pinned Friday Tooltip (Highlight Interaction) -->
+<div class="absolute left-[62%] sm:left-[67%] top-2 transform -translate-x-1/2 -translate-y-full z-10 pointer-events-none">
+<div class="bg-surface-panel border border-border-subtle shadow-xl px-2.5 py-1.5 rounded text-left min-w-[210px]">
+<div class="flex items-center justify-between font-meta-mono text-meta-mono text-primary font-semibold border-b border-border-hairline pb-1 mb-1">
+<span>Friday, Oct 24</span>
+<span>$0.64</span>
+</div>
+<div class="font-meta-mono text-meta-mono text-text-secondary space-y-0.5">
+<div class="flex justify-between"><span>Tokens:</span> <span class="text-text-primary font-medium">382k</span></div>
+<div class="flex justify-between"><span>Invocations:</span> <span class="text-text-primary font-medium">42 agent runs</span></div>
+<div class="flex justify-between"><span>Primary task:</span> <span class="text-text-muted">Fast Apply rewrite</span></div>
+</div>
+</div>
+<div class="w-2 h-2 bg-surface-panel border-r border-b border-border-subtle transform rotate-45 mx-auto -mt-1"></div>
+</div>
+<svg class="w-full h-48 overflow-visible" fill="none" viewbox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
+<!-- Horizontal Grid Lines -->
+<line stroke="rgba(255,255,255,0.05)" stroke-dasharray="3 3" x1="40" x2="690" y1="20" y2="20"></line>
+<line stroke="rgba(255,255,255,0.05)" stroke-dasharray="3 3" x1="40" x2="690" y1="60" y2="60"></line>
+<line stroke="rgba(255,255,255,0.05)" stroke-dasharray="3 3" x1="40" x2="690" y1="100" y2="100"></line>
+<line stroke="rgba(255,255,255,0.08)" x1="40" x2="690" y1="140" y2="140"></line>
+<!-- Y-Axis Labels -->
+<text fill="#6B7280" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="32" y="24">400k</text>
+<text fill="#6B7280" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="32" y="64">300k</text>
+<text fill="#6B7280" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="32" y="104">150k</text>
+<text fill="#6B7280" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="32" y="144">0k</text>
+<!-- Day 1: Mon (140k total: 90k paid, 50k local) -->
+<g class="cursor-pointer group">
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.35" height="32" rx="3" width="46" x="75" y="108"></rect>
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.85" height="24" rx="3" width="46" x="75" y="82"></rect>
+<text fill="#9CA3AF" font-family="Outfit" font-size="11" text-anchor="middle" x="98" y="160">Mon</text>
+</g>
+<!-- Day 2: Tue (210k total) -->
+<g class="cursor-pointer group">
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.35" height="42" rx="3" width="46" x="165" y="98"></rect>
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.85" height="32" rx="3" width="46" x="165" y="64"></rect>
+<text fill="#9CA3AF" font-family="Outfit" font-size="11" text-anchor="middle" x="188" y="160">Tue</text>
+</g>
+<!-- Day 3: Wed (110k total) -->
+<g class="cursor-pointer group">
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.35" height="22" rx="3" width="46" x="255" y="118"></rect>
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.85" height="18" rx="3" width="46" x="255" y="98"></rect>
+<text fill="#9CA3AF" font-family="Outfit" font-size="11" text-anchor="middle" x="278" y="160">Wed</text>
+</g>
+<!-- Day 4: Thu (290k total) -->
+<g class="cursor-pointer group">
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.35" height="60" rx="3" width="46" x="345" y="80"></rect>
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.85" height="34" rx="3" width="46" x="345" y="44"></rect>
+<text fill="#9CA3AF" font-family="Outfit" font-size="11" text-anchor="middle" x="368" y="160">Thu</text>
+</g>
+<!-- Day 5: Fri (382k total - Pinned High Day) -->
+<g class="cursor-pointer">
+<!-- Focus Ring indicator -->
+<rect fill="none" height="126" rx="4" stroke="#00dc82" stroke-dasharray="2 2" stroke-opacity="0.4" stroke-width="1" width="52" x="432" y="18"></rect>
+<rect fill="#00dc82" fill-opacity="0.4" height="70" rx="3" width="46" x="435" y="70"></rect>
+<rect fill="#00dc82" height="44" rx="3" width="46" x="435" y="24"></rect>
+<text fill="#00dc82" font-family="Outfit" font-size="11" font-weight="600" text-anchor="middle" x="458" y="160">Fri</text>
+</g>
+<!-- Day 6: Sat (160k total) -->
+<g class="cursor-pointer group">
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.35" height="35" rx="3" width="46" x="525" y="105"></rect>
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.85" height="17" rx="3" width="46" x="525" y="86"></rect>
+<text fill="#9CA3AF" font-family="Outfit" font-size="11" text-anchor="middle" x="548" y="160">Sat</text>
+</g>
+<!-- Day 7: Sun (120k total) -->
+<g class="cursor-pointer group">
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.35" height="25" rx="3" width="46" x="615" y="115"></rect>
+<rect class="transition-opacity group-hover:opacity-100" fill="#00dc82" fill-opacity="0.85" height="17" rx="3" width="46" x="615" y="96"></rect>
+<text fill="#9CA3AF" font-family="Outfit" font-size="11" text-anchor="middle" x="638" y="160">Sun</text>
+</g>
+</svg>
+</div>
+</section>
+<!-- Breakdown Table: Usage by Intelligence Provider & Task -->
+<section class="bg-surface-elevated rounded-lg border border-border-hairline overflow-hidden">
+<div class="px-space-md py-space-sm bg-surface-panel border-b border-border-subtle flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-text-muted">tune</span>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Usage by Intelligence Provider &amp; Task</h3>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">4 Providers Active</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-border-subtle font-label-caps text-label-caps text-text-secondary uppercase">
+<th class="py-2.5 px-space-md font-semibold">Provider / Model</th>
+<th class="py-2.5 px-space-md font-semibold">Workload Category</th>
+<th class="py-2.5 px-space-md font-semibold text-right">Invocations</th>
+<th class="py-2.5 px-space-md font-semibold text-right">Tokens</th>
+<th class="py-2.5 px-space-md font-semibold text-right">Billable Cost</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-hairline font-body-sm text-body-sm">
+<!-- Row 1: Claude 3.7 Sonnet -->
+<tr class="hover:bg-surface-hover/50 transition-colors">
+<td class="py-2.5 px-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-text-muted">smart_toy</span>
+<div>
+<div class="font-code-base text-code-base text-text-primary font-medium">Claude 3.7 Sonnet</div>
+<div class="font-meta-mono text-meta-mono text-text-muted">Anthropic API · Direct Key</div>
+</div>
+</div>
+</td>
+<td class="py-2.5 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-panel border border-border-subtle text-text-secondary font-meta-mono text-meta-mono">Agent &amp; Fast Apply</span>
+</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-secondary">68 req</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-primary font-medium">720k</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-primary font-semibold">$1.72</td>
+</tr>
+<!-- Row 2: Gemini 2.0 Flash -->
+<tr class="hover:bg-surface-hover/50 transition-colors">
+<td class="py-2.5 px-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-text-muted">bolt</span>
+<div>
+<div class="font-code-base text-code-base text-text-primary font-medium">Gemini 2.0 Flash</div>
+<div class="font-meta-mono text-meta-mono text-text-muted">Google AI Studio</div>
+</div>
+</div>
+</td>
+<td class="py-2.5 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-panel border border-border-subtle text-text-secondary font-meta-mono text-meta-mono">Chat &amp; Summaries</span>
+</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-secondary">142 req</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-primary font-medium">410k</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-muted">
+                    $0.00 <span class="text-text-secondary text-[10px]">(Free Quota)</span>
+</td>
+</tr>
+<!-- Row 3: DeepSeek-Coder (Ollama) -->
+<tr class="hover:bg-surface-hover/50 transition-colors">
+<td class="py-2.5 px-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-text-muted">memory</span>
+<div>
+<div class="font-code-base text-code-base text-text-primary font-medium">DeepSeek-Coder:6.7b</div>
+<div class="font-meta-mono text-meta-mono text-text-muted">Ollama Local · localhost:11434</div>
+</div>
+</div>
+</td>
+<td class="py-2.5 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-panel border border-border-subtle text-text-secondary font-meta-mono text-meta-mono">Autocomplete FIM</span>
+</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-secondary">1,840 req</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-primary font-medium">220k</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-muted">
+                    $0.00 <span class="text-text-secondary text-[10px]">(Local Offline)</span>
+</td>
+</tr>
+<!-- Row 4: Whisper Local WASM -->
+<tr class="hover:bg-surface-hover/50 transition-colors">
+<td class="py-2.5 px-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-text-muted">mic</span>
+<div>
+<div class="font-code-base text-code-base text-text-primary font-medium">Whisper Local WASM</div>
+<div class="font-meta-mono text-meta-mono text-text-muted">In-process WebGPU runtime</div>
+</div>
+</div>
+</td>
+<td class="py-2.5 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-panel border border-border-subtle text-text-secondary font-meta-mono text-meta-mono">Voice Dictation</span>
+</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-secondary">88 min</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-primary font-medium">70k</td>
+<td class="py-2.5 px-space-md text-right font-meta-mono text-meta-mono text-text-muted">
+                    $0.00 <span class="text-text-secondary text-[10px]">(Zero-Cloud)</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Modal Footer -->
+<footer class="px-space-lg py-space-md bg-surface-panel border-t border-border-subtle flex flex-wrap items-center justify-between gap-space-md">
+<!-- Privacy / Offline Assurance Notice -->
+<div class="flex items-center gap-2 text-text-muted font-meta-mono text-meta-mono max-w-md">
+<span class="material-symbols-outlined text-[15px] text-text-muted flex-shrink-0">shield</span>
+<span>Zero-telemetry policy: token counters are strictly stored in local SQLite DB on this machine.</span>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-space-sm ml-auto">
+<button class="h-8 px-3 rounded bg-transparent hover:bg-surface-hover text-text-secondary hover:text-text-primary font-body-sm text-body-sm transition-colors border border-border-hairline">
+            Configure Spending Limits
+          </button>
+<button class="h-8 px-4 rounded bg-primary hover:bg-[#00F08F] text-surface-base font-body-sm text-body-sm font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+<span>Done</span>
+<span class="font-meta-mono text-[10px] opacity-75">Esc</span>
+</button>
+</div>
+</footer>
+</div>
+</div>
+</div></main></div><footer class="fixed bottom-0 left-0 right-0 h-6 bg-surface-panel z-50 flex items-center justify-between px-space-sm font-meta-mono text-meta-mono text-text-secondary select-none"><div class="flex items-center gap-space-md"><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-primary">alt_route</span><span class="">main*</span></div><div class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-error">cancel</span><span class="">0</span><span class="material-symbols-outlined text-[13px] text-[#F59E0B]">warning</span><span class="">2</span></div><div class="flex items-center gap-1 text-agent-cyan hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] animate-pulse">bolt</span><span class="">Codeen Agent: Idle</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-surface-elevated text-on-surface-variant hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] text-[#F97316]">local_fire_department</span><span class="font-code-sm text-code-sm text-primary">14.2k</span><span class="text-text-muted">($0.04)</span></div><div class="hover:text-on-surface cursor-pointer">Ln 42, Col 18</div><div class="hover:text-on-surface cursor-pointer">Spaces: 2</div><div class="hover:text-on-surface cursor-pointer">UTF-8</div><div class="hover:text-on-surface cursor-pointer">TypeScript JSX</div><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px]">notifications</span></div></div></footer>
+</body></html>

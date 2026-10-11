@@ -67,13 +67,16 @@
 }
 
 .void-void-icon,
-.monaco-workbench.hc-light .part.editor > .content .editor-group-container .editor-group-watermark > .letterpress {
-	background-image: url('./void_cube_noshadow.png'); /* // Void */
+.monaco-workbench.vs-dark .part.editor > .content .editor-group-container .editor-group-watermark > .letterpress {
+	background-image: url('./letterpress-dark.svg');
 }
 
-.void-void-icon,
+.monaco-workbench.hc-light .part.editor > .content .editor-group-container .editor-group-watermark > .letterpress {
+	background-image: url('./letterpress-hcLight.svg');
+}
+
 .monaco-workbench.hc-black .part.editor > .content .editor-group-container .editor-group-watermark > .letterpress {
-	background-image: url('./void_cube_noshadow.png'); /* // Void */
+	background-image: url('./letterpress-hcDark.svg');
 }
 
 .monaco-workbench .part.editor > .content:not(.empty) .editor-group-container > .editor-group-watermark > .shortcuts,
@@ -174,3 +177,28 @@
 	width: 100%;
 	height: 100%;
 }
+
+/* Codeen Empty Editor Home */
+.monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark > .codeen-empty-editor-home {
+	display: none;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark > .codeen-empty-editor-home.codeen-home-visible {
+	display: block;
+}
+
+.monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark.codeen-home-active {
+	max-width: none;
+	width: 100%;
+	height: 100%;
+}
+
+.monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark.codeen-home-active > .letterpress,
+.monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark.codeen-home-active > .shortcuts {
+	display: none;
+}
+

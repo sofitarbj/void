@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en" style=""><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary-fixed": "#001f28", "on-tertiary-container": "#0042c1", "outline": "#859587", "text-muted": "#6B7280", "diff-addition": "#10B981", "primary": "#45f99c", "agent-indigo": "#2563FF", "border-hairline": "rgba(255, 255, 255, 0.08)", "tertiary": "#d4dbff", "primary-fixed-dim": "#1ce388", "on-primary-fixed-variant": "#00522d", "primary-fixed": "#59ffa4", "background": "#111317", "surface-panel": "#12151B", "surface-base": "#0B0D11", "on-background": "#e2e2e8", "surface-dim": "#111317", "tertiary-fixed-dim": "#b6c4ff", "surface-container-low": "#1a1c20", "inverse-on-surface": "#2f3035", "on-primary-fixed": "#00210f", "on-tertiary-fixed": "#00164f", "error-container": "#93000a", "primary-container": "#00dc82", "on-primary": "#00391d", "on-secondary-container": "#00566b", "tertiary-fixed": "#dce1ff", "secondary-fixed": "#b7eaff", "surface-elevated": "#1A1E26", "on-surface-variant": "#bacbbc", "on-surface": "#e2e2e8", "secondary-fixed-dim": "#4cd6ff", "surface-container-lowest": "#0c0e12", "surface-bright": "#37393e", "outline-variant": "#3c4a3f", "text-primary": "#F3F4F6", "text-secondary": "#9CA3AF", "on-error-container": "#ffdad6", "agent-cyan": "#00D1FF", "surface": "#111317", "surface-container-highest": "#333539", "on-tertiary-fixed-variant": "#003baf", "surface-tint": "#1ce388", "surface-variant": "#333539", "border-subtle": "#242933", "secondary": "#a6e6ff", "surface-hover": "#222732", "on-tertiary": "#00287d", "surface-container-high": "#282a2e", "border-active": "#00DC82", "tertiary-container": "#adbeff", "secondary-container": "#14d1ff", "on-secondary-fixed-variant": "#004e60", "error": "#ffb4ab", "inverse-primary": "#006d3e", "diff-deletion": "#EF4444", "diff-deletion-surface": "rgba(239, 68, 68, 0.12)", "on-secondary": "#003543", "on-primary-container": "#005b32", "surface-container": "#1e2024", "diff-addition-surface": "rgba(16, 185, 129, 0.12)", "inverse-surface": "#e2e2e8", "on-error": "#690005" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "0.75rem", "space-xl": "1.5rem", "space-xs": "0.25rem", "gutter": "0.75rem", "margin": "1rem", "space-lg": "1rem", "space-sm": "0.5rem" }, "fontFamily": { "headline-sm": ["Outfit"], "meta-mono": ["JetBrains Mono"], "code-base": ["JetBrains Mono"], "body-lg": ["Outfit"], "headline-md": ["Outfit"], "body-sm": ["Outfit"], "display-hero-mobile": ["Outfit"], "code-sm": ["JetBrains Mono"], "body-md": ["Outfit"], "label-caps": ["Outfit"], "display-hero": ["Outfit"], "headline-lg": ["Outfit"] }, "fontSize": { "headline-sm": ["15px", { "lineHeight": "20px", "letterSpacing": "-0.015em", "fontWeight": "500" }], "meta-mono": ["10.5px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-base": ["13px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "display-hero-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "code-sm": ["11.5px", { "lineHeight": "16px", "fontWeight": "400" }], "body-md": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }], "display-hero": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.04em", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.025em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-base font-body-md text-on-surface select-none overflow-x-hidden min-h-screen"><header class="fixed top-0 left-0 right-0 h-10 bg-surface-panel z-50 flex items-center justify-between px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-space-xs"><div class="w-3 h-3 rounded-full bg-[#EF4444] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#F59E0B] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#10B981] opacity-80 hover:opacity-100 transition-opacity"></div></div><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px]">terminal</span><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">Codeen</span><span class="font-meta-mono text-meta-mono text-agent-cyan bg-surface-elevated px-1.5 py-0.5 rounded">AI</span></div></div><div class="flex-1 max-w-xl mx-space-lg"><button class="w-full h-7 bg-surface-elevated hover:bg-surface-hover text-on-surface-variant flex items-center justify-between px-space-sm rounded transition-colors group"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[15px] text-text-muted group-hover:text-primary transition-colors">search</span><span class="font-body-sm text-body-sm text-text-secondary">Search files, symbols, commands</span></div><div class="flex items-center gap-1"><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">Ctrl+P</span><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">⌘K</span></div></button></div><div class="flex items-center gap-space-xs"><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Left Explorer"><span class="material-symbols-outlined text-[18px]">dock_to_left</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Bottom Terminal"><span class="material-symbols-outlined text-[18px]">dock_to_bottom</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Right Auxiliary Bar"><span class="material-symbols-outlined text-[18px]">dock_to_right</span></button><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Settings"><span class="material-symbols-outlined text-[18px]">settings</span></button><img alt="Profile" class="w-6 h-6 rounded-full object-cover ml-space-xs ring-1 ring-border-hairline" src="https://lh3.googleusercontent.com/aida/AEtjO1UVBwqoT3md1Lo2ZWm04cLjY3MMyI72f7vevOYGaxCOFKIsMMmWsU-KO0oW3hdc8z62P5KUaKYutAPRoBwkPwrClIto9gnNmPTmcn3U3tGumOTsd_3Nvh88sbe1cJ-8mPtP1vSdif7wizIyzeOjjnkQxkzPi00HMorIPBwR0v4DktTR5Bh9scwySQ9qT4dGXwLfk8wdRlcYzOylx4SgVq206CyfPSzGtI9VKKp8TQ6EI6OQXRrjXxzYSbM"/></div></header><aside class="fixed left-0 top-10 bottom-6 w-12 bg-surface-panel z-40 flex flex-col justify-between py-space-xs"><nav class="flex flex-col items-center gap-space-xs w-full" data-active-classes="bg-surface-elevated text-primary border-l-2 border-border-active"><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="workbench" href="#" title="Explorer (⌘⇧E)"><span class="material-symbols-outlined text-[20px]">folder</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="global-search" href="#" title="Search (⌘⇧F)"><span class="material-symbols-outlined text-[20px]">search</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="source-control" href="#" title="Source Control (⌘⇧G)"><span class="material-symbols-outlined text-[20px]">commit</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="run-and-debug" href="#" title="Run &amp; Debug (⌘⇧D)"><span class="material-symbols-outlined text-[20px]">play_circle</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="extensions-marketplace" href="#" title="Extensions (⌘⇧X)"><span class="material-symbols-outlined text-[20px]">extension</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="agent-hub" href="#" title="AI Agents Hub"><span class="material-symbols-outlined text-[20px]">smart_toy</span></a></nav><div class="flex flex-col items-center gap-space-xs w-full pb-space-xs"><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Accounts"><span class="material-symbols-outlined text-[20px]">account_circle</span></button><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Preferences"><span class="material-symbols-outlined text-[20px]">tune</span></button></div></aside><div class="pl-12"><main class="relative pt-10 pb-6 w-full min-h-[calc(100vh-2.5rem)] bg-surface-base"><div class="flex flex-col w-full">
+<div class="flex h-[calc(100vh-4rem)] w-full overflow-hidden select-none">
+<!-- Left Section: Primary Workspace & Split Editor Canvas -->
+<div class="flex-1 flex flex-col min-w-0 bg-surface-base">
+<!-- Editor File Tabs & Navigation Utility -->
+<div class="h-9 bg-surface-panel flex items-center justify-between px-space-sm">
+<div class="flex items-center gap-space-xs overflow-x-auto min-w-0">
+<!-- Active Tab -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-base text-text-primary rounded-t-lg">
+<span class="font-meta-mono text-meta-mono text-primary font-semibold">TSX</span>
+<span class="font-body-sm text-body-sm truncate max-w-[140px]">TokenizerStream.tsx</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted hover:text-text-primary cursor-pointer">close</span>
+</div>
+<!-- Inactive Tab -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-panel text-text-secondary hover:text-text-primary rounded-t-lg cursor-pointer">
+<span class="font-meta-mono text-meta-mono text-agent-cyan font-semibold">RS</span>
+<span class="font-body-sm text-body-sm truncate max-w-[140px]">mem_alloc.rs</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted hover:text-text-primary">close</span>
+</div>
+<!-- Inactive Tab -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-panel text-text-secondary hover:text-text-primary rounded-t-lg cursor-pointer">
+<span class="font-meta-mono text-meta-mono text-text-muted font-semibold">JSON</span>
+<span class="font-body-sm text-body-sm truncate max-w-[140px]">mcp_config.json</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted hover:text-text-primary">close</span>
+</div>
+</div>
+<!-- Quick Diff & Fast-Apply Context Stats -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-2 bg-surface-elevated px-2 py-0.5 rounded">
+<span class="font-meta-mono text-meta-mono text-diff-addition">+38</span>
+<span class="font-meta-mono text-meta-mono text-diff-deletion">-14</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">diff buffer</span>
+</div>
+<button class="flex items-center gap-1 text-text-secondary hover:text-text-primary text-body-sm">
+<span class="material-symbols-outlined text-[16px]">split_scene</span>
+</button>
+</div>
+</div>
+<!-- Editor Buffer Content (Fast Diff Applied Preview) -->
+<div class="flex-1 overflow-y-auto p-4 font-code-base text-code-base text-text-primary">
+<!-- Inline Agent Execution Callout Banner -->
+<div class="mb-4 p-3 bg-surface-elevated rounded-lg shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<div>
+<div class="font-headline-sm text-headline-sm text-text-primary font-medium flex items-center gap-2">
+<span>Fast Apply active: Thread #0884</span>
+<span class="bg-surface-panel font-meta-mono text-meta-mono text-agent-cyan px-1.5 py-0.5 rounded">claude-3-7-sonnet</span>
+</div>
+<div class="font-body-sm text-body-sm text-text-muted">Resolving Arc&lt;RwLock&gt; cyclic retain cycle in Rust tokenizer buffer streaming logic.</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="bg-primary text-on-primary font-headline-sm text-headline-sm px-3 py-1 rounded shadow-sm hover:opacity-90 transition-opacity">
+              Accept All (⌘↵)
+            </button>
+<button class="bg-surface-panel text-text-secondary hover:text-text-primary px-3 py-1 rounded">
+              Discard
+            </button>
+</div>
+</div>
+<!-- Syntactic Buffer Content with Diffs -->
+<div class="flex flex-col gap-0.5 text-text-secondary font-code-base text-code-base">
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">1</span>
+<span class="text-agent-cyan">import</span> <span class="text-text-primary">{ createByteStreamScanner }</span> <span class="text-agent-cyan">from</span> <span class="text-[#FBBF24]">'@codeen/core-tokenizer'</span>;
+          </div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">2</span>
+<span class="text-agent-cyan">import</span> <span class="text-text-primary">{ ArcWeakRef, NativeBuffer }</span> <span class="text-agent-cyan">from</span> <span class="text-[#FBBF24]">'../native/rust_ffi'</span>;
+          </div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">3</span>
+<span></span>
+</div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">4</span>
+<span class="text-agent-cyan">export class</span> <span class="text-primary font-semibold">TokenizerSessionController</span> {
+          </div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">5</span>
+<span class="pl-4 text-agent-cyan">private</span> <span class="text-text-primary">bufferPool: NativeBuffer;</span>
+</div>
+<!-- Diff Deletion Lines -->
+<div class="flex items-center bg-diff-deletion-surface text-diff-deletion">
+<span class="w-12 text-right pr-4 text-diff-deletion/60 select-none font-meta-mono text-meta-mono">- 6</span>
+<span class="pl-4 line-through">private sharedRegistry: Map&lt;string, ArcWeakRef&gt; = new Map();</span>
+</div>
+<!-- Diff Addition Lines -->
+<div class="flex items-center bg-diff-addition-surface text-diff-addition">
+<span class="w-12 text-right pr-4 text-diff-addition/70 select-none font-meta-mono text-meta-mono">+ 6</span>
+<span class="pl-4">private sharedRegistry: FinalizationRegistry&lt;NativeBuffer&gt;;</span>
+</div>
+<div class="flex items-center bg-diff-addition-surface text-diff-addition">
+<span class="w-12 text-right pr-4 text-diff-addition/70 select-none font-meta-mono text-meta-mono">+ 7</span>
+<span class="pl-4">private ringBufferRef: WeakRef&lt;NativeBuffer&gt; | null = null;</span>
+</div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">8</span>
+<span></span>
+</div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">9</span>
+<span class="pl-4 text-agent-cyan">constructor</span><span class="text-text-primary">(capacity: </span><span class="text-primary">number</span><span class="text-text-primary">) {</span>
+</div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">10</span>
+<span class="pl-8 text-text-primary">this.bufferPool = </span><span class="text-agent-cyan">new</span> <span class="text-primary">NativeBuffer</span><span class="text-text-primary">(capacity);</span>
+</div>
+<div class="flex items-center bg-diff-addition-surface text-diff-addition">
+<span class="w-12 text-right pr-4 text-diff-addition/70 select-none font-meta-mono text-meta-mono">+ 11</span>
+<span class="pl-8">this.sharedRegistry = new FinalizationRegistry((handle) =&gt; handle.release());</span>
+</div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">12</span>
+<span class="pl-4 text-text-primary">}</span>
+</div>
+<div class="flex items-center">
+<span class="w-12 text-right pr-4 text-text-muted select-none font-meta-mono text-meta-mono">13</span>
+<span class="text-text-primary">}</span>
+</div>
+</div>
+<!-- Agent Live Telemetry & Graph Pill -->
+<div class="mt-8 p-4 bg-surface-container rounded-xl shadow-md flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">memory</span>
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium">Heap Analysis &amp; Allocation Footprint</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-primary bg-surface-base px-2 py-0.5 rounded">Delta: -84.2 MB RSS</span>
+</div>
+<div class="h-16 w-full flex items-end gap-1 px-2 pt-2 bg-surface-base rounded-lg">
+<div class="flex-1 bg-surface-hover hover:bg-agent-cyan h-[75%] rounded-t transition-all" title="Step 1: 142MB"></div>
+<div class="flex-1 bg-surface-hover hover:bg-agent-cyan h-[88%] rounded-t transition-all" title="Step 2: 168MB"></div>
+<div class="flex-1 bg-surface-hover hover:bg-agent-cyan h-[94%] rounded-t transition-all" title="Step 3: 180MB"></div>
+<div class="flex-1 bg-surface-hover hover:bg-agent-cyan h-[98%] rounded-t transition-all" title="Peak Leak: 194MB"></div>
+<div class="flex-1 bg-primary/70 hover:bg-primary h-[32%] rounded-t transition-all" title="After Fix: 58MB"></div>
+<div class="flex-1 bg-primary hover:bg-primary h-[28%] rounded-t transition-all" title="Current Stable: 52MB"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Auxiliary Bar: CHATS & THREADS HISTORY -->
+<aside class="w-[380px] bg-surface-panel flex flex-col h-full shadow-xl">
+<!-- Auxiliary Bar Header -->
+<div class="p-3 bg-surface-panel flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-text-secondary">chat_bubble</span>
+<span class="font-label-caps text-label-caps text-text-secondary tracking-widest">CHATS &amp; THREADS</span>
+<span class="bg-surface-elevated text-text-primary font-meta-mono text-meta-mono px-1.5 py-0.2 rounded">18</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="bg-primary text-on-primary font-headline-sm text-headline-sm px-2.5 py-1 rounded flex items-center gap-1 hover:opacity-90 transition-opacity shadow-sm" id="btn-new-thread" title="Start new prompt session (⌘N)">
+<span class="material-symbols-outlined text-[15px]">add</span>
+<span>New</span>
+</button>
+<button class="p-1 text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded transition-colors" id="btn-archive-view" title="Archived Threads">
+<span class="material-symbols-outlined text-[18px]">archive</span>
+</button>
+</div>
+</div>
+<!-- Search & Model Quick Filter -->
+<div class="px-3 pb-3 flex flex-col gap-2">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-[15px] text-text-muted">filter_list</span>
+<input class="w-full bg-surface-elevated text-text-primary placeholder:text-text-muted font-body-sm text-body-sm pl-8 pr-8 py-1.5 rounded focus:outline-none focus:bg-surface-hover" id="thread-search" placeholder="Filter conversations (e.g. tokenizer, oauth)..." type="text"/>
+<span class="absolute right-2.5 top-2 font-meta-mono text-meta-mono text-text-muted">⌘F</span>
+</div>
+<!-- Filter Tags Bar -->
+<div class="flex items-center gap-1.5 overflow-x-auto py-0.5">
+<button class="px-2 py-0.5 rounded bg-surface-elevated font-meta-mono text-meta-mono text-primary">All (18)</button>
+<button class="px-2 py-0.5 rounded bg-surface-container font-meta-mono text-meta-mono text-text-muted hover:text-text-primary">claude-3-7</button>
+<button class="px-2 py-0.5 rounded bg-surface-container font-meta-mono text-meta-mono text-text-muted hover:text-text-primary">gpt-4.5</button>
+<button class="px-2 py-0.5 rounded bg-surface-container font-meta-mono text-meta-mono text-text-muted hover:text-text-primary">o3-mini</button>
+</div>
+</div>
+<!-- Chronological Thread Scrollable List -->
+<div class="flex-1 overflow-y-auto px-2 flex flex-col gap-4 pb-4" id="thread-list-container">
+<!-- SECTION: TODAY -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between px-2 py-1">
+<span class="font-label-caps text-label-caps text-text-muted tracking-wider">TODAY</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">3 threads</span>
+</div>
+<!-- Thread Item 1 (ACTIVE / SELECTED) -->
+<div class="group relative flex flex-col p-2.5 rounded-lg bg-surface-elevated shadow-sm cursor-pointer transition-all">
+<div class="absolute left-0 top-2 bottom-2 w-1 bg-primary rounded-r"></div>
+<div class="flex items-start justify-between gap-2 pl-1">
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium line-clamp-1">
+                Fix memory leak in Rust tokenizer
+              </span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-0.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-hover" title="Rename thread">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+<button class="p-0.5 text-text-secondary hover:text-error rounded hover:bg-surface-hover" title="Delete thread">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary line-clamp-2 mt-1 pl-1">
+              Finalizing weak pointer mapping in the scanner lifecycle to break cyclic reference loop.
+            </p>
+<div class="flex items-center justify-between mt-2 pl-1">
+<div class="flex items-center gap-1.5">
+<span class="bg-surface-base font-meta-mono text-meta-mono text-agent-cyan px-1.5 py-0.5 rounded">claude-3-7</span>
+<span class="flex items-center gap-0.5 bg-surface-base font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[11px]">chat</span> 14
+                </span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">14m ago</span>
+</div>
+</div>
+<!-- Thread Item 2 -->
+<div class="group relative flex flex-col p-2.5 rounded-lg bg-surface-container hover:bg-surface-hover cursor-pointer transition-colors">
+<div class="flex items-start justify-between gap-2">
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium line-clamp-1">
+                Add OAuth2 callback handler
+              </span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-0.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-panel" title="Rename thread">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+<button class="p-0.5 text-text-secondary hover:text-error rounded hover:bg-surface-panel" title="Delete thread">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary line-clamp-1 mt-1">
+              Generate PKCE code challenge and verify HMAC state cookie with GitHub Enterprise app.
+            </p>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<span class="bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">gpt-4.5</span>
+<span class="flex items-center gap-0.5 bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[11px]">chat</span> 8
+                </span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">2h ago</span>
+</div>
+</div>
+<!-- Thread Item 3 -->
+<div class="group relative flex flex-col p-2.5 rounded-lg bg-surface-container hover:bg-surface-hover cursor-pointer transition-colors">
+<div class="flex items-start justify-between gap-2">
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium line-clamp-1">
+                Refactor Monaco diff decorations
+              </span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-0.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-panel" title="Rename thread">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+<button class="p-0.5 text-text-secondary hover:text-error rounded hover:bg-surface-panel" title="Delete thread">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary line-clamp-1 mt-1">
+              Synchronize deltaDecorations array with model worker stream to stop flicker.
+            </p>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<span class="bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">o3-mini</span>
+<span class="flex items-center gap-0.5 bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[11px]">chat</span> 22
+                </span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">5h ago</span>
+</div>
+</div>
+</div>
+<!-- SECTION: YESTERDAY -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between px-2 py-1">
+<span class="font-label-caps text-label-caps text-text-muted tracking-wider">YESTERDAY</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">2 threads</span>
+</div>
+<!-- Thread Item 4 -->
+<div class="group relative flex flex-col p-2.5 rounded-lg bg-surface-container hover:bg-surface-hover cursor-pointer transition-colors">
+<div class="flex items-start justify-between gap-2">
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium line-clamp-1">
+                MCP Server Postgres connector
+              </span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-0.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-panel" title="Rename thread">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+<button class="p-0.5 text-text-secondary hover:text-error rounded hover:bg-surface-panel" title="Delete thread">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary line-clamp-1 mt-1">
+              Setup JSON-RPC schema descriptors for read-only replica schema introspection.
+            </p>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<span class="bg-surface-panel font-meta-mono text-meta-mono text-agent-cyan px-1.5 py-0.5 rounded">claude-3-7</span>
+<span class="flex items-center gap-0.5 bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[11px]">chat</span> 6
+                </span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">Yesterday</span>
+</div>
+</div>
+<!-- Thread Item 5 -->
+<div class="group relative flex flex-col p-2.5 rounded-lg bg-surface-container hover:bg-surface-hover cursor-pointer transition-colors">
+<div class="flex items-start justify-between gap-2">
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium line-clamp-1">
+                Tailwind CSS variable theme tokens
+              </span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-0.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-panel" title="Rename thread">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+<button class="p-0.5 text-text-secondary hover:text-error rounded hover:bg-surface-panel" title="Delete thread">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary line-clamp-1 mt-1">
+              Audit semantic variables for dark mode obsidian palettes and high-contrast bounds.
+            </p>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<span class="bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">o3-mini</span>
+<span class="flex items-center gap-0.5 bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[11px]">chat</span> 11
+                </span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">Yesterday</span>
+</div>
+</div>
+</div>
+<!-- SECTION: PREVIOUS 7 DAYS -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between px-2 py-1">
+<span class="font-label-caps text-label-caps text-text-muted tracking-wider">PREVIOUS 7 DAYS</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">13 threads</span>
+</div>
+<!-- Thread Item 6 -->
+<div class="group relative flex flex-col p-2.5 rounded-lg bg-surface-container hover:bg-surface-hover cursor-pointer transition-colors">
+<div class="flex items-start justify-between gap-2">
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium line-clamp-1">
+                Terminal PTY WebSocket reconnection
+              </span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-0.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-panel" title="Rename thread">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+<button class="p-0.5 text-text-secondary hover:text-error rounded hover:bg-surface-panel" title="Delete thread">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary line-clamp-1 mt-1">
+              Exponential backoff jitter algorithm for edge runner process detach states.
+            </p>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<span class="bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">gpt-4.5</span>
+<span class="flex items-center gap-0.5 bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[11px]">chat</span> 31
+                </span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">Mar 02</span>
+</div>
+</div>
+<!-- Thread Item 7 -->
+<div class="group relative flex flex-col p-2.5 rounded-lg bg-surface-container hover:bg-surface-hover cursor-pointer transition-colors">
+<div class="flex items-start justify-between gap-2">
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium line-clamp-1">
+                Docker isolated agent runner container
+              </span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-0.5 text-text-secondary hover:text-text-primary rounded hover:bg-surface-panel" title="Rename thread">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+<button class="p-0.5 text-text-secondary hover:text-error rounded hover:bg-surface-panel" title="Delete thread">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary line-clamp-1 mt-1">
+              Configured cgroup v2 memory thresholds and seccomp profile restrictions.
+            </p>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<span class="bg-surface-panel font-meta-mono text-meta-mono text-agent-cyan px-1.5 py-0.5 rounded">claude-3-7</span>
+<span class="flex items-center gap-0.5 bg-surface-panel font-meta-mono text-meta-mono text-text-muted px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[11px]">chat</span> 9
+                </span>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted">Feb 28</span>
+</div>
+</div>
+</div>
+<!-- Empty State Preview (Hidden unless filtered or no archives) -->
+<div class="hidden flex-col items-center justify-center p-8 text-center bg-surface-container rounded-xl my-4" id="filter-empty-state">
+<span class="material-symbols-outlined text-[36px] text-text-muted mb-2">search_off</span>
+<span class="font-headline-sm text-headline-sm text-text-primary font-medium">No threads matching filter</span>
+<p class="font-body-sm text-body-sm text-text-muted mt-1">Try searching for keywords or clear the search query.</p>
+<button class="mt-4 px-3 py-1 bg-surface-panel hover:bg-surface-hover text-text-secondary hover:text-text-primary rounded font-meta-mono text-meta-mono" id="btn-clear-filter">
+            Reset filter
+          </button>
+</div>
+</div>
+<!-- Footer Management Status Bar inside Auxiliary Panel -->
+<div class="p-3 bg-surface-panel flex items-center justify-between font-meta-mono text-meta-mono text-text-muted">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Sync: Synced to Cloud</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:text-text-primary transition-colors flex items-center gap-1" title="Export Thread Logs">
+<span class="material-symbols-outlined text-[13px]">file_download</span>
+<span>Export</span>
+</button>
+</div>
+</div>
+</aside>
+</div>
+<!-- Interactive Search / Filter Client Logic -->
+<script>
+    const searchInput = document.getElementById('thread-search');
+    const threadListContainer = document.getElementById('thread-list-container');
+    const emptyState = document.getElementById('filter-empty-state');
+    const resetBtn = document.getElementById('btn-clear-filter');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase().trim();
+        const threadCards = threadListContainer.querySelectorAll('.group.cursor-pointer');
+        let visibleCount = 0;
+
+        threadCards.forEach(card => {
+          const title = card.querySelector('span.font-headline-sm')?.textContent.toLowerCase() || '';
+          const preview = card.querySelector('p')?.textContent.toLowerCase() || '';
+          if (title.includes(val) || preview.includes(val)) {
+            card.style.display = 'flex';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (visibleCount === 0 && val !== '') {
+          emptyState.classList.remove('hidden');
+          emptyState.classList.add('flex');
+        } else {
+          emptyState.classList.add('hidden');
+          emptyState.classList.remove('flex');
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+      });
+    }
+  </script>
+</div></main></div><footer class="fixed bottom-0 left-0 right-0 h-6 bg-surface-panel z-50 flex items-center justify-between px-space-sm font-meta-mono text-meta-mono text-text-secondary select-none"><div class="flex items-center gap-space-md"><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-primary">alt_route</span><span class="">main*</span></div><div class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-error">cancel</span><span class="">0</span><span class="material-symbols-outlined text-[13px] text-[#F59E0B]">warning</span><span class="">2</span></div><div class="flex items-center gap-1 text-agent-cyan hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] animate-pulse">bolt</span><span class="">Codeen Agent: Idle</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-surface-elevated text-on-surface-variant hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] text-[#F97316]">local_fire_department</span><span class="font-code-sm text-code-sm text-primary">14.2k</span><span class="text-text-muted">($0.04)</span></div><div class="hover:text-on-surface cursor-pointer">Ln 42, Col 18</div><div class="hover:text-on-surface cursor-pointer">Spaces: 2</div><div class="hover:text-on-surface cursor-pointer">UTF-8</div><div class="hover:text-on-surface cursor-pointer">TypeScript JSX</div><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px]">notifications</span></div></div></footer>
+</body></html>

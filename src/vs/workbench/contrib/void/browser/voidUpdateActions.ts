@@ -21,7 +21,7 @@ import { IAction } from '../../../../base/common/actions.js';
 
 
 const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifService: INotificationService, updateService: IUpdateService): INotificationHandle => {
-	const message = res?.message || 'This is a very old version of Void, please download the latest version! [Void Editor](https://voideditor.com/download-beta)!'
+	const message = res?.message || 'This is a very old version of Codeen, please download the latest version! [Codeen Editor](https://voideditor.com/download-beta)!'
 
 	let actions: INotificationActions | undefined
 
@@ -127,7 +127,7 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 	// })
 }
 const notifyErrChecking = (notifService: INotificationService): INotificationHandle => {
-	const message = `Void Error: There was an error checking for updates. If this persists, please get in touch or reinstall Void [here](https://voideditor.com/download-beta)!`
+	const message = `Codeen Error: There was an error checking for updates. If this persists, please get in touch or reinstall Codeen [here](https://voideditor.com/download-beta)!`
 	const notifController = notifService.notify({
 		severity: Severity.Info,
 		message: message,
@@ -177,7 +177,7 @@ registerAction2(class extends Action2 {
 		super({
 			f1: true,
 			id: 'void.voidCheckUpdate',
-			title: localize2('voidCheckUpdate', 'Void: Check for Updates'),
+			title: localize2('voidCheckUpdate', 'Codeen: Check for Updates'),
 		});
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {

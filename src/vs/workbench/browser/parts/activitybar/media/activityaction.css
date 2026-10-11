@@ -165,7 +165,7 @@
 	height: 16px;
 	line-height: 16px;
 	padding: 0 4px;
-	border-radius: 20px;
+	border-radius: 2px;
 	text-align: center;
 }
 
@@ -177,7 +177,7 @@
 	top: 24px;
 	right: 6px;
 	padding: 2px 3px;
-	border-radius: 7px;
+	border-radius: 2px;
 	background-color: var(--vscode-profileBadge-background);
 	color: var(--vscode-profileBadge-foreground);
 	border: 2px solid var(--vscode-activityBar-background);

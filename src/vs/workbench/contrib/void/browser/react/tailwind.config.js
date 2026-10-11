@@ -74,6 +74,37 @@ module.exports = {
 				'void-ring-color': 'var(--void-ring-color)',
 				'void-link-color': 'var(--void-link-color)',
 
+				/* Codeen Obsidian Precision Design Tokens */
+				'surface-base': 'var(--codeen-surface-base)',
+				'surface-panel': 'var(--codeen-surface-panel)',
+				'surface-elevated': 'var(--codeen-surface-elevated)',
+				'surface-hover': 'var(--codeen-surface-hover)',
+				'surface-container-high': 'var(--codeen-surface-container-high)',
+				'surface-container-lowest': 'var(--codeen-surface-container-lowest)',
+
+				'border-subtle': 'var(--codeen-border-subtle)',
+				'border-hairline': 'var(--codeen-border-hairline)',
+				'border-active': 'var(--codeen-border-active)',
+
+				'primary': 'var(--codeen-primary)',
+				'primary-hover': 'var(--codeen-primary-hover)',
+				'primary-container': 'var(--codeen-primary-container)',
+				'on-primary': 'var(--codeen-on-primary)',
+
+				'agent-cyan': 'var(--codeen-agent-cyan)',
+				'agent-cyan-container': 'var(--codeen-agent-cyan-container)',
+				'agent-indigo': 'var(--codeen-agent-indigo)',
+				'agent-indigo-container': 'var(--codeen-agent-indigo-container)',
+
+				'diff-addition': 'var(--codeen-diff-addition)',
+				'diff-addition-surface': 'var(--codeen-diff-addition-surface)',
+				'diff-deletion': 'var(--codeen-diff-deletion)',
+				'diff-deletion-surface': 'var(--codeen-diff-deletion-surface)',
+
+				'text-primary': 'var(--codeen-text-primary)',
+				'text-secondary': 'var(--codeen-text-secondary)',
+				'text-muted': 'var(--codeen-text-muted)',
+
 				vscode: {
 					// see: https://code.visualstudio.com/api/extension-guides/webview#theming-webview-content
 

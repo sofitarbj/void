@@ -12,9 +12,7 @@ import {
 
 import * as nls from '../../../../nls.js';
 
-// import { Codicon } from '../../../../base/common/codicons.js';
-// import { localize } from '../../../../nls.js';
-// import { registerIcon } from '../../../../platform/theme/common/iconRegistry.js';
+import { registerIcon } from '../../../../platform/theme/common/iconRegistry.js';
 import { ViewPaneContainer } from '../../../browser/parts/views/viewPaneContainer.js';
 
 import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
@@ -97,8 +95,7 @@ class SidebarViewPane extends ViewPane {
 
 // ---------- Register viewpane inside the void container ----------
 
-// const voidThemeIcon = Codicon.symbolObject;
-// const voidViewIcon = registerIcon('void-view-icon', voidThemeIcon, localize('voidViewIcon', 'View icon of the Void chat view.'));
+const codeenViewIcon = registerIcon('codeen-view-icon', Codicon.sparkle, nls.localize('codeenViewIcon', 'View icon of the Codeen chat view.'));
 
 // called VIEWLET_ID in other places for some reason
 export const VOID_VIEW_CONTAINER_ID = 'workbench.view.void'
@@ -117,7 +114,7 @@ const container = viewContainerRegistry.registerViewContainer({
 	order: 1,
 
 	rejectAddedViews: true,
-	icon: Codicon.symbolMethod,
+	icon: codeenViewIcon,
 
 
 }, ViewContainerLocation.AuxiliaryBar, { doNotRegisterOpenCommand: true, isDefault: true });
@@ -154,7 +151,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: VOID_OPEN_SIDEBAR_ACTION_ID,
-			title: 'Open Void Sidebar',
+			title: 'Codeen: Open Sidebar',
 		})
 	}
 	run(accessor: ServicesAccessor): void {

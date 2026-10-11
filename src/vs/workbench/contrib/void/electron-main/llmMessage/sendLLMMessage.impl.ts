@@ -29,6 +29,29 @@ const getGoogleApiKey = async () => {
 	return key
 }
 
+const convertMessagesToOpenAIFormat = (messages: LLMChatMessage[]): any[] => {
+	return messages.map(msg => {
+		// Type narrowing: check if message has images (OpenAI format only)
+		if (msg.role === 'user' && 'images' in msg && msg.images && msg.images.length > 0) {
+			// Ensure content is a string for user messages with images
+			const textContent = typeof msg.content === 'string' ? msg.content : ''
+			const contentParts: any[] = [
+				{ type: 'text', text: textContent }
+			]
+			for (const img of msg.images) {
+				contentParts.push({
+					type: 'image_url',
+					image_url: {
+						url: `data:${img.mimeType};base64,${img.base64}`
+					}
+				})
+			}
+			return { role: msg.role, content: contentParts }
+		}
+		return msg
+	})
+}
+
 
 
 
@@ -243,7 +266,7 @@ const openAITools = (chatMode: ChatMode | null, mcpTools: InternalToolInfo[] | u
 
 
 // convert LLM tool call to our tool format
-const rawToolCallObjOfParamsStr = (name: string, toolParamsStr: string, id: string): RawToolCallObj | null => {
+const rawToolCallObjOfParamsStr = (name: string, toolParamsStr: string, id: string, thoughtSignature?: string): RawToolCallObj | null => {
 	let input: unknown
 	try { input = JSON.parse(toolParamsStr) }
 	catch (e) { return null }
@@ -252,7 +275,7 @@ const rawToolCallObjOfParamsStr = (name: string, toolParamsStr: string, id: stri
 	if (typeof input !== 'object') return null
 
 	const rawParams: RawToolParamsObj = input
-	return { id, name, rawParams, doneParams: Object.keys(rawParams), isDone: true }
+	return { id, name, rawParams, doneParams: Object.keys(rawParams), isDone: true, thoughtSignature }
 }
 
 
@@ -301,9 +324,10 @@ const _sendOpenAICompatibleChat = async ({ messages, onText, onFinalMessage, onE
 		// Required to select the model
 		(openai as AzureOpenAI).deploymentName = modelName;
 	}
+	const convertedMessages = convertMessagesToOpenAIFormat(messages)
 	const options: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
 		model: modelName,
-		messages: messages as any,
+		messages: convertedMessages as any,
 		stream: true,
 		...nativeToolsObj,
 		...additionalOpenAIPayload
@@ -776,6 +800,7 @@ const sendGeminiChat = async ({
 	let toolName = ''
 	let toolParamsStr = ''
 	let toolId = ''
+	let thoughtSignature: string | undefined = undefined
 
 
 	genAI.models.generateContentStream({
@@ -796,13 +821,39 @@ const sendGeminiChat = async ({
 				const newText = chunk.text ?? ''
 				fullTextSoFar += newText
 
-				// tool call
+				// tool call & thought signature
+				if (chunk.candidates && chunk.candidates.length > 0) {
+					for (const candidate of chunk.candidates) {
+						const candAny = candidate as any
+						if (candAny.thought_signature || candAny.thoughtSignature) {
+							thoughtSignature = candAny.thought_signature || candAny.thoughtSignature
+						}
+						if (candidate?.content?.parts) {
+							for (const part of candidate.content.parts) {
+								const partAny = part as any
+								const sig = partAny.thought_signature
+									|| partAny.thoughtSignature
+									|| partAny.functionCall?.thought_signature
+									|| partAny.functionCall?.thoughtSignature
+								if (sig && typeof sig === 'string') {
+									thoughtSignature = sig
+								}
+							}
+						}
+					}
+				}
+
 				const functionCalls = chunk.functionCalls
 				if (functionCalls && functionCalls.length > 0) {
 					const functionCall = functionCalls[0] // Get the first function call
 					toolName = functionCall.name ?? ''
 					toolParamsStr = JSON.stringify(functionCall.args ?? {})
 					toolId = functionCall.id ?? ''
+					const fcAny = functionCall as any
+					const sig = fcAny.thought_signature || fcAny.thoughtSignature
+					if (sig && typeof sig === 'string') {
+						thoughtSignature = sig
+					}
 				}
 
 				// (do not handle reasoning yet)
@@ -811,7 +862,7 @@ const sendGeminiChat = async ({
 				onText({
 					fullText: fullTextSoFar,
 					fullReasoning: fullReasoningSoFar,
-					toolCall: !toolName ? undefined : { name: toolName, rawParams: {}, isDone: false, doneParams: [], id: toolId },
+					toolCall: !toolName ? undefined : { name: toolName, rawParams: {}, isDone: false, doneParams: [], id: toolId, thoughtSignature },
 				})
 			}
 
@@ -820,7 +871,7 @@ const sendGeminiChat = async ({
 				onError({ message: 'Void: Response from model was empty.', fullError: null })
 			} else {
 				if (!toolId) toolId = generateUuid() // ids are empty, but other providers might expect an id
-				const toolCall = rawToolCallObjOfParamsStr(toolName, toolParamsStr, toolId)
+				const toolCall = rawToolCallObjOfParamsStr(toolName, toolParamsStr, toolId, thoughtSignature)
 				const toolCallObj = toolCall ? { toolCall } : {}
 				onFinalMessage({ fullText: fullTextSoFar, fullReasoning: fullReasoningSoFar, anthropicReasoning: null, ...toolCallObj });
 			}
@@ -915,6 +966,16 @@ export const sendLLMMessageToProviderImplementation = {
 		// lmStudio has no suffix parameter in /completions, so sendFIM might not work
 		sendChat: (params) => _sendOpenAICompatibleChat(params),
 		sendFIM: (params) => _sendOpenAICompatibleFIM(params),
+		list: (params) => _openaiCompatibleList(params),
+	},
+	mlx: {
+		sendChat: (params) => _sendOpenAICompatibleChat(params),
+		sendFIM: (params) => _sendOpenAICompatibleFIM(params),
+		list: (params) => _openaiCompatibleList(params),
+	},
+	appleFoundationModels: {
+		sendChat: (params) => _sendOpenAICompatibleChat(params),
+		sendFIM: null,
 		list: (params) => _openaiCompatibleList(params),
 	},
 	liteLLM: {

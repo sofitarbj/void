@@ -23,6 +23,8 @@ import { OpenFileFolderAction, OpenFolderAction } from '../../actions/workspaceA
 import { IWindowOpenable } from '../../../../platform/window/common/window.js';
 import { splitRecentLabel } from '../../../../base/common/labels.js';
 import { IViewsService } from '../../../services/views/common/viewsService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { mountEmptyEditorHome } from '../../../contrib/void/browser/react/out/empty-editor-home-tsx/index.js';
 
 /* eslint-disable */ // Void
 import { VOID_CTRL_K_ACTION_ID, VOID_CTRL_L_ACTION_ID } from '../../../contrib/void/browser/actionIDs.js';
@@ -88,6 +90,11 @@ export class EditorGroupWatermark extends Disposable {
 	private workbenchState: WorkbenchState;
 	private currentDisposables = new Set<IDisposable>();
 
+	/** Codeen empty editor home screen container and React mount handle */
+	private readonly homeContainer: HTMLElement;
+	private readonly rootElement: HTMLElement;
+	private homeMount: { rerender: () => void, dispose: () => void } | null = null;
+
 	constructor(
 		container: HTMLElement,
 		@IKeybindingService private readonly keybindingService: IKeybindingService,
@@ -100,16 +107,20 @@ export class EditorGroupWatermark extends Disposable {
 		@IHostService private readonly hostService: IHostService,
 		@ILabelService private readonly labelService: ILabelService,
 		@IViewsService private readonly viewsService: IViewsService,
+		@IInstantiationService private readonly instantiationService: IInstantiationService,
 	) {
 		super();
 
 		const elements = h('.editor-group-watermark', [
 			h('.letterpress@icon'),
 			h('.shortcuts@shortcuts'),
+			h('.codeen-empty-editor-home@home'),
 		]);
 
 		append(container, elements.root);
+		this.rootElement = elements.root;
 		this.shortcuts = elements.shortcuts; // shortcuts div is modified on render()
+		this.homeContainer = elements.home;
 
 		// void icon style
 		const updateTheme = () => {
@@ -166,6 +177,8 @@ export class EditorGroupWatermark extends Disposable {
 		recentsBox.style.display = 'flex'
 		recentsBox.style.flex = 'row'
 		recentsBox.style.justifyContent = 'center'
+
+		this.renderHome();
 
 
 		const update = async () => {
@@ -329,6 +342,49 @@ export class EditorGroupWatermark extends Disposable {
 		this.transientDisposables.add(this.keybindingService.onDidUpdateKeybindings(update));
 	}
 
+	/**
+	 * The Codeen home screen is a React tree mounted when a workspace is open.
+	 */
+	private renderHome(): void {
+		const showHome = true;
+
+		if (!showHome) {
+			this.unmountHome();
+			return;
+		}
+
+		this.homeContainer.classList.add('codeen-home-visible');
+		this.rootElement.classList.add('codeen-home-active');
+
+		if (this.homeMount) {
+			this.homeMount.rerender();
+			return;
+		}
+
+		this.instantiationService.invokeFunction(accessor => {
+			this.homeMount = mountEmptyEditorHome(this.homeContainer, accessor);
+		});
+	}
+
+	private unmountHome(): void {
+		if (!this.homeMount && !this.homeContainer.classList.contains('codeen-home-visible')) {
+			return;
+		}
+
+		this.homeContainer.classList.remove('codeen-home-visible');
+		this.rootElement.classList.remove('codeen-home-active');
+
+		if (this.homeMount) {
+			try {
+				this.homeMount.dispose();
+			} catch (e) {
+				console.error('Error unmounting the Codeen home screen:', e);
+			}
+			this.homeMount = null;
+		}
+		clearNode(this.homeContainer);
+	}
+
 	private clear(): void {
 		clearNode(this.shortcuts);
 		this.transientDisposables.clear();
@@ -336,6 +392,7 @@ export class EditorGroupWatermark extends Disposable {
 
 	override dispose(): void {
 		super.dispose();
+		this.unmountHome();
 		this.clear();
 		this.currentDisposables.forEach(label => label.dispose());
 	}

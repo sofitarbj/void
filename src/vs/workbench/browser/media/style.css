@@ -7,30 +7,47 @@
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* Codeen Local Typography System (Offline-Ready) */
+@font-face {
+	font-family: 'Outfit';
+	src: url('./fonts/outfit.woff2') format('woff2');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'JetBrains Mono';
+	src: url('./fonts/jetbrains-mono.woff2') format('woff2');
+	font-weight: 100 800;
+	font-style: normal;
+	font-display: swap;
+}
+
 /* Font Families (with CJK support) */
 
-.monaco-workbench.mac { font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-.monaco-workbench.mac:lang(zh-Hans) { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif; }
-.monaco-workbench.mac:lang(zh-Hant) { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", sans-serif; }
-.monaco-workbench.mac:lang(ja) { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic Pro", sans-serif; }
-.monaco-workbench.mac:lang(ko) { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Nanum Gothic", "AppleGothic", sans-serif; }
+.monaco-workbench.mac { font-family: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif; }
+.monaco-workbench.mac:lang(zh-Hans) { font-family: "Outfit", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif; }
+.monaco-workbench.mac:lang(zh-Hant) { font-family: "Outfit", -apple-system, BlinkMacSystemFont, "PingFang TC", sans-serif; }
+.monaco-workbench.mac:lang(ja) { font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic Pro", sans-serif; }
+.monaco-workbench.mac:lang(ko) { font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Nanum Gothic", "AppleGothic", sans-serif; }
 
-.monaco-workbench.windows { font-family: "Segoe WPC", "Segoe UI", sans-serif; }
-.monaco-workbench.windows:lang(zh-Hans) { font-family: "Segoe WPC", "Segoe UI", "Microsoft YaHei", sans-serif; }
-.monaco-workbench.windows:lang(zh-Hant) { font-family: "Segoe WPC", "Segoe UI", "Microsoft Jhenghei", sans-serif; }
-.monaco-workbench.windows:lang(ja) { font-family: "Segoe WPC", "Segoe UI", "Yu Gothic UI", "Meiryo UI", sans-serif; }
-.monaco-workbench.windows:lang(ko) { font-family: "Segoe WPC", "Segoe UI", "Malgun Gothic", "Dotom", sans-serif; }
+.monaco-workbench.windows { font-family: "Outfit", "Segoe WPC", "Segoe UI", sans-serif; }
+.monaco-workbench.windows:lang(zh-Hans) { font-family: "Outfit", "Segoe WPC", "Segoe UI", "Microsoft YaHei", sans-serif; }
+.monaco-workbench.windows:lang(zh-Hant) { font-family: "Outfit", "Segoe WPC", "Segoe UI", "Microsoft Jhenghei", sans-serif; }
+.monaco-workbench.windows:lang(ja) { font-family: "Outfit", "Segoe WPC", "Segoe UI", "Yu Gothic UI", "Meiryo UI", sans-serif; }
+.monaco-workbench.windows:lang(ko) { font-family: "Outfit", "Segoe WPC", "Segoe UI", "Malgun Gothic", "Dotom", sans-serif; }
 
 /* Linux: add `system-ui` as first font and not `Ubuntu` to allow other distribution pick their standard OS font */
-.monaco-workbench.linux { font-family: system-ui, "Ubuntu", "Droid Sans", sans-serif; }
-.monaco-workbench.linux:lang(zh-Hans) { font-family: system-ui, "Ubuntu", "Droid Sans", "Source Han Sans SC", "Source Han Sans CN", "Source Han Sans", sans-serif; }
-.monaco-workbench.linux:lang(zh-Hant) { font-family: system-ui, "Ubuntu", "Droid Sans", "Source Han Sans TC", "Source Han Sans TW", "Source Han Sans", sans-serif; }
-.monaco-workbench.linux:lang(ja) { font-family: system-ui, "Ubuntu", "Droid Sans", "Source Han Sans J", "Source Han Sans JP", "Source Han Sans", sans-serif; }
-.monaco-workbench.linux:lang(ko) { font-family: system-ui, "Ubuntu", "Droid Sans", "Source Han Sans K", "Source Han Sans JR", "Source Han Sans", "UnDotum", "FBaekmuk Gulim", sans-serif; }
+.monaco-workbench.linux { font-family: "Outfit", system-ui, "Ubuntu", "Droid Sans", sans-serif; }
+.monaco-workbench.linux:lang(zh-Hans) { font-family: "Outfit", system-ui, "Ubuntu", "Droid Sans", "Source Han Sans SC", "Source Han Sans CN", "Source Han Sans", sans-serif; }
+.monaco-workbench.linux:lang(zh-Hant) { font-family: "Outfit", system-ui, "Ubuntu", "Droid Sans", "Source Han Sans TC", "Source Han Sans TW", "Source Han Sans", sans-serif; }
+.monaco-workbench.linux:lang(ja) { font-family: "Outfit", system-ui, "Ubuntu", "Droid Sans", "Source Han Sans J", "Source Han Sans JP", "Source Han Sans", sans-serif; }
+.monaco-workbench.linux:lang(ko) { font-family: "Outfit", system-ui, "Ubuntu", "Droid Sans", "Source Han Sans K", "Source Han Sans JR", "Source Han Sans", "UnDotum", "FBaekmuk Gulim", sans-serif; }
 
-.monaco-workbench.mac { --monaco-monospace-font: "SF Mono", Monaco, Menlo, Courier, monospace; }
-.monaco-workbench.windows { --monaco-monospace-font: Consolas, "Courier New", monospace; }
-.monaco-workbench.linux { --monaco-monospace-font: "Ubuntu Mono", "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace; }
+.monaco-workbench.mac { --monaco-monospace-font: "JetBrains Mono", "SF Mono", Monaco, Menlo, Courier, monospace; }
+.monaco-workbench.windows { --monaco-monospace-font: "JetBrains Mono", Consolas, "Courier New", monospace; }
+.monaco-workbench.linux { --monaco-monospace-font: "JetBrains Mono", "Ubuntu Mono", "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace; }
 
 /* Global Styles */
 
@@ -318,3 +335,361 @@ body {
 	outline: 1px dashed var(--vscode-toolbar-hoverOutline);
 	outline-offset: -1px;
 }
+
+/*---------------------------------------------------------------------------------------------
+ *  Codeen IDE - Obsidian Precision Design System Overrides
+ *--------------------------------------------------------------------------------------------*/
+
+/* 1. Base Typography & Global Sharp Radii */
+.monaco-workbench,
+.monaco-workbench .part.titlebar,
+.monaco-workbench .part.statusbar,
+.monaco-workbench .part.activitybar {
+	font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Force crisp sharp corners (rounded-sm = 2px) across all interactive workbench elements */
+.monaco-workbench .monaco-button,
+.monaco-workbench .monaco-text-button,
+.monaco-workbench .monaco-inputbox,
+.monaco-workbench .monaco-dropdown,
+.monaco-workbench .monaco-custom-checkbox,
+.monaco-workbench .badge,
+.monaco-workbench .monaco-count-badge {
+	border-radius: 2px !important;
+}
+
+/* 2. Titlebar & Command Center */
+.monaco-workbench .part.titlebar {
+	background-color: #12151B !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center {
+	background-color: #1A1E26 !important;
+	border: 1px solid rgba(255, 255, 255, 0.08) !important;
+	border-radius: 2px !important;
+	transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+	height: 24px !important;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center:hover,
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center:focus,
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center.active {
+	background-color: #202632 !important;
+	border-color: #00DC82 !important;
+	box-shadow: 0 0 0 1px rgba(0, 220, 130, 0.25) !important;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center .search-icon {
+	color: #9CA3AF !important;
+	transition: color 0.15s ease;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center:hover .search-icon {
+	color: #00DC82 !important;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center .search-label {
+	color: #D1D5DB !important;
+	font-size: 12px !important;
+}
+
+/* Layout control buttons in Titlebar */
+.monaco-workbench .part.titlebar .monaco-toolbar .action-item .action-label {
+	border-radius: 2px !important;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.monaco-workbench .part.titlebar .monaco-toolbar .action-item .action-label:hover {
+	background-color: #222732 !important;
+	color: #F3F4F6 !important;
+}
+
+/* 3. Activity Bar */
+.monaco-workbench .part.activitybar {
+	background-color: #12151B !important;
+	border-right: 1px solid #20242D !important;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item.checked {
+	background-color: #1A1E26 !important;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item.checked .active-item-indicator:before {
+	border-left: 2px solid #00DC82 !important;
+	border-color: #00DC82 !important;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item.checked .action-label.codicon {
+	color: #00DC82 !important;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item:hover:not(.checked) {
+	background-color: #222732 !important;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item:hover .action-label.codicon {
+	color: #F3F4F6 !important;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .badge .badge-content {
+	border-radius: 2px !important;
+	background-color: #00DC82 !important;
+	color: #0B0D11 !important;
+	font-weight: 700 !important;
+	letter-spacing: 0.02em !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 4. Status Bar */
+.monaco-workbench .part.statusbar {
+	background-color: #12151B !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+	font-family: 'JetBrains Mono', monospace !important;
+	font-size: 11.5px !important;
+}
+
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item:hover {
+	background-color: #222732 !important;
+}
+
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item a:hover {
+	color: #00DC82 !important;
+}
+
+.monaco-workbench .part.statusbar .statusbar-item.has-background-color {
+	border-radius: 2px !important;
+}
+
+/* 5. Command Palette & Quick Input (Ctrl+P / ⌘K) */
+.monaco-workbench .quick-input-widget {
+	border-radius: 2px !important;
+	background-color: #1A1E26 !important;
+	border: 1px solid #20242D !important;
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 220, 130, 0.2) !important;
+	overflow: hidden !important;
+}
+
+.monaco-workbench .quick-input-titlebar {
+	border-radius: 2px 2px 0 0 !important;
+	background-color: #12151B !important;
+	border-bottom: 1px solid #20242D !important;
+}
+
+.monaco-workbench .quick-input-box .monaco-inputbox {
+	border-radius: 2px !important;
+	background-color: #12151B !important;
+	border: 1px solid rgba(255, 255, 255, 0.08) !important;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.monaco-workbench .quick-input-box .monaco-inputbox.synthetic-focus,
+.monaco-workbench .quick-input-box .monaco-inputbox input:focus {
+	border-color: #00DC82 !important;
+	box-shadow: 0 0 0 1px #00DC82, 0 0 8px rgba(0, 220, 130, 0.25) !important;
+	outline: none !important;
+}
+
+.monaco-workbench .quick-input-list .monaco-list-row.focused {
+	border-radius: 2px !important;
+	background-color: rgba(0, 220, 130, 0.12) !important;
+	color: #FFFFFF !important;
+}
+
+.monaco-workbench .quick-input-count .monaco-count-badge {
+	border-radius: 2px !important;
+	background-color: rgba(0, 220, 130, 0.2) !important;
+	color: #00DC82 !important;
+	font-weight: 600 !important;
+}
+
+/* 6. Notifications & Toasts */
+.monaco-workbench > .notifications-toasts .notification-toast,
+.monaco-workbench > .notifications-center {
+	border-radius: 2px !important;
+	background-color: #1A1E26 !important;
+	border: 1px solid #20242D !important;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+.monaco-workbench > .notifications-toasts .notification-toast .monaco-button,
+.monaco-workbench > .notifications-center .monaco-button {
+	border-radius: 2px !important;
+}
+
+/* 7. Dialogs */
+.monaco-workbench .monaco-dialog-box {
+	border-radius: 2px !important;
+	background-color: #12151B !important;
+	border: 1px solid #20242D !important;
+	box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 220, 130, 0.2) !important;
+}
+
+.monaco-workbench .monaco-dialog-box .monaco-button {
+	border-radius: 2px !important;
+}
+
+/* 8. Global Workbench Buttons & Interactive Controls (Eliminates VS Code Blue) */
+.monaco-workbench .monaco-button,
+.monaco-workbench .monaco-button.monaco-text-button {
+	background-color: #00DC82 !important;
+	color: #0B0D11 !important;
+	border-radius: 2px !important;
+	font-weight: 600 !important;
+	transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.monaco-workbench .monaco-button:hover,
+.monaco-workbench .monaco-button.monaco-text-button:hover {
+	background-color: #00f08f !important;
+	color: #0B0D11 !important;
+}
+
+.monaco-workbench .monaco-button.secondary,
+.monaco-workbench .monaco-button.monaco-text-button.secondary {
+	background-color: #1A1E26 !important;
+	color: #D1D5DB !important;
+	border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.monaco-workbench .monaco-button.secondary:hover,
+.monaco-workbench .monaco-button.monaco-text-button.secondary:hover {
+	background-color: #222732 !important;
+	color: #FFFFFF !important;
+}
+
+/* "NO FOLDER OPENED" Explorer view buttons */
+.monaco-workbench .explorer-viewlet .welcome-view-content .monaco-button:first-of-type,
+.monaco-workbench .part.sidebar .welcome-view-content .monaco-button:first-of-type {
+	background-color: #00DC82 !important;
+	color: #0B0D11 !important;
+}
+
+.monaco-workbench .explorer-viewlet .welcome-view-content .monaco-button:nth-of-type(2),
+.monaco-workbench .part.sidebar .welcome-view-content .monaco-button:nth-of-type(2) {
+	background-color: #1A1E26 !important;
+	color: #D1D5DB !important;
+	border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.monaco-workbench .explorer-viewlet .welcome-view-content .monaco-button:nth-of-type(2):hover,
+.monaco-workbench .part.sidebar .welcome-view-content .monaco-button:nth-of-type(2):hover {
+	background-color: #222732 !important;
+	color: #FFFFFF !important;
+}
+
+/* 9. Text Links Only (Replaces VS Code Blue for hyperlinks) */
+.monaco-workbench .monaco-link,
+.monaco-workbench p a,
+.monaco-workbench .welcome-view-content a {
+	color: #00DC82 !important;
+	text-decoration: none !important;
+}
+
+.monaco-workbench .monaco-link:hover,
+.monaco-workbench p a:hover,
+.monaco-workbench .welcome-view-content a:hover {
+	color: #00f08f !important;
+	text-decoration: underline !important;
+}
+
+/* Ensure Explorer file labels and Menus retain clean default text colors */
+.monaco-workbench .monaco-list-row .monaco-icon-label,
+.monaco-workbench .monaco-list-row .monaco-icon-label .label-name {
+	color: #CCCCCC !important;
+}
+
+.monaco-workbench .monaco-menu .action-label {
+	color: #CCCCCC !important;
+}
+
+.monaco-workbench .monaco-menu .action-item.focused .action-label,
+.monaco-workbench .monaco-menu .action-item:hover .action-label {
+	color: #FFFFFF !important;
+}
+
+/* Status Bar: clean subdued gray foreground */
+.monaco-workbench .part.statusbar,
+.monaco-workbench .part.statusbar a,
+.monaco-workbench .part.statusbar .statusbar-item {
+	color: #9CA3AF !important;
+}
+
+.monaco-workbench .part.statusbar a:hover,
+.monaco-workbench .part.statusbar .statusbar-item:hover {
+	color: #F3F4F6 !important;
+}
+
+/* 10. Settings Editor (Search settings & Patterns) */
+.monaco-workbench .settings-editor .settings-header .settings-search-input .monaco-inputbox,
+.monaco-workbench .settings-editor .suggest-input-container .suggest-input {
+	border-radius: 2px !important;
+	border: 1px solid rgba(255, 255, 255, 0.08) !important;
+	background-color: #12151B !important;
+}
+
+.monaco-workbench .settings-editor .settings-header .settings-search-input .monaco-inputbox.synthetic-focus,
+.monaco-workbench .settings-editor .settings-header .settings-search-input input:focus,
+.monaco-workbench .settings-editor .suggest-input-container .suggest-input:focus,
+.monaco-workbench .settings-editor .monaco-inputbox.synthetic-focus {
+	border-color: #00DC82 !important;
+	outline-color: #00DC82 !important;
+	box-shadow: 0 0 0 1px #00DC82, 0 0 8px rgba(0, 220, 130, 0.2) !important;
+	outline: none !important;
+}
+
+.monaco-workbench .settings-editor .setting-item-control .monaco-button,
+.monaco-workbench .settings-editor .monaco-list-row .monaco-button {
+	background-color: #1A1E26 !important;
+	color: #00DC82 !important;
+	border: 1px solid rgba(0, 220, 130, 0.3) !important;
+}
+
+.monaco-workbench .settings-editor .setting-item-control .monaco-button:hover,
+.monaco-workbench .settings-editor .monaco-list-row .monaco-button:hover {
+	background-color: #222732 !important;
+	border-color: #00DC82 !important;
+	color: #00f08f !important;
+}
+
+/* Checkbox and toggle in Settings */
+.monaco-workbench .monaco-custom-checkbox.checked {
+	background-color: #00DC82 !important;
+	color: #0B0D11 !important;
+	border-color: #00DC82 !important;
+}
+
+/* 11. Activity Bar Icons Refinement */
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-label.codicon {
+	color: #9CA3AF !important;
+	transition: color 0.15s ease;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item.active .action-label.codicon,
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item.checked .action-label.codicon {
+	color: #00DC82 !important;
+}
+
+.monaco-workbench .activitybar > .content :not(.monaco-menu) > .monaco-action-bar .action-item:hover .action-label.codicon {
+	color: #F3F4F6 !important;
+}
+
+/* 12. Title Bar & Command Center Refinement */
+.monaco-workbench .part.titlebar {
+	border-bottom: 1px solid #20242D !important;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center {
+	border: 1px solid #20242D !important;
+	border-radius: 2px !important;
+	background-color: #12151B !important;
+	transition: border-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title > .command-center .action-item.command-center-center:hover {
+	border-color: #00DC82 !important;
+	background-color: #161922 !important;
+}
+
+

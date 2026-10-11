@@ -1,0 +1,479 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary-fixed": "#001f28", "on-tertiary-container": "#0042c1", "outline": "#859587", "text-muted": "#6B7280", "diff-addition": "#10B981", "primary": "#45f99c", "agent-indigo": "#2563FF", "border-hairline": "rgba(255, 255, 255, 0.08)", "tertiary": "#d4dbff", "primary-fixed-dim": "#1ce388", "on-primary-fixed-variant": "#00522d", "primary-fixed": "#59ffa4", "background": "#111317", "surface-panel": "#12151B", "surface-base": "#0B0D11", "on-background": "#e2e2e8", "surface-dim": "#111317", "tertiary-fixed-dim": "#b6c4ff", "surface-container-low": "#1a1c20", "inverse-on-surface": "#2f3035", "on-primary-fixed": "#00210f", "on-tertiary-fixed": "#00164f", "error-container": "#93000a", "primary-container": "#00dc82", "on-primary": "#00391d", "on-secondary-container": "#00566b", "tertiary-fixed": "#dce1ff", "secondary-fixed": "#b7eaff", "surface-elevated": "#1A1E26", "on-surface-variant": "#bacbbc", "on-surface": "#e2e2e8", "secondary-fixed-dim": "#4cd6ff", "surface-container-lowest": "#0c0e12", "surface-bright": "#37393e", "outline-variant": "#3c4a3f", "text-primary": "#F3F4F6", "text-secondary": "#9CA3AF", "on-error-container": "#ffdad6", "agent-cyan": "#00D1FF", "surface": "#111317", "surface-container-highest": "#333539", "on-tertiary-fixed-variant": "#003baf", "surface-tint": "#1ce388", "surface-variant": "#333539", "border-subtle": "#242933", "secondary": "#a6e6ff", "surface-hover": "#222732", "on-tertiary": "#00287d", "surface-container-high": "#282a2e", "border-active": "#00DC82", "tertiary-container": "#adbeff", "secondary-container": "#14d1ff", "on-secondary-fixed-variant": "#004e60", "error": "#ffb4ab", "inverse-primary": "#006d3e", "diff-deletion": "#EF4444", "diff-deletion-surface": "rgba(239, 68, 68, 0.12)", "on-secondary": "#003543", "on-primary-container": "#005b32", "surface-container": "#1e2024", "diff-addition-surface": "rgba(16, 185, 129, 0.12)", "inverse-surface": "#e2e2e8", "on-error": "#690005" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "0.75rem", "space-xl": "1.5rem", "space-xs": "0.25rem", "gutter": "0.75rem", "margin": "1rem", "space-lg": "1rem", "space-sm": "0.5rem" }, "fontFamily": { "headline-sm": ["Outfit"], "meta-mono": ["JetBrains Mono"], "code-base": ["JetBrains Mono"], "body-lg": ["Outfit"], "headline-md": ["Outfit"], "body-sm": ["Outfit"], "display-hero-mobile": ["Outfit"], "code-sm": ["JetBrains Mono"], "body-md": ["Outfit"], "label-caps": ["Outfit"], "display-hero": ["Outfit"], "headline-lg": ["Outfit"] }, "fontSize": { "headline-sm": ["15px", { "lineHeight": "20px", "letterSpacing": "-0.015em", "fontWeight": "500" }], "meta-mono": ["10.5px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-base": ["13px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "display-hero-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "code-sm": ["11.5px", { "lineHeight": "16px", "fontWeight": "400" }], "body-md": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }], "display-hero": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.04em", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.025em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-base font-body-md text-on-surface select-none overflow-x-hidden min-h-screen"><header class="fixed top-0 left-0 right-0 h-10 bg-surface-panel z-50 flex items-center justify-between px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-space-xs"><div class="w-3 h-3 rounded-full bg-[#EF4444] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#F59E0B] opacity-80 hover:opacity-100 transition-opacity"></div><div class="w-3 h-3 rounded-full bg-[#10B981] opacity-80 hover:opacity-100 transition-opacity"></div></div><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px]">terminal</span><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">Codeen</span><span class="font-meta-mono text-meta-mono text-agent-cyan bg-surface-elevated px-1.5 py-0.5 rounded">AI</span></div></div><div class="flex-1 max-w-xl mx-space-lg"><button class="w-full h-7 bg-surface-elevated hover:bg-surface-hover text-on-surface-variant flex items-center justify-between px-space-sm rounded transition-colors group"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[15px] text-text-muted group-hover:text-primary transition-colors">search</span><span class="font-body-sm text-body-sm text-text-secondary">Search files, symbols, commands</span></div><div class="flex items-center gap-1"><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">Ctrl+P</span><span class="font-meta-mono text-meta-mono bg-surface-panel text-text-muted px-1 py-0.2 rounded">⌘K</span></div></button></div><div class="flex items-center gap-space-xs"><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Left Explorer"><span class="material-symbols-outlined text-[18px]">dock_to_left</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Bottom Terminal"><span class="material-symbols-outlined text-[18px]">dock_to_bottom</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Toggle Right Auxiliary Bar"><span class="material-symbols-outlined text-[18px]">dock_to_right</span></button><div class="h-4 w-px bg-surface-hover mx-space-xs"></div><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Settings"><span class="material-symbols-outlined text-[18px]">settings</span></button><img alt="Profile" class="w-6 h-6 rounded-full object-cover ml-space-xs ring-1 ring-border-hairline" src="https://lh3.googleusercontent.com/aida/AEtjO1UVBwqoT3md1Lo2ZWm04cLjY3MMyI72f7vevOYGaxCOFKIsMMmWsU-KO0oW3hdc8z62P5KUaKYutAPRoBwkPwrClIto9gnNmPTmcn3U3tGumOTsd_3Nvh88sbe1cJ-8mPtP1vSdif7wizIyzeOjjnkQxkzPi00HMorIPBwR0v4DktTR5Bh9scwySQ9qT4dGXwLfk8wdRlcYzOylx4SgVq206CyfPSzGtI9VKKp8TQ6EI6OQXRrjXxzYSbM"></div></header><aside class="fixed left-0 top-10 bottom-6 w-12 bg-surface-panel z-40 flex flex-col justify-between py-space-xs"><nav class="flex flex-col items-center gap-space-xs w-full" data-active-classes="bg-surface-elevated text-primary border-l-2 border-border-active"><a aria-current="page" class="w-full h-10 flex items-center justify-center transition-colors bg-surface-elevated text-primary border-l-2 border-border-active" data-path="workbench" href="#" title="Explorer (⌘⇧E)"><span class="material-symbols-outlined text-[20px]">folder</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="global-search" href="#" title="Search (⌘⇧F)"><span class="material-symbols-outlined text-[20px]">search</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="source-control" href="#" title="Source Control (⌘⇧G)"><span class="material-symbols-outlined text-[20px]">commit</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="run-and-debug" href="#" title="Run &amp; Debug (⌘⇧D)"><span class="material-symbols-outlined text-[20px]">play_circle</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="extensions-marketplace" href="#" title="Extensions (⌘⇧X)"><span class="material-symbols-outlined text-[20px]">extension</span></a><a class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" data-path="agent-hub" href="#" title="AI Agents Hub"><span class="material-symbols-outlined text-[20px]">smart_toy</span></a></nav><div class="flex flex-col items-center gap-space-xs w-full pb-space-xs"><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Accounts"><span class="material-symbols-outlined text-[20px]">account_circle</span></button><button class="w-full h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-hover hover:text-on-surface transition-colors" title="Preferences"><span class="material-symbols-outlined text-[20px]">tune</span></button></div></aside><div class="pl-12"><main class="relative pt-10 pb-6 w-full min-h-[calc(100vh-2.5rem)] bg-surface-base"><div class="flex flex-col w-full">
+<div class="flex flex-row w-full h-[calc(100vh-4rem)] overflow-hidden bg-surface-base">
+<!-- LEFT SIDEBAR: COLLAPSIBLE WORKSPACE EXPLORER -->
+<div class="w-64 flex-shrink-0 bg-surface-panel flex flex-col justify-between select-none">
+<div class="flex flex-col">
+<!-- Explorer Header -->
+<div class="h-9 px-space-md flex items-center justify-between text-text-muted hover:text-on-surface transition-colors cursor-pointer">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">expand_more</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-text-secondary">Explorer</span>
+</div>
+<div class="flex items-center gap-space-xs opacity-60 hover:opacity-100">
+<span class="material-symbols-outlined text-[15px] cursor-pointer hover:text-primary">create_new_folder</span>
+<span class="material-symbols-outlined text-[15px] cursor-pointer hover:text-primary">post_add</span>
+<span class="material-symbols-outlined text-[15px] cursor-pointer hover:text-primary">refresh</span>
+</div>
+</div>
+<!-- Project Tree Header -->
+<div class="px-space-md py-1.5 flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-[14px] text-primary">folder_open</span>
+<span class="font-headline-sm text-headline-sm font-semibold truncate">NO WORKSPACE OPEN</span>
+</div>
+<div class="px-space-md py-4 text-text-muted text-center flex flex-col items-center gap-space-sm">
+<p class="font-body-sm text-body-sm text-text-secondary">You have not yet opened a workspace folder.</p>
+<button class="w-full py-1.5 px-space-sm bg-surface-elevated hover:bg-surface-hover text-primary font-headline-sm text-headline-sm rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+<span class="">Open Folder</span>
+</button>
+</div>
+<!-- Outline / Timeline Collapsed Sections -->
+<div class="mt-4 flex flex-col">
+<div class="h-7 px-space-md flex items-center gap-1.5 text-text-muted hover:text-on-surface cursor-pointer bg-surface-panel">
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-label-caps text-label-caps uppercase text-text-secondary">Outline</span>
+</div>
+<div class="h-7 px-space-md flex items-center gap-1.5 text-text-muted hover:text-on-surface cursor-pointer bg-surface-panel">
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-label-caps text-label-caps uppercase text-text-secondary">Timeline</span>
+</div>
+<div class="h-7 px-space-md flex items-center gap-1.5 text-text-muted hover:text-on-surface cursor-pointer bg-surface-panel">
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-label-caps text-label-caps uppercase text-text-secondary">Active Agents</span>
+<span class="ml-auto w-1.5 h-1.5 rounded-full bg-agent-cyan animate-pulse"></span>
+</div>
+</div>
+</div>
+<!-- Bottom Mini Telemetry -->
+
+</div>
+<!-- MAIN CENTRAL EDITOR GROUP: EMPTY HOME WELCOME CANVAS -->
+<div class="flex-1 flex flex-col min-w-0 bg-surface-base relative overflow-y-auto">
+<!-- Top Buffer Tab Bar (Empty State) -->
+<div class="h-9 w-full bg-surface-panel/60 flex items-center justify-between px-space-md select-none sticky top-0 z-10 backdrop-blur-md">
+<div class="flex items-center gap-2 h-full">
+<div class="h-full flex items-center gap-2 px-space-md bg-surface-base text-primary font-body-sm text-body-sm rounded-t-lg">
+<span class="material-symbols-outlined text-[15px] text-primary">space_dashboard</span>
+<span class="font-medium">Welcome</span>
+<span class="material-symbols-outlined text-[13px] text-text-muted hover:text-on-surface ml-1 cursor-pointer">close</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm text-text-muted">
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Split Editor Right">
+<span class="material-symbols-outlined text-[16px]">vertical_split</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="More Actions">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Hero Visual Canvas / Welcome Stage -->
+<div class="flex-1 flex flex-col items-center justify-center px-space-xl py-space-xl max-w-5xl mx-auto w-full relative">
+<!-- Ambient Radial Glow Accent Behind Logo -->
+<div class="absolute w-[500px] h-[340px] bg-gradient-to-tr from-primary/10 via-agent-cyan/5 to-transparent blur-[120px] rounded-full pointer-events-none -top-12"></div>
+<!-- Big Identity Typography -->
+<div class="flex flex-col items-center text-center relative z-10 select-none">
+<!-- Codeen High-Fidelity Wordmark with Inverted 'e' & Radiant Emerald Accent -->
+<div class="flex items-center justify-center tracking-tight leading-none">
+<span class="font-headline-lg text-[88px] font-bold text-on-surface tracking-tighter">Cod</span>
+<!-- Inverted 'e' Glyphs matching Codeen's custom typography -->
+<span class="font-headline-lg text-[88px] font-bold text-on-surface inline-block transform rotate-180 -translate-y-1">e</span>
+<span class="font-headline-lg text-[88px] font-bold text-on-surface inline-block transform rotate-180 -translate-y-1">e</span>
+<span class="font-headline-lg text-[88px] font-bold text-on-surface tracking-tighter">n</span>
+<!-- Radiant Emerald Slash -->
+<span class="font-headline-lg text-[96px] font-bold text-primary ml-1 -translate-y-1 drop-shadow-[0_0_24px_rgba(0,220,130,0.45)]">/</span>
+</div>
+<!-- Headline Tagline & Description -->
+<div class="mt-space-xs flex flex-col items-center">
+<h1 class="font-headline-lg text-headline-lg font-semibold text-text-primary tracking-tight">
+              Beyond Code Completion
+            </h1>
+<p class="font-body-lg text-body-lg text-text-secondary mt-1 max-w-lg">
+              An Agentic AI IDE for Autonomous Engineering
+            </p>
+</div>
+</div>
+<!-- Command Hub: Two Column Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg w-full mt-10 relative z-10">
+<!-- Column 1: Quick Actions -->
+<div class="bg-surface-elevated/70 backdrop-blur-md rounded-xl p-space-lg flex flex-col gap-space-md shadow-xl transition-all duration-200">
+<div class="flex items-center justify-between pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">bolt</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Quick Actions</span>
+</div>
+<span class="font-meta-mono text-meta-mono text-agent-cyan bg-agent-cyan/10 px-2 py-0.5 rounded-full">v1.99</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<!-- Item: Open Folder -->
+<button class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-hover text-text-primary transition-all group text-left">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-panel flex items-center justify-center text-on-surface-variant group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-medium text-on-surface group-hover:text-primary transition-colors">Open Folder / Workspace</span>
+<span class="font-body-sm text-body-sm text-text-muted truncate">Choose existing directory on your filesystem</span>
+</div>
+</div>
+<div class="flex items-center gap-1 font-meta-mono text-meta-mono text-text-secondary bg-surface-panel px-2 py-1 rounded shadow-sm">
+<span class="">Ctrl</span><span class="">+</span><span class="">O</span>
+</div>
+</button>
+<!-- Item: Clone Git Repo -->
+<button class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-hover text-text-primary transition-all group text-left">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-panel flex items-center justify-center text-on-surface-variant group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]">cloud_download</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-medium text-on-surface group-hover:text-primary transition-colors">Clone Git Repository</span>
+<span class="font-body-sm text-body-sm text-text-muted truncate">Clone from GitHub, GitLab, or remote URL</span>
+</div>
+</div>
+<div class="flex items-center gap-1 font-meta-mono text-meta-mono text-text-secondary bg-surface-panel px-2 py-1 rounded shadow-sm">
+<span class="">Ctrl</span><span class="">+</span><span class="">⇧</span><span class="">+</span><span class="">G</span>
+</div>
+</button>
+<!-- Item: Scratchpad -->
+<button class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-hover text-text-primary transition-all group text-left">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-panel flex items-center justify-center text-on-surface-variant group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]">note_add</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-medium text-on-surface group-hover:text-primary transition-colors">New Scratchpad File</span>
+<span class="font-body-sm text-body-sm text-text-muted truncate">Create an ephemeral in-memory draft buffer</span>
+</div>
+</div>
+<div class="flex items-center gap-1 font-meta-mono text-meta-mono text-text-secondary bg-surface-panel px-2 py-1 rounded shadow-sm">
+<span class="">Ctrl</span><span class="">+</span><span class="">N</span>
+</div>
+</button>
+<!-- Item: Start Agent Task -->
+<button class="flex items-center justify-between p-space-sm rounded-lg bg-surface-panel/60 hover:bg-surface-panel text-text-primary transition-all group text-left shadow-sm">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">smart_toy</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-primary group-hover:text-primary-fixed transition-colors">Start Agent Task</span>
+<span class="font-body-sm text-body-sm text-text-secondary truncate">Prompt Codeen agent across the entire codebase</span>
+</div>
+</div>
+<div class="flex items-center gap-1 font-meta-mono text-meta-mono text-primary bg-surface-elevated px-2 py-1 rounded shadow-sm">
+<span class="">Ctrl</span><span class="">+</span><span class="">L</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Column 2: Recent Workspaces -->
+<div class="bg-surface-elevated/70 backdrop-blur-md rounded-xl p-space-lg flex flex-col gap-space-md shadow-xl transition-all duration-200">
+<div class="flex items-center justify-between pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-agent-cyan text-[18px]">history</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Recent Workspaces</span>
+</div>
+<button class="font-body-sm text-body-sm text-text-muted hover:text-primary transition-colors flex items-center gap-1">
+<span class="">View all</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<div class="flex flex-col gap-1.5">
+<!-- Recent Workspace 1 -->
+<a class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-hover text-text-primary transition-all group" href="#">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-panel flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">folder</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-medium text-on-surface group-hover:text-primary transition-colors truncate">peyopeu-mobile-app</span>
+<span class="font-meta-mono text-[9px] px-1 rounded bg-diff-addition-surface text-diff-addition">Git: main*</span>
+</div>
+<span class="font-code-sm text-code-sm text-text-muted truncate">/Users/dev/projects/peyonpeu</span>
+</div>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted whitespace-nowrap pl-2">12m ago</span>
+</a>
+<!-- Recent Workspace 2 -->
+<a class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-hover text-text-primary transition-all group" href="#">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-panel flex items-center justify-center text-agent-cyan group-hover:bg-agent-cyan group-hover:text-on-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-[18px]">account_tree</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-medium text-on-surface group-hover:text-agent-cyan transition-colors truncate">void-monaco-engine</span>
+<span class="font-meta-mono text-[9px] px-1 rounded bg-surface-panel text-text-secondary">v0.12.0</span>
+</div>
+<span class="font-code-sm text-code-sm text-text-muted truncate">/Users/dev/forks/void</span>
+</div>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted whitespace-nowrap pl-2">2h ago</span>
+</a>
+<!-- Recent Workspace 3 -->
+<a class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-hover text-text-primary transition-all group" href="#">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-panel flex items-center justify-center text-text-secondary group-hover:bg-surface-hover group-hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-medium text-on-surface group-hover:text-primary transition-colors truncate">codeen-desktop-shell</span>
+<span class="font-meta-mono text-[9px] px-1 rounded bg-surface-panel text-text-secondary">Rust/Tauri</span>
+</div>
+<span class="font-code-sm text-code-sm text-text-muted truncate">/Users/dev/codeen</span>
+</div>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted whitespace-nowrap pl-2">Yesterday</span>
+</a>
+<!-- Recent Workspace 4 -->
+<a class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-hover text-text-primary transition-all group" href="#">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-panel flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-on-tertiary transition-colors">
+<span class="material-symbols-outlined text-[18px]">dns</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-medium text-on-surface group-hover:text-primary transition-colors truncate">mcp-server-inference</span>
+<span class="font-meta-mono text-[9px] px-1 rounded bg-surface-panel text-text-secondary">Python 3.12</span>
+</div>
+<span class="font-code-sm text-code-sm text-text-muted truncate">/Users/dev/mcp/servers</span>
+</div>
+</div>
+<span class="font-meta-mono text-meta-mono text-text-muted whitespace-nowrap pl-2">3 days ago</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Essential Agentic AI Shortcuts Horizontal Card -->
+<div class="w-full mt-6 bg-surface-elevated/40 rounded-xl p-space-md relative z-10 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">keyboard</span>
+<span class="font-label-caps text-label-caps uppercase text-text-secondary tracking-wider">Agentic AI &amp; Productivity Shortcuts</span>
+</div>
+<div class="flex items-center gap-1.5 text-text-muted font-meta-mono text-meta-mono">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="">Keymaps Active (macOS / Linux)</span>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+<!-- Shortcut 1: Agent Chat -->
+<div class="bg-surface-panel/80 hover:bg-surface-panel p-2.5 rounded-lg flex flex-col gap-1.5 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Agent Chat</span>
+<span class="material-symbols-outlined text-[15px] text-agent-cyan">chat</span>
+</div>
+<div class="flex items-center gap-1">
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">Ctrl</kbd>
+<span class="text-text-muted text-xs">+</span>
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">L</kbd>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted leading-tight">Auxiliary sidebar chat</span>
+</div>
+<!-- Shortcut 2: Quick Edit -->
+<div class="bg-surface-panel/80 hover:bg-surface-panel p-2.5 rounded-lg flex flex-col gap-1.5 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Quick Edit</span>
+<span class="material-symbols-outlined text-[15px] text-primary">edit_square</span>
+</div>
+<div class="flex items-center gap-1">
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">Ctrl</kbd>
+<span class="text-text-muted text-xs">+</span>
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">K</kbd>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted leading-tight">Inline fast-apply diff</span>
+</div>
+<!-- Shortcut 3: Quick Open -->
+<div class="bg-surface-panel/80 hover:bg-surface-panel p-2.5 rounded-lg flex flex-col gap-1.5 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Quick Open</span>
+<span class="material-symbols-outlined text-[15px] text-text-secondary">search</span>
+</div>
+<div class="flex items-center gap-1">
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">Ctrl</kbd>
+<span class="text-text-muted text-xs">+</span>
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">P</kbd>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted leading-tight">Jump to file or symbol</span>
+</div>
+<!-- Shortcut 4: Command Palette -->
+<div class="bg-surface-panel/80 hover:bg-surface-panel p-2.5 rounded-lg flex flex-col gap-1.5 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Commands</span>
+<span class="material-symbols-outlined text-[15px] text-agent-indigo">terminal</span>
+</div>
+<div class="flex items-center gap-1">
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">Ctrl</kbd>
+<span class="text-text-muted text-xs">+</span>
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">⇧</kbd>
+<span class="text-text-muted text-xs">+</span>
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">P</kbd>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted leading-tight">Execute IDE routines</span>
+</div>
+<!-- Shortcut 5: Toggle Terminal -->
+<div class="bg-surface-panel/80 hover:bg-surface-panel p-2.5 rounded-lg flex flex-col gap-1.5 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Terminal</span>
+<span class="material-symbols-outlined text-[15px] text-[#F59E0B]">keyboard_double_arrow_right</span>
+</div>
+<div class="flex items-center gap-1">
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">Ctrl</kbd>
+<span class="text-text-muted text-xs">+</span>
+<kbd class="font-meta-mono text-meta-mono bg-surface-elevated px-1.5 py-0.5 rounded text-text-primary shadow-sm">`</kbd>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted leading-tight">Integrated zsh shell</span>
+</div>
+</div>
+</div>
+<!-- Footer System Status & Precision Diagnostics -->
+<div class="mt-8 flex flex-wrap items-center justify-center gap-4 text-center font-meta-mono text-meta-mono text-text-muted relative z-10">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-primary">verified</span>
+<span class="text-on-surface font-medium">Codeen v1.99.3-void</span>
+</div>
+<span class="text-border-subtle">·</span>
+<span class="">Obsidian Precision Engine</span>
+<span class="text-border-subtle">·</span>
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-diff-addition"></span>
+<span class="">Context: Ready (128k)</span>
+</div>
+<span class="text-border-subtle">·</span>
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-agent-cyan"></span>
+<span class="">Local Whisper: Idle</span>
+</div>
+<span class="text-border-subtle">·</span>
+<span class="text-text-secondary hover:text-primary cursor-pointer transition-colors">Release Notes (⌘⇧R)</span>
+</div>
+</div>
+</div>
+<!-- RIGHT AUXILIARY BAR: REAL-TIME AI AGENT CHAT -->
+<div class="w-80 flex-shrink-0 bg-surface-panel flex flex-col justify-between select-none">
+<!-- Auxiliary Bar Header -->
+<div class="h-9 px-space-md flex items-center justify-between text-on-surface-variant bg-surface-panel">
+<div class="flex items-center gap-space-xs">
+
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-semibold">CHAT</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Settings">
+<span class="material-symbols-outlined text-[15px]">settings</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="New Chat (Ctrl+L)">
+<span class="material-symbols-outlined text-[15px]">add</span>
+</button>
+<button class="p-1 hover:text-on-surface hover:bg-surface-hover rounded transition-colors" title="Close Auxiliary">
+<span class="material-symbols-outlined text-[15px]">close</span>
+</button>
+</div>
+</div>
+<!-- Auxiliary Agent Content Area -->
+<div class="flex-1 overflow-y-auto p-space-md flex flex-col gap-space-md">
+<!-- Interactive Prompt Composer Box -->
+<div class="bg-surface-elevated rounded-xl p-space-sm flex flex-col gap-space-sm shadow-md group focus-within:shadow-[0_0_0_1px_#00DC82,0_0_12px_rgba(0,220,130,0.22)] transition-all duration-150">
+<textarea class="w-full bg-transparent resize-none outline-none font-body-sm text-body-sm text-on-surface placeholder:text-text-muted leading-relaxed" placeholder="@ to mention, Ctrl+L to add a selection. Enter instructions..." rows="3"></textarea>
+<!-- Thinking & Token Config Slider -->
+<div class="flex items-center justify-between pt-1 text-text-muted">
+<div class="flex items-center gap-2">
+<span class="font-meta-mono text-[10px] text-text-secondary">Thinking</span>
+<div class="w-16 h-1 bg-surface-hover rounded-full overflow-hidden relative cursor-pointer">
+<div class="w-3/5 h-full bg-agent-cyan rounded-full"></div>
+</div>
+<span class="font-meta-mono text-[10px] text-text-muted">1024 tokens</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 hover:text-primary rounded transition-colors" title="Attach context">
+<span class="material-symbols-outlined text-[15px]">attach_file</span>
+</button>
+<button class="p-1 hover:text-primary rounded transition-colors" title="Voice dictation">
+<span class="material-symbols-outlined text-[15px]">mic</span>
+</button>
+</div>
+</div>
+<!-- Bottom Prompt Bar: Model Picker & Submit -->
+<div class="flex items-center justify-between pt-1">
+<button class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-panel hover:bg-surface-hover text-on-surface-variant font-meta-mono text-[10.5px] transition-colors">
+<span class="text-primary font-bold">Agent</span>
+<span class="text-text-muted">·</span>
+<span class="text-text-secondary truncate max-w-[90px]">gemini-1.5-pro</span>
+<span class="material-symbols-outlined text-[12px]">expand_more</span>
+</button>
+<button class="w-7 h-7 rounded-lg bg-primary hover:bg-primary-fixed text-surface-base flex items-center justify-center shadow-sm transition-transform active:scale-95">
+<span class="material-symbols-outlined text-[16px] font-bold">arrow_upward</span>
+</button>
+</div>
+</div>
+<!-- Previous Threads Section -->
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase text-text-muted tracking-wider">Previous Threads</span>
+<span class="font-meta-mono text-meta-mono text-text-muted">8 total</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<!-- Thread Item 1 -->
+<div class="p-space-sm rounded-lg bg-surface-elevated/40 hover:bg-surface-elevated cursor-pointer transition-colors flex flex-col gap-1 group">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-medium text-on-surface group-hover:text-primary transition-colors truncate max-w-[190px]">
+                  creer moi dans ce dossier un dossier calculatrice...
+                </span>
+<span class="font-meta-mono text-[10px] text-text-muted">5 Today</span>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted truncate">
+                Created /src/calculator.py &amp; UI assets
+              </span>
+</div>
+<!-- Thread Item 2 -->
+<div class="p-space-sm rounded-lg bg-surface-elevated/40 hover:bg-surface-elevated cursor-pointer transition-colors flex flex-col gap-1 group">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-medium text-on-surface group-hover:text-agent-cyan transition-colors truncate max-w-[190px]">
+                  analyse et dis moi moi de quoi il est question
+                </span>
+<span class="font-meta-mono text-[10px] text-text-muted">25 Today</span>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted truncate">
+                Repository indexing &amp; architecture digest
+              </span>
+</div>
+<!-- Thread Item 3 -->
+<div class="p-space-sm rounded-lg bg-surface-elevated/40 hover:bg-surface-elevated cursor-pointer transition-colors flex flex-col gap-1 group">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-medium text-on-surface group-hover:text-primary transition-colors truncate max-w-[190px]">
+                  Refactor AST parsing pipeline for speed
+                </span>
+<span class="font-meta-mono text-[10px] text-text-muted">Yesterday</span>
+</div>
+<span class="font-body-sm text-[11px] text-text-muted truncate">
+                Benchmarked parallel worker threads (142ms)
+              </span>
+</div>
+</div>
+</div>
+<!-- MCP Tool Capabilities Pill Badge Box -->
+
+</div>
+<!-- Auxiliary Footer Token Telemetry -->
+
+</div>
+</div>
+</div>
+<script>
+  // Simple client-side micro-interactions for key shortcut triggers and UI states
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
+      e.preventDefault();
+      const openBtn = document.querySelector('button');
+      if (openBtn) {
+        openBtn.classList.add('scale-95');
+        setTimeout(() => openBtn.classList.remove('scale-95'), 150);
+      }
+    }
+  });
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-6 bg-surface-panel z-50 flex items-center justify-between px-space-sm font-meta-mono text-meta-mono text-text-secondary select-none"><div class="flex items-center gap-space-md"><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-primary">alt_route</span><span class="">main*</span></div><div class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px] text-error">cancel</span><span class="">0</span><span class="material-symbols-outlined text-[13px] text-[#F59E0B]">warning</span><span class="">2</span></div><div class="flex items-center gap-1 text-agent-cyan hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] animate-pulse">bolt</span><span class="">Codeen Agent: Idle</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-surface-elevated text-on-surface-variant hover:text-primary transition-colors cursor-pointer"><span class="material-symbols-outlined text-[13px] text-[#F97316]">local_fire_department</span><span class="font-code-sm text-code-sm text-primary">14.2k</span><span class="text-text-muted">($0.04)</span></div><div class="hover:text-on-surface cursor-pointer">Ln 42, Col 18</div><div class="hover:text-on-surface cursor-pointer">Spaces: 2</div><div class="hover:text-on-surface cursor-pointer">UTF-8</div><div class="hover:text-on-surface cursor-pointer">TypeScript JSX</div><div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[13px]">notifications</span></div></div></footer>
+
+</body></html>

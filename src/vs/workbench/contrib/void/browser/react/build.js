@@ -147,8 +147,36 @@ if (isWatch) {
 	// Run scope-tailwind once
 	execSync('npx scope-tailwind ./src -o src2/ -s void-scope -c styles.css -p "void-"', { stdio: 'inherit' });
 
-	// Run tsup once
-	execSync('npx tsup', { stdio: 'inherit' });
+	// Run tsup safely entry by entry to prevent Go esbuild parallel memory exhaustion
+	const entries = [
+		'./src2/sidebar-tsx/index.tsx',
+		'./src2/diff/index.tsx',
+		'./src2/void-editor-widgets-tsx/index.tsx',
+		'./src2/void-settings-tsx/index.tsx',
+		'./src2/void-tooltip/index.tsx',
+		'./src2/void-onboarding/index.tsx',
+		'./src2/quick-edit-tsx/index.tsx',
+		'./src2/void-token-usage-tsx/index.tsx',
+		'./src2/empty-editor-home-tsx/index.tsx',
+	];
+	for (const entry of entries) {
+		execSync(`npx tsup ${entry}`, {
+			stdio: 'inherit',
+			env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=2048' }
+		});
+	}
+
+	// Synchroniser automatiquement vers le dossier de distribution global out/ s'il existe
+	try {
+		const globalOutDir = path.resolve(__dirname, '../../../../../../../out/vs/workbench/contrib/void/browser/react/out');
+		const localOutDir = path.resolve(__dirname, 'out');
+		if (fs.existsSync(path.dirname(globalOutDir))) {
+			fs.cpSync(localOutDir, globalOutDir, { recursive: true, force: true });
+			console.log('🔄 Synced React bundles to global out directory.');
+		}
+	} catch (syncErr) {
+		console.warn('⚠️ Could not sync React bundles to global out directory:', syncErr.message);
+	}
 
 	console.log('✅ Build complete!');
 }

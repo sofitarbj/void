@@ -85,7 +85,7 @@
 		if (data?.layoutInfo) {
 			const { layoutInfo, colorInfo } = data;
 
-			const splash = document.createElement('div');
+			const splash = document.getElementById('monaco-parts-splash') ?? document.createElement('div');
 			splash.id = 'monaco-parts-splash';
 			splash.className = baseTheme ?? 'vs-dark';
 
@@ -255,7 +255,9 @@
 				}
 			}
 
-			window.document.body.appendChild(splash);
+			if (!splash.parentElement) {
+				window.document.body.appendChild(splash);
+			}
 		}
 
 		performance.mark('code/didShowPartsSplash');

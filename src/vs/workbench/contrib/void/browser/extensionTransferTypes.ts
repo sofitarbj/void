@@ -9,3 +9,16 @@ export type TransferEditorType = 'VS Code' | 'Cursor' | 'Windsurf'
 // https://github.com/VSCodium/vscodium/blob/master/docs/index.md#migrating-from-visual-studio-code-to-vscodium
 // https://code.visualstudio.com/docs/editor/extension-marketplace#_where-are-extensions-installed
 export type TransferFilesInfo = { from: URI, to: URI, isExtensions?: boolean }[]
+
+export interface ExportConfigResult {
+	success: boolean;
+	exportedFiles: string[];
+	exportPath?: string;
+	error?: string;
+}
+
+export interface InstalledEditorsResult {
+	vsCode: boolean;
+	cursor: boolean;
+	windsurf: boolean;
+}

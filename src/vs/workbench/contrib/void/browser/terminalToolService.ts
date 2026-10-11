@@ -35,6 +35,7 @@ export interface ITerminalToolService {
 
 	createPersistentTerminal(opts: { cwd: string | null }): Promise<string>
 	killPersistentTerminal(terminalId: string): Promise<void>
+	sendInputToPersistentTerminal(terminalId: string, input: string): Promise<void>
 
 	getPersistentTerminal(terminalId: string): ITerminalInstance | undefined
 	getTemporaryTerminal(terminalId: string): ITerminalInstance | undefined
@@ -168,6 +169,12 @@ export class TerminalToolService extends Disposable implements ITerminalToolServ
 		const terminal = await this._createTerminal({ cwd, config, })
 		this.persistentTerminalInstanceOfId[terminalId] = terminal
 		return terminalId
+	}
+
+	async sendInputToPersistentTerminal(terminalId: string, input: string): Promise<void> {
+		const terminal = this.persistentTerminalInstanceOfId[terminalId]
+		if (!terminal) throw new Error(`Send Input: Terminal with ID ${terminalId} does not exist.`);
+		terminal.sendText(input, false)
 	}
 
 	async killPersistentTerminal(terminalId: string) {

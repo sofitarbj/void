@@ -46,6 +46,9 @@ import './metricsPollService.js'
 // helper services
 import './helperServices/consistentItemService.js'
 
+// system docs service
+import './systemDocsService.js'
+
 // register selection helper
 import './voidSelectionHelperWidget.js'
 
@@ -63,6 +66,27 @@ import './fileService.js'
 
 // register source control management
 import './voidSCMService.js'
+
+// register memory service (persistent context, knowledge items, user rules)
+import './voidMemoryService.js'
+
+// register budget service (API request limits, command blocklist)
+import './voidBudgetService.js'
+
+// register context budget service (token budget allocation per context level)
+import './contextBudgetService.js'
+
+// register smart context service (compression, deduplication, history summarization)
+import './smartContextService.js'
+
+// register model router service (intelligent model selection based on task complexity)
+import './modelRouterService.js'
+
+// register skill service (specialized knowledge modules)
+import './skillService.js'
+
+// register workflow service (slash commands: /test, /doc, /review, /refactor, /explain, /fix)
+import './workflowService.js'
 
 // ---------- common (unclear if these actually need to be imported, because they're already imported wherever they're used) ----------
 
@@ -83,3 +107,14 @@ import '../common/voidUpdateService.js'
 
 // model service
 import '../common/voidModelService.js'
+
+// token usage & cost tracking (Phase 2)
+import '../common/tokenUsageService.js'
+import './tokenUsageStatusBar.js'
+import './tokenUsageDialogService.js'
+
+// project memory bootstrap (Phase 5)
+import './projectMemoryBootstrapContrib.js'
+
+// local voice recognition zero-cloud (Phase 8)
+import './localVoiceModelService.js'

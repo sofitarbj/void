@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------*/
 
 import React, { forwardRef, ForwardRefExoticComponent, MutableRefObject, RefAttributes, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { IInputBoxStyles, InputBox } from '../../../../../../../base/browser/ui/inputbox/inputBox.js';
 import { defaultCheckboxStyles, defaultInputBoxStyles, defaultSelectBoxStyles } from '../../../../../../../platform/theme/browser/defaultStyles.js';
 import { SelectBox } from '../../../../../../../base/browser/ui/selectBox/selectBox.js';
@@ -18,7 +19,7 @@ import { inputBackground, inputForeground } from '../../../../../../../platform/
 import { useFloating, autoUpdate, offset, flip, shift, size, autoPlacement } from '@floating-ui/react';
 import { URI } from '../../../../../../../base/common/uri.js';
 import { getBasename, getFolderName } from '../sidebar-tsx/SidebarChat.js';
-import { ChevronRight, File, Folder, FolderClosed, LucideProps } from 'lucide-react';
+import { ChevronDown, ChevronRight, File, Folder, FolderClosed, LucideProps } from 'lucide-react';
 import { StagingSelectionItem } from '../../../../common/chatThreadServiceTypes.js';
 import { DiffEditorWidget } from '../../../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js';
 import { extractSearchReplaceBlocks, ExtractedSearchReplaceBlock } from '../../../../common/helpers/extractCodeFromResult.js';
@@ -353,8 +354,9 @@ type InputBox2Props = {
 	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
 	onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
 	onChangeHeight?: (newHeight: number) => void;
+	transparentBg?: boolean;
 }
-export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className, onKeyDown, onFocus, onBlur, onChangeText }, ref) {
+export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(function X({ initValue, placeholder, multiline, enableAtToMention, fnsRef, className, onKeyDown, onFocus, onBlur, onChangeText, transparentBg = false }, ref) {
 
 
 	// mirrors whatever is in ref
@@ -756,7 +758,7 @@ export const VoidInputBox2 = forwardRef<HTMLTextAreaElement, InputBox2Props>(fun
 			className={`w-full resize-none max-h-[500px] overflow-y-auto text-void-fg-1 placeholder:text-void-fg-3 ${className}`}
 			style={{
 				// defaultInputBoxStyles
-				background: asCssVariable(inputBackground),
+				background: transparentBg ? 'transparent' : asCssVariable(inputBackground),
 				color: asCssVariable(inputForeground)
 				// inputBorder: asCssVariable(inputBorder),
 			}}
@@ -1287,40 +1289,18 @@ export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
 		y,
 		strategy,
 		refs,
-		middlewareData,
-		update
 	} = useFloating({
 		open: isOpen,
 		onOpenChange: setIsOpen,
-		placement: 'bottom-start',
-
+		placement: 'top-start',
 		middleware: [
-			offset({ mainAxis: gapPx, crossAxis: offsetPx }),
+			offset(6),
 			flip({
-				boundary: document.body,
-				padding: 8
+				fallbackPlacements: ['bottom-start', 'top', 'bottom'],
+				padding: 10,
 			}),
 			shift({
-				boundary: document.body,
-				padding: 8,
-			}),
-			size({
-				apply({ availableHeight, elements, rects }) {
-					const maxHeight = Math.min(availableHeight)
-
-					Object.assign(elements.floating.style, {
-						maxHeight: `${maxHeight}px`,
-						overflowY: 'auto',
-						// Ensure the width isn't constrained by the parent
-						width: `${Math.max(
-							rects.reference.width,
-							measureRef.current?.offsetWidth ?? 0
-						)}px`
-					});
-				},
-				padding: 8,
-				// Use viewport as boundary instead of any parent element
-				boundary: document.body,
+				padding: 10,
 			}),
 		],
 		whileElementsMounted: autoUpdate,
@@ -1391,46 +1371,62 @@ export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
 			<button
 				type='button'
 				ref={refs.setReference}
-				className="flex items-center h-4 bg-transparent whitespace-nowrap hover:brightness-90 w-full"
+				className="flex items-center gap-1.5 h-full bg-transparent whitespace-nowrap text-inherit w-full cursor-pointer select-none"
 				onClick={() => setIsOpen(!isOpen)}
 			>
-				<span className={`truncate ${arrowTouchesText ? 'mr-1' : ''}`}>
+				<span className="truncate">
 					{getOptionDisplayName(selectedOption)}
 				</span>
-				<svg
-					className={`size-3 flex-shrink-0 ${arrowTouchesText ? '' : 'ml-auto'}`}
-					viewBox="0 0 12 12"
-					fill="none"
-				>
-					<path
-						d="M2.5 4.5L6 8L9.5 4.5"
-						stroke="currentColor"
-						strokeWidth="1.5"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
+				<ChevronDown
+					size={12}
+					className={`shrink-0 opacity-70 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+				/>
 			</button>
 
-			{/* Dropdown Menu */}
-			{isOpen && (
+			{/* Dropdown Menu - Rendu dans un portail avec scoping void-scope et styles étanches */}
+			{isOpen && typeof document !== 'undefined' && createPortal(
 				<div
-					ref={refs.setFloating}
-					className="z-[100] bg-void-bg-1 border-void-border-3 border rounded shadow-lg"
+					className="@@void-scope dark"
 					style={{
-						position: strategy,
-						top: y ?? 0,
-						left: x ?? 0,
-						width: (matchInputWidth
-							? (refs.reference.current instanceof HTMLElement ? refs.reference.current.offsetWidth : 0)
-							: Math.max(
-								(refs.reference.current instanceof HTMLElement ? refs.reference.current.offsetWidth : 0),
-								(measureRef.current instanceof HTMLElement ? measureRef.current.offsetWidth : 0)
-							))
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						width: 0,
+						height: 0,
+						zIndex: 999999,
+						pointerEvents: 'none',
 					}}
-					onWheel={(e) => e.stopPropagation()}
-				><div className='overflow-auto max-h-80'>
-
+				>
+					<div
+						ref={refs.setFloating}
+						className="bg-[#18191c] text-[#e4e4e7] border border-white/10 rounded shadow-2xl overflow-y-auto py-1 select-none"
+						style={{
+							position: strategy,
+							top: y ?? 0,
+							left: x ?? 0,
+							pointerEvents: 'auto',
+							backgroundColor: '#18191c',
+							color: '#e4e4e7',
+							border: '1px solid rgba(255, 255, 255, 0.12)',
+							borderRadius: '6px',
+							boxShadow: '0 12px 32px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.5)',
+							maxHeight: '260px',
+							maxWidth: '420px',
+							minWidth: matchInputWidth
+								? (refs.reference.current instanceof HTMLElement ? refs.reference.current.offsetWidth : 120)
+								: Math.max(
+									(refs.reference.current instanceof HTMLElement ? refs.reference.current.offsetWidth : 120),
+									(measureRef.current instanceof HTMLElement ? measureRef.current.offsetWidth : 120),
+									220
+								),
+							overflowY: 'auto',
+							overflowX: 'hidden',
+							scrollbarWidth: 'thin',
+							scrollbarColor: 'rgba(255, 255, 255, 0.25) transparent',
+							zIndex: 999999,
+						}}
+						onWheel={(e) => e.stopPropagation()}
+					>
 						{options.map((option) => {
 							const thisOptionIsSelected = getOptionsEqual(option, selectedOption);
 							const optionName = getOptionDropdownName(option);
@@ -1438,39 +1434,42 @@ export const VoidCustomDropdownBox = <T extends NonNullable<any>>({
 
 							return (
 								<div
-									key={optionName}
-									className={`flex items-center px-2 py-1 pr-4 cursor-pointer whitespace-nowrap
-									transition-all duration-100
-									${thisOptionIsSelected ? 'bg-blue-500 text-white/80' : 'hover:bg-blue-500 hover:text-white/80'}
-								`}
+									key={optionName + optionDetail}
+									className={`flex items-center justify-between gap-3 px-3 py-1.5 cursor-pointer whitespace-nowrap text-xs transition-colors select-none ${
+										thisOptionIsSelected
+											? 'bg-primary/20 text-primary font-medium'
+											: 'text-zinc-300 hover:bg-white/[0.08] hover:text-white'
+									}`}
 									onClick={() => {
 										onChangeOption(option);
 										setIsOpen(false);
 									}}
 								>
-									<div className="w-4 flex justify-center flex-shrink-0">
-										{thisOptionIsSelected && (
-											<svg className="size-3" viewBox="0 0 12 12" fill="none">
-												<path
-													d="M10 3L4.5 8.5L2 6"
-													stroke="currentColor"
-													strokeWidth="1.5"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-											</svg>
-										)}
+									<div className="flex items-center gap-2 min-w-0 truncate">
+										<div className="w-3.5 flex justify-center shrink-0">
+											{thisOptionIsSelected && (
+												<svg className="size-3 text-primary" viewBox="0 0 12 12" fill="none">
+													<path
+														d="M10 3L4.5 8.5L2 6"
+														stroke="currentColor"
+														strokeWidth="1.5"
+														strokeLinecap="round"
+														strokeLinejoin="round"
+													/>
+												</svg>
+											)}
+										</div>
+										<span className="truncate">{optionName}</span>
 									</div>
-									<span className="flex justify-between items-center w-full gap-x-1">
-										<span>{optionName}</span>
-										<span className='opacity-60'>{optionDetail}</span>
-									</span>
+									{optionDetail && (
+										<span className="text-[10px] font-mono text-zinc-500 shrink-0 uppercase tracking-wider">{optionDetail}</span>
+									)}
 								</div>
 							);
 						})}
 					</div>
-
-				</div>
+				</div>,
+				document.body
 			)}
 		</div>
 	);

@@ -16,8 +16,8 @@ import { MAX_CHILDREN_URIs_PAGE, MAX_DIRSTR_CHARS_TOTAL_BEGINNING, MAX_DIRSTR_CH
 const MAX_FILES_TOTAL = 1000;
 
 
-const START_MAX_DEPTH = Infinity;
-const START_MAX_ITEMS_PER_DIR = Infinity; // Add start value as Infinity
+const START_MAX_DEPTH = 2;
+const START_MAX_ITEMS_PER_DIR = 30; // Add start value as Infinity
 
 const DEFAULT_MAX_DEPTH = 3;
 const DEFAULT_MAX_ITEMS_PER_DIR = 3;

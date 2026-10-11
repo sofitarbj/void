@@ -106,6 +106,12 @@ const RULES: IRule[] = [
 		skip: true // -> skip all test files
 	},
 
+	// React generated bundles: skip
+	{
+		target: '**/vs/workbench/contrib/void/browser/react/out/**',
+		skip: true
+	},
+
 	// Common: vs/base/common/platform.ts
 	{
 		target: '**/vs/base/common/platform.ts',
@@ -228,6 +234,36 @@ const RULES: IRule[] = [
 			'NodeJS'
 		],
 		disallowedTypes: NATIVE_TYPES,
+		disallowedDefinitions: [
+			'@types/node'	// no node.js
+		]
+	},
+
+	// Codeen / Void: common services (IPC channel bridge)
+	{
+		target: '**/vs/workbench/contrib/void/common/**',
+		allowedTypes: [
+			...CORE_TYPES,
+			'IMainProcessService',
+		],
+		disallowedTypes: NATIVE_TYPES.filter(t => t !== 'IMainProcessService'),
+		disallowedDefinitions: [
+			'lib.dom.d.ts', // no DOM
+			'@types/node'	// no node.js
+		]
+	},
+
+	// Codeen / Void: browser services (IPC channel bridge)
+	{
+		target: '**/vs/workbench/contrib/void/browser/**',
+		allowedTypes: [
+			...CORE_TYPES,
+			'IMainProcessService',
+		],
+		disallowedTypes: NATIVE_TYPES.filter(t => t !== 'IMainProcessService'),
+		allowedDefinitions: [
+			'@types/node/stream/consumers.d.ts'
+		],
 		disallowedDefinitions: [
 			'@types/node'	// no node.js
 		]

@@ -17,7 +17,7 @@ import { scrollbarShadow, badgeBackground } from './miscColors.js';
 // ----- editor
 
 export const editorBackground = registerColor('editor.background',
-	{ light: '#ffffff', dark: '#1E1E1E', hcDark: Color.black, hcLight: Color.white },
+	{ light: '#ffffff', dark: '#0B0D11', hcDark: Color.black, hcLight: Color.white },
 	nls.localize('editorBackground', "Editor background color."));
 
 export const editorForeground = registerColor('editor.foreground',
@@ -43,7 +43,7 @@ export const editorStickyScrollShadow = registerColor('editorStickyScroll.shadow
 
 
 export const editorWidgetBackground = registerColor('editorWidget.background',
-	{ dark: '#252526', light: '#F3F3F3', hcDark: '#0C141F', hcLight: Color.white },
+	{ dark: '#12151B', light: '#F3F3F3', hcDark: '#0C141F', hcLight: Color.white },
 	nls.localize('editorWidgetBackground', 'Background color of editor widgets, such as find/replace.'));
 
 export const editorWidgetForeground = registerColor('editorWidget.foreground',
@@ -51,7 +51,7 @@ export const editorWidgetForeground = registerColor('editorWidget.foreground',
 	nls.localize('editorWidgetForeground', 'Foreground color of editor widgets, such as find/replace.'));
 
 export const editorWidgetBorder = registerColor('editorWidget.border',
-	{ dark: '#454545', light: '#C8C8C8', hcDark: contrastBorder, hcLight: contrastBorder },
+	{ dark: Color.fromHex('#20242D'), light: '#C8C8C8', hcDark: contrastBorder, hcLight: contrastBorder },
 	nls.localize('editorWidgetBorder', 'Border color of editor widgets. The color is only used if the widget chooses to have a border and if the color is not overridden by a widget.'));
 
 export const editorWidgetResizeBorder = registerColor('editorWidget.resizeBorder',
@@ -115,7 +115,7 @@ export const editorActiveLinkForeground = registerColor('editorLink.activeForegr
 // ----- editor selection
 
 export const editorSelectionBackground = registerColor('editor.selectionBackground',
-	{ light: '#ADD6FF', dark: '#264F78', hcDark: '#f3f518', hcLight: '#0F4A85' },
+	{ light: '#ADD6FF', dark: 'rgba(69, 249, 156, 0.20)', hcDark: '#f3f518', hcLight: '#0F4A85' },
 	nls.localize('editorSelectionBackground', "Color of the editor selection."));
 
 export const editorSelectionForeground = registerColor('editor.selectionForeground',
@@ -262,22 +262,24 @@ export const snippetFinalTabstopHighlightBorder = registerColor('editor.snippetF
 
 export const defaultInsertColor = new Color(new RGBA(155, 185, 85, .2));
 export const defaultRemoveColor = new Color(new RGBA(255, 0, 0, .2));
+export const defaultInsertColorDark = new Color(new RGBA(69, 249, 156, .15));
+export const defaultRemoveColorDark = new Color(new RGBA(248, 113, 113, .15));
 
 export const diffInserted = registerColor('diffEditor.insertedTextBackground',
-	{ dark: '#9ccc2c33', light: '#9ccc2c40', hcDark: null, hcLight: null },
+	{ dark: '#45f99c2e', light: '#9ccc2c40', hcDark: null, hcLight: null },
 	nls.localize('diffEditorInserted', 'Background color for text that got inserted. The color must not be opaque so as not to hide underlying decorations.'), true);
 
 export const diffRemoved = registerColor('diffEditor.removedTextBackground',
-	{ dark: '#ff000033', light: '#ff000033', hcDark: null, hcLight: null },
+	{ dark: '#f871712e', light: '#ff000033', hcDark: null, hcLight: null },
 	nls.localize('diffEditorRemoved', 'Background color for text that got removed. The color must not be opaque so as not to hide underlying decorations.'), true);
 
 
 export const diffInsertedLine = registerColor('diffEditor.insertedLineBackground',
-	{ dark: defaultInsertColor, light: defaultInsertColor, hcDark: null, hcLight: null },
+	{ dark: defaultInsertColorDark, light: defaultInsertColor, hcDark: null, hcLight: null },
 	nls.localize('diffEditorInsertedLines', 'Background color for lines that got inserted. The color must not be opaque so as not to hide underlying decorations.'), true);
 
 export const diffRemovedLine = registerColor('diffEditor.removedLineBackground',
-	{ dark: defaultRemoveColor, light: defaultRemoveColor, hcDark: null, hcLight: null },
+	{ dark: defaultRemoveColorDark, light: defaultRemoveColor, hcDark: null, hcLight: null },
 	nls.localize('diffEditorRemovedLines', 'Background color for lines that got removed. The color must not be opaque so as not to hide underlying decorations.'), true);
 
 
@@ -300,11 +302,11 @@ export const diffOverviewRulerRemoved = registerColor('diffEditorOverview.remove
 
 
 export const diffInsertedOutline = registerColor('diffEditor.insertedTextBorder',
-	{ dark: null, light: null, hcDark: '#33ff2eff', hcLight: '#374E06' },
+	{ dark: '#00dc8244', light: null, hcDark: '#33ff2eff', hcLight: '#374E06' },
 	nls.localize('diffEditorInsertedOutline', 'Outline color for the text that got inserted.'));
 
 export const diffRemovedOutline = registerColor('diffEditor.removedTextBorder',
-	{ dark: null, light: null, hcDark: '#FF008F', hcLight: '#AD0707' },
+	{ dark: '#f8717144', light: null, hcDark: '#FF008F', hcLight: '#AD0707' },
 	nls.localize('diffEditorRemovedOutline', 'Outline color for text that got removed.'));
 
 

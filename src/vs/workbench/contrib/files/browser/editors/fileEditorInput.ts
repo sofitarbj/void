@@ -397,11 +397,14 @@ export class FileEditorInput extends AbstractTextResourceEditorInput implements 
 		}
 	}
 
-	private async doResolveAsBinary(): Promise<BinaryEditorModel> {
-		const model = this.instantiationService.createInstance(BinaryEditorModel, this.preferredResource, this.getName());
-		await model.resolve();
+	private binaryModel?: BinaryEditorModel;
 
-		return model;
+	private async doResolveAsBinary(): Promise<BinaryEditorModel> {
+		this.binaryModel?.dispose();
+		this.binaryModel = this.instantiationService.createInstance(BinaryEditorModel, this.preferredResource, this.getName());
+		await this.binaryModel.resolve();
+
+		return this.binaryModel;
 	}
 
 	isResolved(): boolean {
@@ -470,6 +473,10 @@ export class FileEditorInput extends AbstractTextResourceEditorInput implements 
 
 		// Model
 		this.model = undefined;
+
+		// Binary model
+		this.binaryModel?.dispose();
+		this.binaryModel = undefined;
 
 		// Model reference
 		this.disposeModelReference();

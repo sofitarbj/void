@@ -39,6 +39,11 @@ import { IDirectoryStrService } from '../common/directoryStrService.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
 import { IMCPService } from '../common/mcpService.js';
 import { RawMCPToolCall } from '../common/mcpServiceTypes.js';
+import { IVoidMemoryService } from '../common/voidMemoryService.js';
+import { IVoidBudgetService } from '../common/voidBudgetService.js';
+import { ITokenUsageService } from '../common/tokenUsageService.js';
+import { classifyCommand, getCommandWarning } from '../common/securityUtils.js';
+import { CodeenAgentCore } from '../common/agent/agentCore.js';
 
 
 // related to retrying when LLM message has error
@@ -280,7 +285,7 @@ export interface IChatThreadService {
 	editUserMessageAndStreamResponse({ userMessage, messageIdx, threadId }: { userMessage: string, messageIdx: number, threadId: string }): Promise<void>;
 
 	// call to add a message
-	addUserMessageAndStreamResponse({ userMessage, threadId }: { userMessage: string, threadId: string }): Promise<void>;
+	addUserMessageAndStreamResponse({ userMessage, threadId, images }: { userMessage: string, threadId: string, images?: import('../common/chatThreadServiceTypes.js').ChatImageAttachment[] }): Promise<void>;
 
 	// approve/reject
 	approveLatestToolRequest(threadId: string): void;
@@ -307,6 +312,23 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	readonly streamState: ThreadStreamState = {}
 	state: ThreadsState // allThreads is persisted, currentThread is not
 
+	private readonly _agentCores = new Map<string, CodeenAgentCore>();
+
+	private _getAgentCore(threadId: string): CodeenAgentCore {
+		let core = this._agentCores.get(threadId);
+		if (!core) {
+			core = new CodeenAgentCore();
+			this._agentCores.set(threadId, core);
+		}
+		return core;
+	}
+
+	private _estimateRequestCostCents(fullText: string, fullReasoning: string): number {
+		const outputTokens = Math.round((fullText.length + (fullReasoning?.length ?? 0)) / 4);
+		const cost = 0.8 + (outputTokens * 0.0015);
+		return Math.max(0.5, Number(cost.toFixed(3)));
+	}
+
 	// used in checkpointing
 	// private readonly _userModifiedFilesToCheckInCheckpoints = new LRUCache<string, null>(50)
 
@@ -327,6 +349,9 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		@IDirectoryStrService private readonly _directoryStringService: IDirectoryStrService,
 		@IFileService private readonly _fileService: IFileService,
 		@IMCPService private readonly _mcpService: IMCPService,
+		@IVoidMemoryService private readonly _memoryService: IVoidMemoryService,
+		@IVoidBudgetService private readonly _budgetService: IVoidBudgetService,
+		@ITokenUsageService private readonly _tokenUsageService: ITokenUsageService,
 	) {
 		super()
 		this.state = { allThreads: {}, currentThreadId: null as unknown as string } // default state
@@ -403,7 +428,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 	}
 
 	private _readAllThreads(): ChatThreads | null {
-		const threadsStr = this._storageService.get(THREAD_STORAGE_KEY, StorageScope.APPLICATION);
+		const threadsStr = this._storageService.get(THREAD_STORAGE_KEY, StorageScope.WORKSPACE);
 		if (!threadsStr) {
 			return null
 		}
@@ -417,8 +442,8 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		this._storageService.store(
 			THREAD_STORAGE_KEY,
 			serializedThreads,
-			StorageScope.APPLICATION,
-			StorageTarget.USER
+			StorageScope.WORKSPACE,
+			StorageTarget.MACHINE
 		);
 	}
 
@@ -608,12 +633,46 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		toolId: string,
 		mcpServerName: string | undefined,
 		opts: { preapproved: true, unvalidatedToolParams: RawToolParamsObj, validatedParams: ToolCallParams<ToolName> } | { preapproved: false, unvalidatedToolParams: RawToolParamsObj },
+		thoughtSignature?: string,
 	): Promise<{ awaitingUserApproval?: boolean, interrupted?: boolean }> => {
+
+		// Intercepter l'approbation spéciale du budget
+		if (toolName === 'approve_budget' as any) {
+			const agentCore = this._getAgentCore(threadId);
+			if (agentCore.currentTask) {
+				(agentCore.currentTask as any).hasApproved50 = true;
+			}
+			const budgetSuccessMsg = 'Budget approuvé par l\'utilisateur. Poursuite de la tâche.';
+			this._updateLatestTool(threadId, {
+				role: 'tool',
+				type: 'success',
+				params: {} as any,
+				result: budgetSuccessMsg,
+				name: toolName,
+				content: budgetSuccessMsg,
+				id: toolId,
+				rawParams: {},
+				mcpServerName,
+				thoughtSignature,
+			});
+			return {};
+		}
 
 		// compute these below
 		let toolParams: ToolCallParams<ToolName>
 		let toolResult: ToolResult<ToolName>
 		let toolResultStr: string
+
+		const agentCore = this._getAgentCore(threadId);
+		const chatMode = this._settingsService.state.globalSettings.chatMode;
+
+		if (chatMode === 'agent') {
+			agentCore.addStep({
+				stepId: toolId,
+				type: 'TOOL_CALL',
+				description: `Lancement de l'outil : ${toolName}`,
+			});
+		}
 
 		// Check if it's a built-in tool
 		const isBuiltInTool = isABuiltinToolName(toolName)
@@ -632,7 +691,15 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 			}
 			catch (error) {
 				const errorMessage = getErrorMessage(error)
-				this._addMessageToThread(threadId, { role: 'tool', type: 'invalid_params', rawParams: opts.unvalidatedToolParams, result: null, name: toolName, content: errorMessage, id: toolId, mcpServerName })
+				this._addMessageToThread(threadId, { role: 'tool', type: 'invalid_params', rawParams: opts.unvalidatedToolParams, result: null, name: toolName, content: errorMessage, id: toolId, mcpServerName, thoughtSignature })
+				if (chatMode === 'agent') {
+					agentCore.addStep({
+						stepId: toolId,
+						type: 'TOOL_CALL',
+						description: `Paramètres invalides pour l'outil : ${toolName} - ${errorMessage}`,
+						costInCents: 0,
+					});
+				}
 				return {}
 			}
 			// once validated, add checkpoint for edit
@@ -645,7 +712,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 			if (approvalType) {
 				const autoApprove = this._settingsService.state.globalSettings.autoApprove[approvalType]
 				// add a tool_request because we use it for UI if a tool is loading (this should be improved in the future)
-				this._addMessageToThread(threadId, { role: 'tool', type: 'tool_request', content: '(Awaiting user permission...)', result: null, name: toolName, params: toolParams, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName })
+				this._addMessageToThread(threadId, { role: 'tool', type: 'tool_request', content: '(Awaiting user permission...)', result: null, name: toolName, params: toolParams, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName, thoughtSignature })
 				if (!autoApprove) {
 					return { awaitingUserApproval: true }
 				}
@@ -660,9 +727,32 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 
 
+		// --- Phase 4: Security checks for terminal commands ---
+		const isTerminalTool = toolName === 'run_command' || toolName === 'run_persistent_command'
+		if (isTerminalTool) {
+			const command = (toolParams as any)?.command ?? ''
+
+			// 4a. Blocklist check (hard block — user-configured)
+			if (this._budgetService.isCommandBlocked(command)) {
+				const blockMsg = `🚫 Command blocked by blocklist: \`${command}\``
+				this._updateLatestTool(threadId, { role: 'tool', type: 'tool_error', params: toolParams, result: blockMsg, name: toolName, content: blockMsg, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName, thoughtSignature })
+				return {}
+			}
+
+			// 4b. Classification warning (logged to tool output for transparency)
+			const warning = getCommandWarning(command)
+			if (warning) {
+				const classification = classifyCommand(command)
+				if (classification.level === 'destructive') {
+					// For destructive commands, prepend a warning in the tool result (but still execute — user already approved)
+					console.warn(`[VoidSecurity] Destructive command approved by user: ${command}`)
+				}
+			}
+		}
+
 		// 3. call the tool
 		// this._setStreamState(threadId, { isRunning: 'tool' }, 'merge')
-		const runningTool = { role: 'tool', type: 'running_now', name: toolName, params: toolParams, content: '(value not received yet...)', result: null, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName } as const
+		const runningTool = { role: 'tool', type: 'running_now', name: toolName, params: toolParams, content: '(value not received yet...)', result: null, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName, thoughtSignature } as const
 		this._updateLatestTool(threadId, runningTool)
 
 
@@ -695,14 +785,42 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 				})).result
 			}
 
-			if (interrupted) { return { interrupted: true } } // the tool result is added where we interrupt, not here
+			if (interrupted) {
+				if (chatMode === 'agent') {
+					agentCore.addStep({
+						stepId: toolId,
+						type: 'TOOL_CALL',
+						description: `Outil annulé/interrompu par l'utilisateur : ${toolName}`,
+						costInCents: 0,
+					});
+				}
+				return { interrupted: true }
+			}
 		}
 		catch (error) {
 			resolveInterruptor(() => { }) // resolve for the sake of it
-			if (interrupted) { return { interrupted: true } } // the tool result is added where we interrupt, not here
+			if (interrupted) {
+				if (chatMode === 'agent') {
+					agentCore.addStep({
+						stepId: toolId,
+						type: 'TOOL_CALL',
+						description: `Outil annulé/interrompu par l'utilisateur : ${toolName}`,
+						costInCents: 0,
+					});
+				}
+				return { interrupted: true }
+			}
 
 			const errorMessage = getErrorMessage(error)
-			this._updateLatestTool(threadId, { role: 'tool', type: 'tool_error', params: toolParams, result: errorMessage, name: toolName, content: errorMessage, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName })
+			this._updateLatestTool(threadId, { role: 'tool', type: 'tool_error', params: toolParams, result: errorMessage, name: toolName, content: errorMessage, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName, thoughtSignature })
+			if (chatMode === 'agent') {
+				agentCore.addStep({
+					stepId: toolId,
+					type: 'TOOL_CALL',
+					description: `Échec de l'outil : ${toolName} - ${errorMessage}`,
+					costInCents: 0,
+				});
+			}
 			return {}
 		}
 
@@ -717,12 +835,28 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 			}
 		} catch (error) {
 			const errorMessage = this.toolErrMsgs.errWhenStringifying(error)
-			this._updateLatestTool(threadId, { role: 'tool', type: 'tool_error', params: toolParams, result: errorMessage, name: toolName, content: errorMessage, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName })
+			this._updateLatestTool(threadId, { role: 'tool', type: 'tool_error', params: toolParams, result: errorMessage, name: toolName, content: errorMessage, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName, thoughtSignature })
+			if (chatMode === 'agent') {
+				agentCore.addStep({
+					stepId: toolId,
+					type: 'TOOL_CALL',
+					description: `Erreur de traitement de l'outil : ${toolName} - ${errorMessage}`,
+					costInCents: 0,
+				});
+			}
 			return {}
 		}
 
 		// 5. add to history and keep going
-		this._updateLatestTool(threadId, { role: 'tool', type: 'success', params: toolParams, result: toolResult, name: toolName, content: toolResultStr, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName })
+		this._updateLatestTool(threadId, { role: 'tool', type: 'success', params: toolParams, result: toolResult, name: toolName, content: toolResultStr, id: toolId, rawParams: opts.unvalidatedToolParams, mcpServerName, thoughtSignature })
+		if (chatMode === 'agent') {
+			agentCore.addStep({
+				stepId: toolId,
+				type: 'TOOL_CALL',
+				description: `Succès de l'outil : ${toolName}`,
+				costInCents: 0,
+			});
+		}
 		return {}
 	};
 
@@ -751,13 +885,22 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		const { chatMode } = this._settingsService.state.globalSettings // should not change as we loop even if user changes it, so it goes here
 		const { overridesOfModel } = this._settingsService.state
 
+		const agentCore = this._getAgentCore(threadId);
+		if (chatMode === 'agent') {
+			const thread = this.state.allThreads[threadId];
+			const lastUserMsg = thread ? [...thread.messages].reverse().find(m => m.role === 'user') : null;
+			const goal = lastUserMsg?.displayContent || 'Tâche d\'agent';
+			agentCore.startTask(goal, 100);
+			agentCore.updateState('RUNNING' as any);
+		}
+
 		let nMessagesSent = 0
 		let shouldSendAnotherMessage = true
 		let isRunningWhenEnd: IsRunningType = undefined
 
 		// before enter loop, call tool
 		if (callThisToolFirst) {
-			const { interrupted } = await this._runToolCall(threadId, callThisToolFirst.name, callThisToolFirst.id, callThisToolFirst.mcpServerName, { preapproved: true, unvalidatedToolParams: callThisToolFirst.rawParams, validatedParams: callThisToolFirst.params })
+			const { interrupted } = await this._runToolCall(threadId, callThisToolFirst.name, callThisToolFirst.id, callThisToolFirst.mcpServerName, { preapproved: true, unvalidatedToolParams: callThisToolFirst.rawParams, validatedParams: callThisToolFirst.params }, (callThisToolFirst as any).thoughtSignature)
 			if (interrupted) {
 				this._setStreamState(threadId, undefined)
 				this._addUserCheckpoint({ threadId })
@@ -772,6 +915,61 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 			// false by default each iteration
 			shouldSendAnotherMessage = false
 			isRunningWhenEnd = undefined
+
+			if (chatMode === 'agent') {
+				const currentCost = agentCore.currentTask?.currentCostCents ?? 0;
+
+				// 1. Hard stop à $1.00 (100 cents)
+				if (currentCost >= 100) {
+					this._addMessageToThread(threadId, {
+						role: 'assistant',
+						displayContent: `⛔ **Arrêt de sécurité** : Le budget maximum de l'agent ($1.00) a été atteint. La tâche est arrêtée.`,
+						reasoning: '',
+						anthropicReasoning: null,
+					});
+					agentCore.updateState('ERROR' as any);
+					break;
+				}
+
+				// 2. Confirmation requise à $0.50 (50 cents)
+				if (currentCost >= 50 && !(agentCore.currentTask as any).hasApproved50) {
+					this._addMessageToThread(threadId, {
+						role: 'tool',
+						type: 'tool_request',
+						content: `⚠️ Le coût accumulé de l'agent a atteint $${(currentCost / 100).toFixed(2)}. Approbation requise pour continuer la tâche jusqu'à $1.00.`,
+						result: null,
+						name: 'approve_budget' as any,
+						params: {} as any,
+						id: 'approve_budget_id',
+						rawParams: {},
+						mcpServerName: undefined
+					});
+					isRunningWhenEnd = 'awaiting_user';
+					break;
+				}
+
+				// 3. Avertissement à $0.20 (20 cents)
+				if (currentCost >= 20 && !(agentCore.currentTask as any).hasWarned20) {
+					(agentCore.currentTask as any).hasWarned20 = true;
+					this._notificationService.warn(
+						`[Budget Agent] Attention, le coût accumulé de l'agent a atteint $${(currentCost / 100).toFixed(2)}.`
+					);
+				}
+
+				// 4. Limite de tours de boucle (Max 15)
+				const MAX_AGENT_TURNS = 15;
+				if (nMessagesSent >= MAX_AGENT_TURNS) {
+					this._addMessageToThread(threadId, {
+						role: 'assistant',
+						displayContent: `⚠️ **Limite de tours atteinte** : L'agent a effectué ${MAX_AGENT_TURNS} tours et s'est arrêté pour éviter une surconsommation.`,
+						reasoning: '',
+						anthropicReasoning: null,
+					});
+					agentCore.updateState('ERROR' as any);
+					break;
+				}
+			}
+
 			nMessagesSent += 1
 
 			this._setStreamState(threadId, { isRunning: 'idle', interrupt: idleInterruptor })
@@ -802,6 +1000,18 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 				let resMessageIsDonePromise: (res: ResTypes) => void // resolves when user approves this tool use (or if tool doesn't require approval)
 				const messageIsDonePromise = new Promise<ResTypes>((res, rej) => { resMessageIsDonePromise = res })
 
+				// --- Budget check (Phase 4) ---
+				const budgetCheck = this._budgetService.checkBudget()
+				if (!budgetCheck.allowed) {
+					this._addMessageToThread(threadId, {
+						role: 'assistant',
+						displayContent: `⛔ **Budget limit reached**: ${budgetCheck.reason}`,
+						reasoning: '',
+						anthropicReasoning: null,
+					})
+					break
+				}
+
 				const llmCancelToken = this._llmMessageService.sendLLMMessage({
 					messagesType: 'chatMessages',
 					chatMode,
@@ -814,10 +1024,50 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 					onText: ({ fullText, fullReasoning, toolCall }) => {
 						this._setStreamState(threadId, { isRunning: 'LLM', llmInfo: { displayContentSoFar: fullText, reasoningSoFar: fullReasoning, toolCallSoFar: toolCall ?? null }, interrupt: Promise.resolve(() => { if (llmCancelToken) this._llmMessageService.abort(llmCancelToken) }) })
 					},
-					onFinalMessage: async ({ fullText, fullReasoning, toolCall, anthropicReasoning, }) => {
+					onFinalMessage: async ({ fullText, fullReasoning, toolCall, anthropicReasoning, tokenUsage }: any) => {
+						// Record the request for budget tracking
+						const estimatedTokens = Math.round((fullText.length + fullReasoning.length) / 4);
+						this._budgetService.recordRequest(estimatedTokens);
+
+						// Record token usage and cost metrics
+						if (tokenUsage) {
+							this._tokenUsageService.recordUsage({
+								inputTokens: tokenUsage.inputTokens ?? 0,
+								outputTokens: tokenUsage.outputTokens ?? estimatedTokens,
+								totalTokens: tokenUsage.totalTokens ?? estimatedTokens,
+								providerName: modelSelection?.providerName,
+								modelName: modelSelection?.modelName
+							});
+						} else {
+							this._tokenUsageService.recordUsage({
+								inputTokens: 0,
+								outputTokens: estimatedTokens,
+								totalTokens: estimatedTokens,
+								providerName: modelSelection?.providerName,
+								modelName: modelSelection?.modelName
+							});
+						}
+
+						if (chatMode === 'agent') {
+							const costCents = this._estimateRequestCostCents(fullText, fullReasoning);
+							agentCore.addStep({
+								stepId: Math.random().toString(36).substring(2, 11),
+								type: 'LLM_CALL',
+								description: `Appel LLM (${modelSelection?.modelName ?? 'inconnu'})`,
+								costInCents: costCents
+							});
+						}
 						resMessageIsDonePromise({ type: 'llmDone', toolCall, info: { fullText, fullReasoning, anthropicReasoning } }) // resolve with tool calls
 					},
 					onError: async (error) => {
+						if (chatMode === 'agent') {
+							agentCore.addStep({
+								stepId: Math.random().toString(36).substring(2, 11),
+								type: 'LLM_CALL',
+								description: `Échec de l'appel LLM : ${error?.message ?? error}`,
+								costInCents: 0
+							});
+						}
 						resMessageIsDonePromise({ type: 'llmError', error: error })
 					},
 					onAbort: () => {
@@ -886,7 +1136,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 					const mcpTools = this._mcpService.getMCPTools()
 					const mcpTool = mcpTools?.find(t => t.name === toolCall.name)
 
-					const { awaitingUserApproval, interrupted } = await this._runToolCall(threadId, toolCall.name, toolCall.id, mcpTool?.mcpServerName, { preapproved: false, unvalidatedToolParams: toolCall.rawParams })
+					const { awaitingUserApproval, interrupted } = await this._runToolCall(threadId, toolCall.name, toolCall.id, mcpTool?.mcpServerName, { preapproved: false, unvalidatedToolParams: toolCall.rawParams }, toolCall.thoughtSignature)
 					if (interrupted) {
 						this._setStreamState(threadId, undefined)
 						return
@@ -899,6 +1149,17 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 			} // end while (attempts)
 		} // end while (send message)
+
+		// Save a lightweight summary of this session to persistent memory
+		if (nMessagesSent > 0 && !isRunningWhenEnd) {
+			this._saveThreadSummary(threadId)
+		}
+
+		if (chatMode === 'agent') {
+			if (!isRunningWhenEnd) {
+				agentCore.updateState('FINISHED' as any);
+			}
+		}
 
 		// if awaiting user approval, keep isRunning true, else end isRunning
 		this._setStreamState(threadId, { isRunning: isRunningWhenEnd })
@@ -913,13 +1174,46 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 
 	private _addCheckpoint(threadId: string, checkpoint: CheckpointEntry) {
 		this._addMessageToThread(threadId, checkpoint)
-		// // update latest checkpoint idx to the one we just added
-		// const newThread = this.state.allThreads[threadId]
-		// if (!newThread) return // should never happen
-		// const currCheckpointIdx = newThread.messages.length - 1
-		// this._setThreadState(threadId, { currCheckpointIdx: currCheckpointIdx })
 	}
 
+
+	/**
+	 * Generates a lightweight textual summary of the completed session and
+	 * persists it to IVoidMemoryService so the next session can reference it.
+	 * Uses no extra LLM call — extracts the last user message + assistant reply.
+	 */
+	private _saveThreadSummary(threadId: string): void {
+		try {
+			const thread = this.state.allThreads[threadId]
+			if (!thread) return
+
+			const MAX_SUMMARY_CHARS = 600
+
+			// Collect last user message and last assistant message
+			const messages = thread.messages
+			const lastUser = [...messages].reverse().find(m => m.role === 'user')
+			const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')
+
+			if (!lastUser && !lastAssistant) return
+
+			const parts: string[] = []
+			if (lastUser && lastUser.role === 'user') {
+				const content = typeof lastUser.content === 'string' ? lastUser.content : ''
+				parts.push(`User: ${content.slice(0, 200)}`)
+			}
+			if (lastAssistant && lastAssistant.role === 'assistant') {
+				const content = lastAssistant.displayContent ?? ''
+				parts.push(`Assistant: ${content.slice(0, 400)}`)
+			}
+
+			const summary = parts.join('\n').slice(0, MAX_SUMMARY_CHARS)
+			if (summary.trim()) {
+				this._memoryService.setLastConversationSummary(summary)
+			}
+		} catch {
+			// Non-critical: don't let memory errors break the chat
+		}
+	}
 
 
 	private _editMessageInThread(threadId: string, messageIdx: number, newMessage: ChatMessage,) {
@@ -1231,7 +1525,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 	}
 
 
-	private async _addUserMessageAndStreamResponse({ userMessage, _chatSelections, threadId }: { userMessage: string, _chatSelections?: StagingSelectionItem[], threadId: string }) {
+	private async _addUserMessageAndStreamResponse({ userMessage, _chatSelections, threadId, images }: { userMessage: string, _chatSelections?: StagingSelectionItem[], threadId: string, images?: import('../common/chatThreadServiceTypes.js').ChatImageAttachment[] }) {
 		const thread = this.state.allThreads[threadId]
 		if (!thread) return // should never happen
 
@@ -1251,7 +1545,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		const currSelns: StagingSelectionItem[] = _chatSelections ?? thread.state.stagingSelections
 
 		const userMessageContent = await chat_userMessageContent(instructions, currSelns, { directoryStrService: this._directoryStringService, fileService: this._fileService }) // user message + names of files (NOT content)
-		const userHistoryElt: ChatMessage = { role: 'user', content: userMessageContent, displayContent: instructions, selections: currSelns, state: defaultMessageState }
+		const userHistoryElt: ChatMessage = { role: 'user', content: userMessageContent, displayContent: instructions, selections: currSelns, images: images?.length ? images : undefined, state: defaultMessageState }
 		this._addMessageToThread(threadId, userHistoryElt)
 
 		this._setThreadState(threadId, { currCheckpointIdx: null }) // no longer at a checkpoint because started streaming
@@ -1268,7 +1562,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 	}
 
 
-	async addUserMessageAndStreamResponse({ userMessage, _chatSelections, threadId }: { userMessage: string, _chatSelections?: StagingSelectionItem[], threadId: string }) {
+	async addUserMessageAndStreamResponse({ userMessage, _chatSelections, threadId, images }: { userMessage: string, _chatSelections?: StagingSelectionItem[], threadId: string, images?: import('../common/chatThreadServiceTypes.js').ChatImageAttachment[] }) {
 		const thread = this.state.allThreads[threadId];
 		if (!thread) return
 
@@ -1291,7 +1585,7 @@ We only need to do it for files that were edited since `from`, ie files between 
 		}
 
 		// Now call the original method to add the user message and stream the response
-		await this._addUserMessageAndStreamResponse({ userMessage, _chatSelections, threadId });
+		await this._addUserMessageAndStreamResponse({ userMessage, _chatSelections, threadId, images });
 
 	}
 
