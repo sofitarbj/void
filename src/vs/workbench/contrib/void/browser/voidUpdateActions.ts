@@ -13,7 +13,7 @@ import { IMetricsService } from '../common/metricsService.js';
 import { IVoidUpdateService } from '../common/voidUpdateService.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import * as dom from '../../../../base/browser/dom.js';
-import { IUpdateService } from '../../../../platform/update/common/update.js';
+import { IUpdateService, StateType } from '../../../../platform/update/common/update.js';
 import { VoidCheckUpdateRespose } from '../common/voidUpdateServiceTypes.js';
 import { IAction } from '../../../../base/common/actions.js';
 import { IStatusbarService, StatusbarAlignment, IStatusbarEntryAccessor } from '../../../services/statusbar/browser/statusbar.js';
@@ -262,7 +262,7 @@ class VoidUpdateWorkbenchContribution extends Disposable implements IWorkbenchCo
 
 		const autoCheck = async () => {
 			const res = await voidUpdateService.check(false);
-			if (res?.action) {
+			if (res && 'action' in res && res.action) {
 				updateStatusBar(res.action);
 				performVoidCheck(false, notifService, voidUpdateService, metricsService, updateService);
 			} else {
@@ -271,15 +271,14 @@ class VoidUpdateWorkbenchContribution extends Disposable implements IWorkbenchCo
 		};
 
 		// Écoute les changements d'état du service natif d'update
-		this._register(updateService.onDidUpdateState(() => {
-			const state = updateService.state;
-			if (state.type === 'ready') {
+		this._register(updateService.onStateChange((state) => {
+			if (state.type === StateType.Ready) {
 				updateStatusBar('restart');
-			} else if (state.type === 'downloaded') {
+			} else if (state.type === StateType.Downloaded) {
 				updateStatusBar('apply');
-			} else if (state.type === 'available for download') {
+			} else if (state.type === StateType.AvailableForDownload) {
 				updateStatusBar('download');
-			} else if (state.type === 'idle' || state.type === 'uninitialized') {
+			} else if (state.type === StateType.Idle || state.type === StateType.Uninitialized) {
 				updateStatusBar(undefined);
 			}
 		}));

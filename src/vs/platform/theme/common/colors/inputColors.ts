@@ -6,8 +6,7 @@
 import * as nls from '../../../../nls.js';
 
 // Import the effects we need
-import { Color, RGBA } from '../../../../base/common/color.js';
-import { registerColor, transparent, lighten, darken } from '../colorUtils.js';
+import { registerColor, transparent } from '../colorUtils.js';
 
 // Import the colors we need
 import { foreground, contrastBorder, focusBorder, iconForeground } from './baseColors.js';
