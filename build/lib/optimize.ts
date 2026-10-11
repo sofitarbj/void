@@ -130,6 +130,8 @@ function bundleESMTask(opts: IBundleESMTaskOpts): NodeJS.ReadWriteStream {
 				target: ['es2022'],
 				loader: {
 					'.ttf': 'file',
+					'.woff': 'file',
+					'.woff2': 'file',
 					'.svg': 'file',
 					'.png': 'file',
 					'.sh': 'file',
